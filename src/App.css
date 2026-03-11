@@ -416,6 +416,10 @@
   transition: color var(--transition-base);
 }
 
+.not-implemented {
+  color: #ef4444 !important;
+}
+
 .card-icon {
   width: 28px;
   height: 28px;

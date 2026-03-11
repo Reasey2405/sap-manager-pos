@@ -1,0 +1,205 @@
+/* ===== Bank Information Page ===== */
+
+/* -- Bank Summary Stats (3-column variant) -- */
+.bank-summary-stats {
+    grid-template-columns: repeat(3, 1fr) !important;
+}
+
+/* -- Bank Grid -- */
+.bank-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: var(--space-md);
+}
+
+/* -- Bank Card -- */
+.bank-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-card);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+    cursor: pointer;
+    transition: all 0.25s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.bank-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+    opacity: 0;
+    transition: opacity 0.25s ease;
+}
+
+.bank-card:hover {
+    border-color: var(--accent-primary);
+    box-shadow: var(--shadow-card-hover);
+    transform: translateY(-2px);
+}
+
+.bank-card:hover::before {
+    opacity: 1;
+}
+
+.bank-card.selected {
+    border-color: var(--accent-primary);
+    background: var(--accent-primary-glow);
+    box-shadow: 0 0 0 2px var(--accent-primary-glow), var(--shadow-card-hover);
+}
+
+.bank-card.selected::before {
+    opacity: 1;
+}
+
+/* -- Bank Card Header -- */
+.bank-card-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    margin-bottom: var(--space-md);
+}
+
+.bank-card-icon-wrapper {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--accent-primary-glow);
+    border-radius: var(--radius-md);
+    color: var(--accent-primary);
+    flex-shrink: 0;
+    transition: all 0.25s ease;
+}
+
+.bank-card:hover .bank-card-icon-wrapper {
+    background: var(--accent-primary);
+    color: #fff;
+}
+
+.bank-card-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+    min-width: 0;
+}
+
+.bank-card-code {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.bank-card-desc {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* -- Bank Card Meta -- */
+.bank-card-meta {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+    padding: var(--space-md) 0;
+    border-top: 1px solid var(--border-subtle);
+    border-bottom: 1px solid var(--border-subtle);
+    margin-bottom: var(--space-md);
+}
+
+.bank-card-meta-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-sm);
+}
+
+.bank-card-meta-label {
+    font-size: 0.6875rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.bank-card-meta-value {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 180px;
+    text-align: right;
+}
+
+/* -- Bank Card Footer -- */
+.bank-card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.bank-card-details-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 14px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--accent-primary);
+    background: var(--accent-primary-glow);
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.bank-card-details-btn:hover {
+    background: var(--accent-primary);
+    color: #fff;
+    border-color: var(--accent-primary);
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 1024px) {
+    .bank-summary-stats {
+        grid-template-columns: repeat(3, 1fr) !important;
+    }
+
+    .bank-grid {
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .bank-summary-stats {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+
+    .bank-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .bank-summary-stats {
+        grid-template-columns: 1fr !important;
+    }
+}

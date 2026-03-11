@@ -1,0 +1,50 @@
+
+.org-group.editing {
+  background-color: #f0f7ff;
+  border-color: #90caf9;
+}
+
+.is-editing .org-group:not(.editing) {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.org-group.editing .org-group-header {
+  background-color: #e3f2fd;
+  cursor: default;
+}
+
+.org-terminal-card {
+  position: relative;
+}
+
+.org-card-delete-btn {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background: #fdeaea;
+  color: #c53030;
+  border: 1px solid #fecaca;
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  opacity: 0.8;
+  transition: all 0.2s;
+}
+
+.org-card-delete-btn:hover {
+  background: #fca5a5;
+  color: #991b1b;
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+.org-card-delete-btn svg {
+  width: 14px;
+  height: 14px;
+}

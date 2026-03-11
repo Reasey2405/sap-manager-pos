@@ -287,3 +287,22 @@ export const FileTextIcon = () => (
         <polyline points="10 9 9 9 8 9" />
     </svg>
 )
+
+export const BankIcon = () => (
+    <svg
+        className="card-icon"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+    >
+        <path d="M3 10L12 4L21 10" />
+        <line x1="4" y1="20" x2="20" y2="20" />
+        <line x1="7" y1="10" x2="7" y2="20" />
+        <line x1="12" y1="10" x2="12" y2="20" />
+        <line x1="17" y1="10" x2="17" y2="20" />
+        <line x1="4" y1="10" x2="20" y2="10" />
+    </svg>
+);

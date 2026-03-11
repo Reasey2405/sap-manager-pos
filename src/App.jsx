@@ -4,7 +4,13 @@ import sections from './data/sections'
 import Navbar from './components/Navbar'
 import ContentSection from './components/ContentSection'
 import MonitoringPage from './components/MonitoringPage'
+import OrgStructurePage from './components/OrgStructurePage'
+import BankInformationPage from './components/BankInformationPage'
+import PaymentMethodsPage from './components/PaymentMethodsPage'
 import './components/MonitoringPage.css'
+import './components/OrgStructurePage.css'
+import './components/BankInformationPage.css'
+import './components/PaymentMethodsPage.css'
 
 /* ===== App Component ===== */
 function App() {
@@ -14,7 +20,10 @@ function App() {
   })
   const [activeSection, setActiveSection] = useState(sections[0].id)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [currentPage, setCurrentPage] = useState('dashboard') // 'dashboard' or 'monitoring'
+  const [currentPage, setCurrentPage] = useState(() => {
+    const params = new URLSearchParams(window.location.search)
+    return params.get('page') || 'dashboard'
+  })
   const sectionRefs = useRef({})
   const isClickScrolling = useRef(false)
 
@@ -52,11 +61,35 @@ function App() {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [handleScroll])
 
+  useEffect(() => {
+    const handlePopState = () => {
+      const params = new URLSearchParams(window.location.search)
+      setCurrentPage(params.get('page') || 'dashboard')
+    }
+    window.addEventListener('popstate', handlePopState)
+    return () => window.removeEventListener('popstate', handlePopState)
+  }, [])
+
+  const navigateToPage = (page) => {
+    setCurrentPage(page)
+    const url = new URL(window.location.href)
+    if (page === 'dashboard') {
+      url.searchParams.delete('page')
+    } else {
+      url.searchParams.set('page', page)
+    }
+    window.history.pushState({}, '', url)
+
+    if (page !== 'dashboard') {
+      window.scrollTo(0, 0)
+    }
+  }
+
   /* Navigate to section on nav click */
   const scrollToSection = (sectionId) => {
     // If on a sub-page, go back to dashboard first
     if (currentPage !== 'dashboard') {
-      setCurrentPage('dashboard')
+      navigateToPage('dashboard')
       // Wait for dashboard to render, then scroll
       setTimeout(() => {
         const el = sectionRefs.current[sectionId]
@@ -89,8 +122,13 @@ function App() {
   /* Handle card click — navigate to sub-pages */
   const handleCardClick = (cardTitle) => {
     if (cardTitle === 'Monitoring') {
-      setCurrentPage('monitoring')
-      window.scrollTo(0, 0)
+      navigateToPage('monitoring')
+    } else if (cardTitle === 'Organizational structure') {
+      navigateToPage('org-structure')
+    } else if (cardTitle === 'Bank Information') {
+      navigateToPage('bank-information')
+    } else if (cardTitle === 'Payment methods') {
+      navigateToPage('payment-methods')
     }
   }
 
@@ -107,7 +145,58 @@ function App() {
           theme={theme}
           toggleTheme={toggleTheme}
         />
-        <MonitoringPage onBack={() => setCurrentPage('dashboard')} />
+        <MonitoringPage onBack={() => navigateToPage('dashboard')} />
+      </div>
+    )
+  }
+
+  if (currentPage === 'org-structure') {
+    return (
+      <div className="app">
+        <Navbar
+          sections={sections}
+          activeSection={activeSection}
+          mobileMenuOpen={mobileMenuOpen}
+          setMobileMenuOpen={setMobileMenuOpen}
+          scrollToSection={scrollToSection}
+          theme={theme}
+          toggleTheme={toggleTheme}
+        />
+        <OrgStructurePage onBack={() => navigateToPage('dashboard')} />
+      </div>
+    )
+  }
+
+  if (currentPage === 'bank-information') {
+    return (
+      <div className="app">
+        <Navbar
+          sections={sections}
+          activeSection={activeSection}
+          mobileMenuOpen={mobileMenuOpen}
+          setMobileMenuOpen={setMobileMenuOpen}
+          scrollToSection={scrollToSection}
+          theme={theme}
+          toggleTheme={toggleTheme}
+        />
+        <BankInformationPage onBack={() => navigateToPage('dashboard')} />
+      </div>
+    )
+  }
+
+  if (currentPage === 'payment-methods') {
+    return (
+      <div className="app">
+        <Navbar
+          sections={sections}
+          activeSection={activeSection}
+          mobileMenuOpen={mobileMenuOpen}
+          setMobileMenuOpen={setMobileMenuOpen}
+          scrollToSection={scrollToSection}
+          theme={theme}
+          toggleTheme={toggleTheme}
+        />
+        <PaymentMethodsPage onBack={() => navigateToPage('dashboard')} />
       </div>
     )
   }

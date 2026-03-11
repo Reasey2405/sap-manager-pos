@@ -59,18 +59,21 @@ function Navbar({
 
             {/* Desktop nav items */}
             <div className="navbar-menu">
-                {sections.map((section, idx) => (
-                    <div key={section.id} style={{ display: 'flex', alignItems: 'center' }}>
-                        <button
-                            className={`navbar-item ${activeSection === section.id ? 'active' : ''}`}
-                            id={`nav-${section.id}`}
-                            onClick={() => scrollToSection(section.id)}
-                        >
-                            {section.label}
-                        </button>
-                        {idx < sections.length - 1 && <span className="navbar-separator" />}
-                    </div>
-                ))}
+                {sections.map((section, idx) => {
+                    const isAnyCardImplemented = section.cards.some(card => card.isImplemented);
+                    return (
+                        <div key={section.id} style={{ display: 'flex', alignItems: 'center' }}>
+                            <button
+                                className={`navbar-item ${activeSection === section.id ? 'active' : ''} ${!isAnyCardImplemented ? 'not-implemented' : ''}`}
+                                id={`nav-${section.id}`}
+                                onClick={() => scrollToSection(section.id)}
+                            >
+                                {section.label}
+                            </button>
+                            {idx < sections.length - 1 && <span className="navbar-separator" />}
+                        </div>
+                    );
+                })}
             </div>
 
             <div className="navbar-right">
@@ -92,16 +95,19 @@ function Navbar({
                 ref={mobileMenuRef}
                 id="mobile-dropdown"
             >
-                {sections.map((section) => (
-                    <button
-                        className={`mobile-dropdown-item ${activeSection === section.id ? 'active' : ''}`}
-                        key={section.id}
-                        id={`mobile-nav-${section.id}`}
-                        onClick={() => scrollToSection(section.id)}
-                    >
-                        {section.label}
-                    </button>
-                ))}
+                {sections.map((section) => {
+                    const isAnyCardImplemented = section.cards.some(card => card.isImplemented);
+                    return (
+                        <button
+                            className={`mobile-dropdown-item ${activeSection === section.id ? 'active' : ''} ${!isAnyCardImplemented ? 'not-implemented' : ''}`}
+                            key={section.id}
+                            id={`mobile-nav-${section.id}`}
+                            onClick={() => scrollToSection(section.id)}
+                        >
+                            {section.label}
+                        </button>
+                    );
+                })}
             </div>
         </nav>
     )

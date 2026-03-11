@@ -11,7 +11,9 @@ const ContentSection = forwardRef(function ContentSection(
             ref={ref}
             style={{ animationDelay: `${animationDelay}s` }}
         >
-            <h2 className="section-title">{section.label}</h2>
+            <h2 className={`section-title ${!section.cards.some(c => c.isImplemented) ? 'not-implemented' : ''}`}>
+                {section.label}
+            </h2>
             <div className="card-grid">
                 {section.cards.map((card, cIdx) => (
                     <div
@@ -20,7 +22,9 @@ const ContentSection = forwardRef(function ContentSection(
                         id={`card-${card.title.toLowerCase().replace(/\s+/g, '-')}`}
                         onClick={() => onCardClick?.(card.title)}
                     >
-                        <span className="card-title">{card.title}</span>
+                        <span className={`card-title ${!card.isImplemented ? 'not-implemented' : ''}`}>
+                            {card.title}
+                        </span>
                         <card.icon />
                     </div>
                 ))}

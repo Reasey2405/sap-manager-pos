@@ -32,6 +32,7 @@ import {
     SendIcon,
     InboxIcon,
     FileTextIcon,
+    BankIcon,
 } from '../components/Icons'
 
 const sections = [
@@ -39,7 +40,7 @@ const sections = [
         id: 'monitoring',
         label: 'Monitoring',
         cards: [
-            { title: 'Monitoring', icon: MonitoringIcon },
+            { title: 'Monitoring', icon: MonitoringIcon, isImplemented: true },
             { title: 'Monitoring reports', icon: MonitoringReportsIcon },
             { title: 'Inbound call monitoring', icon: InboundCallIcon },
             { title: 'Master data queue', icon: MasterDataQueueIcon },
@@ -47,10 +48,23 @@ const sections = [
         ],
     },
     {
+        id: 'pos-configuration',
+        label: 'Point of Sales Configuration',
+        cards: [
+            { title: 'Organizational structure', icon: OrgStructureIcon, isImplemented: true },
+            { title: 'General settings', icon: SettingsIcon },
+            { title: 'Payment methods', icon: PaymentIcon, isImplemented: true },
+            { title: 'Bank Information', icon: BankIcon, isImplemented: true },
+            { title: 'Printer configuration', icon: PrinterIcon },
+            { title: 'Tax settings', icon: TaxIcon },
+            { title: 'Terminal profiles', icon: TerminalIcon },
+            { title: 'POS layout', icon: LayoutIcon },
+        ],
+    },
+    {
         id: 'pos-management',
         label: 'Point of Sales Management',
         cards: [
-            { title: 'Organizational structure', icon: OrgStructureIcon },
             { title: 'Receipts', icon: ReceiptsIcon },
             { title: 'Receipt exports', icon: ReceiptExportsIcon },
             { title: 'Sales reports', icon: SalesReportsIcon },
@@ -58,18 +72,6 @@ const sections = [
             { title: 'Tables', icon: TablesIcon },
             { title: 'Sales summaries', icon: SalesSummariesIcon },
             { title: 'Drawers', icon: DrawersIcon },
-        ],
-    },
-    {
-        id: 'pos-configuration',
-        label: 'Point of Sales Configuration',
-        cards: [
-            { title: 'General settings', icon: SettingsIcon },
-            { title: 'Payment methods', icon: PaymentIcon },
-            { title: 'Printer configuration', icon: PrinterIcon },
-            { title: 'Tax settings', icon: TaxIcon },
-            { title: 'Terminal profiles', icon: TerminalIcon },
-            { title: 'POS layout', icon: LayoutIcon },
         ],
     },
     {
