@@ -243,6 +243,7 @@ function CustomSelect({ options, value, placeholder, onChange, renderOption }) {
 /* ===== POS Group Modal (Add / Edit) ===== */
 function PosGroupModal({ branches, paymentGroups, initialData, onSubmit, onClose }) {
     const isEdit = !!initialData
+    const [activeTab, setActiveTab] = useState('details')
     const [form, setForm] = useState({
         groupCode: initialData?.groupCode || '',
         groupName: initialData?.groupName || '',
@@ -256,6 +257,7 @@ function PosGroupModal({ branches, paymentGroups, initialData, onSubmit, onClose
         e.preventDefault()
         if (!form.groupCode || !form.groupName) {
             setError('Group Code and Name are required')
+            setActiveTab('details')
             return
         }
         setSubmitting(true)
@@ -275,9 +277,11 @@ function PosGroupModal({ branches, paymentGroups, initialData, onSubmit, onClose
         }
     }
 
+    const selectedPg = paymentGroups.find(pg => pg.code === form.paymentGroupCode)
+
     return (
         <div className="org-modal-overlay" onClick={onClose}>
-            <div className="org-modal" onClick={e => e.stopPropagation()}>
+            <div className="org-modal org-modal-pg" onClick={e => e.stopPropagation()}>
                 <div className="org-modal-header">
                     <div className="org-modal-title-row">
                         <GroupIcon />
@@ -286,94 +290,165 @@ function PosGroupModal({ branches, paymentGroups, initialData, onSubmit, onClose
                     <button className="org-settings-close-btn" onClick={onClose}><CloseIcon /></button>
                 </div>
 
+                {/* Tabs */}
+                <div className="org-modal-tabs">
+                    <button
+                        className={`org-modal-tab ${activeTab === 'details' ? 'active' : ''}`}
+                        onClick={() => setActiveTab('details')} type="button"
+                    >Details</button>
+                    <button
+                        className={`org-modal-tab ${activeTab === 'payment' ? 'active' : ''}`}
+                        onClick={() => setActiveTab('payment')} type="button"
+                    >
+                        Payment
+                        {form.paymentGroupCode && <span className="org-tab-badge">✓</span>}
+                    </button>
+                </div>
+
                 <form onSubmit={handleSubmit} className="org-modal-body">
                     {error && <div className="org-form-error">{error}</div>}
 
-                    <FormField label="Group Code" required>
-                        <input
-                            type="text"
-                            className="org-form-input"
-                            value={form.groupCode}
-                            onChange={e => setForm(f => ({ ...f, groupCode: e.target.value }))}
-                            placeholder="e.g. GRP-001"
-                            id="input-group-code"
-                            disabled={isEdit}
-                        />
-                    </FormField>
+                    {/* Tab: Details */}
+                    {activeTab === 'details' && (
+                        <>
+                            <FormField label="Group Code" required>
+                                <input
+                                    type="text"
+                                    className="org-form-input"
+                                    value={form.groupCode}
+                                    onChange={e => setForm(f => ({ ...f, groupCode: e.target.value }))}
+                                    placeholder="e.g. GRP-001"
+                                    id="input-group-code"
+                                    disabled={isEdit}
+                                />
+                            </FormField>
 
-                    <FormField label="Group Name" required>
-                        <input
-                            type="text"
-                            className="org-form-input"
-                            value={form.groupName}
-                            onChange={e => setForm(f => ({ ...f, groupName: e.target.value }))}
-                            placeholder="e.g. Main Store"
-                            id="input-group-name"
-                        />
-                    </FormField>
+                            <FormField label="Group Name" required>
+                                <input
+                                    type="text"
+                                    className="org-form-input"
+                                    value={form.groupName}
+                                    onChange={e => setForm(f => ({ ...f, groupName: e.target.value }))}
+                                    placeholder="e.g. Main Store"
+                                    id="input-group-name"
+                                />
+                            </FormField>
 
-                    <FormField label="Branch">
-                        <CustomSelect
-                            options={branches.map(b => ({ value: b.BPLId, label: b.BPLName }))}
-                            value={form.branchId}
-                            placeholder="Select branch"
-                            onChange={val => setForm(f => ({ ...f, branchId: val }))}
-                        />
-                    </FormField>
+                            <FormField label="Branch">
+                                <CustomSelect
+                                    options={branches.map(b => ({ value: b.BPLId, label: b.BPLName }))}
+                                    value={form.branchId}
+                                    placeholder="Select branch"
+                                    onChange={val => setForm(f => ({ ...f, branchId: val }))}
+                                />
+                            </FormField>
 
-                    <FormField label="Payment Group">
-                        <CustomSelect
-                            options={paymentGroups.map(pg => ({
-                                value: pg.code,
-                                label: pg.description || pg.code,
-                                methods: pg.paymentMethods || []
-                            }))}
-                            value={form.paymentGroupCode}
-                            placeholder="Select payment group"
-                            onChange={val => setForm(f => ({ ...f, paymentGroupCode: val }))}
-                            renderOption={(opt) => opt.methods.length > 0 && (
-                                <div className="org-custom-select-option-methods">
-                                    <div className="org-methods-label">Includes {opt.methods.length} methods:</div>
-                                    <div className="org-methods-list">
-                                        {opt.methods.map(m => (
-                                            <div key={m.id || m.code} className="org-custom-select-method-row">
-                                                <div className="org-method-main">
-                                                    <span className={`org-method-indicator ${m.paymentType?.toLowerCase()}`}></span>
-                                                    <span className="org-method-name">{m.description || m.code}</span>
-                                                </div>
-                                                <span className={`org-method-tag ${m.paymentType?.toLowerCase()}`}>
-                                                    {m.paymentType}
-                                                </span>
-                                            </div>
-                                        ))}
+                            <div className="org-pg-tab-hint">
+                                <span>Configure payment methods in the</span>
+                                <button type="button" className="org-pg-tab-hint-btn" onClick={() => setActiveTab('payment')}>
+                                    Payment tab →
+                                </button>
+                            </div>
+                        </>
+                    )}
+
+                    {/* Tab: Payment */}
+                    {activeTab === 'payment' && (
+                        <div className="org-payment-tab">
+                            <div className="org-payment-tab-header">
+                                <span className="org-payment-tab-subtitle">Select a payment group to assign to this POS group</span>
+                            </div>
+
+                            {/* None Option */}
+                            <div
+                                className={`org-pg-card ${!form.paymentGroupCode ? 'selected' : ''}`}
+                                onClick={() => setForm(f => ({ ...f, paymentGroupCode: '' }))}
+                                id="pg-select-none"
+                            >
+                                <div className="org-pg-card-header">
+                                    <div className="org-pg-card-info">
+                                        <span className="org-pg-card-icon">🚫</span>
+                                        <div>
+                                            <span className="org-pg-card-name">None (Unassigned)</span>
+                                            <span className="org-pg-card-desc">No payment group assigned</span>
+                                        </div>
                                     </div>
+                                    <span className="org-pg-card-check"><CheckIcon /></span>
+                                </div>
+                            </div>
+
+                            {/* Payment Group Cards */}
+                            {paymentGroups.map(pg => {
+                                const methods = pg.paymentMethods || []
+                                const isSelected = form.paymentGroupCode === pg.code
+                                const groupedMethods = methods.reduce((acc, m) => {
+                                    const type = (m.paymentType || 'Other').toLowerCase()
+                                    if (!acc[type]) acc[type] = []
+                                    acc[type].push(m)
+                                    return acc
+                                }, {})
+                                const typeSummary = Object.entries(groupedMethods)
+
+                                return (
+                                    <div
+                                        key={pg.code}
+                                        className={`org-pg-card ${isSelected ? 'selected' : ''}`}
+                                        onClick={() => setForm(f => ({ ...f, paymentGroupCode: pg.code }))}
+                                        id={`pg-select-${pg.code}`}
+                                    >
+                                        <div className="org-pg-card-header">
+                                            <div className="org-pg-card-info">
+                                                <span className="org-pg-card-icon">💳</span>
+                                                <div>
+                                                    <span className="org-pg-card-name">{pg.description || pg.code}</span>
+                                                    <span className="org-pg-card-desc">{pg.code}</span>
+                                                </div>
+                                            </div>
+                                            <span className="org-pg-card-check"><CheckIcon /></span>
+                                        </div>
+
+                                        {/* Method chips summary */}
+                                        {methods.length > 0 && (
+                                            <div className="org-pg-card-chips">
+                                                {typeSummary.map(([type, typeMs]) => (
+                                                    <span key={type} className={`org-pg-type-chip ${type}`}>
+                                                        <span className={`org-method-indicator ${type}`}></span>
+                                                        {typeMs.length} {type.charAt(0).toUpperCase() + type.slice(1)}
+                                                    </span>
+                                                ))}
+                                                <span className="org-pg-total-chip">{methods.length} total</span>
+                                            </div>
+                                        )}
+
+                                        {/* Expanded method list when selected */}
+                                        {isSelected && methods.length > 0 && (
+                                            <div className="org-pg-card-methods">
+                                                {Object.entries(groupedMethods).map(([type, typeMs]) => (
+                                                    <div key={type} className="org-pg-card-type-section">
+                                                        <div className={`org-pg-card-type-label ${type}`}>
+                                                            <span className={`org-method-indicator ${type}`}></span>
+                                                            {type.charAt(0).toUpperCase() + type.slice(1)}
+                                                        </div>
+                                                        {typeMs.map(m => (
+                                                            <div key={m.id || m.code} className="org-pg-card-method-row">
+                                                                <span className="org-pg-card-method-name">{m.description || m.code}</span>
+                                                                <span className="org-pg-card-method-code">{m.code}</span>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                )
+                            })}
+
+                            {paymentGroups.length === 0 && (
+                                <div className="org-pg-empty-state">
+                                    <span>💳</span>
+                                    <p>No payment groups configured yet</p>
                                 </div>
                             )}
-                        />
-                    </FormField>
-
-                    {form.paymentGroupCode && (
-                        <div className="org-payment-group-preview">
-                            <div className="org-preview-header">
-                                <span className="org-preview-title">Group Methods Preview</span>
-                                <span className="org-preview-count">
-                                    {paymentGroups.find(pg => pg.code === form.paymentGroupCode)?.paymentMethods?.length || 0} Methods
-                                </span>
-                            </div>
-                            <div className="org-preview-methods-grid">
-                                {paymentGroups.find(pg => pg.code === form.paymentGroupCode)?.paymentMethods?.map(m => (
-                                    <div key={m.id || m.code} className="org-preview-method-card">
-                                        <div className="org-preview-method-info">
-                                            <span className={`org-method-indicator ${m.paymentType?.toLowerCase()}`}></span>
-                                            <span className="org-preview-method-name">{m.description || m.code}</span>
-                                        </div>
-                                        <span className={`org-method-tag ${m.paymentType?.toLowerCase()}`}>{m.paymentType}</span>
-                                    </div>
-                                ))}
-                                {(paymentGroups.find(pg => pg.code === form.paymentGroupCode)?.paymentMethods?.length === 0) && (
-                                    <div className="org-preview-empty">No methods assigned to this group</div>
-                                )}
-                            </div>
                         </div>
                     )}
 
@@ -527,6 +602,14 @@ function AddTerminalModal({ group, branches, seriesList, currencies, priceLists,
                                         value={form.branchId}
                                         placeholder="Select branch"
                                         onChange={val => updateField('branchId', val)}
+                                    />
+                                </FormField>
+                                <FormField label="Group">
+                                    <CustomSelect
+                                        options={group ? [{ value: group.groupCode, label: `${group.groupName} (${group.groupCode})` }] : []}
+                                        value={form.groupCode}
+                                        placeholder="No group assigned"
+                                        onChange={val => updateField('groupCode', val)}
                                     />
                                 </FormField>
                             </div>

@@ -1487,13 +1487,13 @@
 }
 
 .org-custom-select-option {
-    padding: 14px 16px;
+    padding: 12px 16px;
     cursor: pointer;
     transition: all 0.2s ease;
     border-bottom: 1px solid var(--border-subtle);
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 4px;
     position: relative;
 }
 
@@ -1630,7 +1630,7 @@
     font-style: italic;
 }
 
-/* Payment Group Preview in Modal */
+/* Payment Group Preview in Modal (Legacy) */
 .org-payment-group-preview {
     margin: 4px 0 var(--space-md);
     padding: var(--space-md);
@@ -1713,6 +1713,257 @@
     font-style: italic;
 }
 
+/* ===== Payment Group Compact Option Summary ===== */
+.org-pg-option-summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+    padding-top: 2px;
+}
+
+.org-pg-type-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-subtle);
+    transition: all 0.2s ease;
+}
+
+.org-pg-type-chip .org-method-indicator {
+    width: 5px;
+    height: 5px;
+}
+
+.org-pg-type-chip.cash {
+    color: #22c55e;
+    background: rgba(34, 197, 94, 0.08);
+    border-color: rgba(34, 197, 94, 0.2);
+}
+
+.org-pg-type-chip.transfer {
+    color: #3b82f6;
+    background: rgba(59, 130, 246, 0.08);
+    border-color: rgba(59, 130, 246, 0.2);
+}
+
+.org-pg-type-chip.card {
+    color: #a855f7;
+    background: rgba(168, 85, 247, 0.08);
+    border-color: rgba(168, 85, 247, 0.2);
+}
+
+.org-pg-total-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    background: var(--bg-secondary);
+    border: 1px dashed var(--border-subtle);
+}
+
+/* ===== Payment Group Preview V2 ===== */
+.org-payment-group-preview-v2 {
+    margin: 4px 0 var(--space-md);
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    animation: orgSlideDown 0.3s ease-out;
+}
+
+.org-pgp-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    background: linear-gradient(135deg, rgba(56, 139, 255, 0.06) 0%, rgba(168, 85, 247, 0.04) 100%);
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.org-pgp-header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+
+.org-pgp-icon {
+    font-size: 1.25rem;
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-card);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-subtle);
+}
+
+.org-pgp-header-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.org-pgp-title {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.org-pgp-subtitle {
+    font-size: 0.6875rem;
+    color: var(--text-muted);
+    font-weight: 400;
+}
+
+.org-pgp-badge {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--accent-primary);
+    background: var(--accent-primary-glow);
+    border-radius: var(--radius-full);
+    border: 1px solid rgba(56, 139, 255, 0.2);
+    flex-shrink: 0;
+}
+
+.org-pgp-groups {
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.org-pgp-type-group {
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    border: 1px solid var(--border-subtle);
+    background: var(--bg-card);
+}
+
+.org-pgp-type-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    background: var(--bg-card-hover);
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.org-pgp-type-header .org-method-indicator {
+    width: 7px;
+    height: 7px;
+}
+
+.org-pgp-type-header.cash {
+    background: rgba(34, 197, 94, 0.06);
+    border-bottom-color: rgba(34, 197, 94, 0.15);
+}
+
+.org-pgp-type-header.transfer {
+    background: rgba(59, 130, 246, 0.06);
+    border-bottom-color: rgba(59, 130, 246, 0.15);
+}
+
+.org-pgp-type-header.card {
+    background: rgba(168, 85, 247, 0.06);
+    border-bottom-color: rgba(168, 85, 247, 0.15);
+}
+
+.org-pgp-type-label {
+    font-size: 0.6875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-secondary);
+    flex: 1;
+}
+
+.org-pgp-type-header.cash .org-pgp-type-label { color: #22c55e; }
+.org-pgp-type-header.transfer .org-pgp-type-label { color: #3b82f6; }
+.org-pgp-type-header.card .org-pgp-type-label { color: #a855f7; }
+
+.org-pgp-type-count {
+    font-size: 0.625rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    background: var(--bg-secondary);
+    padding: 1px 8px;
+    border-radius: 10px;
+    border: 1px solid var(--border-subtle);
+}
+
+.org-pgp-type-methods {
+    display: flex;
+    flex-direction: column;
+}
+
+.org-pgp-method-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 14px;
+    transition: background 0.15s ease;
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.org-pgp-method-item:last-child {
+    border-bottom: none;
+}
+
+.org-pgp-method-item:hover {
+    background: var(--bg-card-hover);
+}
+
+.org-pgp-method-name {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.org-pgp-method-code {
+    font-size: 0.6875rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+    color: var(--text-muted);
+    flex-shrink: 0;
+    background: var(--bg-secondary);
+    padding: 2px 8px;
+    border-radius: 4px;
+    border: 1px solid var(--border-subtle);
+}
+
+.org-pgp-empty {
+    padding: 24px 16px;
+    text-align: center;
+    font-size: 0.8125rem;
+    color: var(--text-muted);
+    font-style: italic;
+}
+
 /* Adjustments for better alignment */
 .org-custom-select-option-header {
     margin-bottom: 4px;
@@ -1721,4 +1972,247 @@
 .org-custom-select-option-title {
     font-size: 0.9375rem;
     font-weight: 700;
+}
+
+/* ===== POS Group Modal with Tabs ===== */
+.org-modal.org-modal-pg {
+    max-width: 520px;
+}
+
+/* Tab badge (checkmark when payment group is set) */
+.org-tab-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    margin-left: 6px;
+    font-size: 0.6rem;
+    font-weight: 700;
+    color: #fff;
+    background: #22c55e;
+    border-radius: 50%;
+    vertical-align: middle;
+}
+
+/* Hint link from Details tab to Payment tab */
+.org-pg-tab-hint {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: var(--space-sm);
+    padding: 10px 14px;
+    background: rgba(56, 139, 255, 0.04);
+    border: 1px dashed rgba(56, 139, 255, 0.25);
+    border-radius: var(--radius-md);
+    font-size: 0.8125rem;
+    color: var(--text-muted);
+}
+
+.org-pg-tab-hint-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--accent-primary);
+    transition: color 0.2s ease;
+}
+
+.org-pg-tab-hint-btn:hover {
+    color: var(--accent-secondary);
+    text-decoration: underline;
+}
+
+/* ===== Payment Tab ===== */
+.org-payment-tab {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.org-payment-tab-header {
+    margin-bottom: 4px;
+}
+
+.org-payment-tab-subtitle {
+    font-size: 0.8125rem;
+    color: var(--text-muted);
+}
+
+/* ===== Payment Group Card Selector ===== */
+.org-pg-card {
+    border: 1.5px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: var(--bg-secondary);
+}
+
+.org-pg-card:hover {
+    border-color: var(--accent-primary);
+    background: var(--bg-card-hover);
+    box-shadow: 0 2px 12px rgba(56, 139, 255, 0.12);
+}
+
+.org-pg-card.selected {
+    border-color: var(--accent-primary);
+    background: rgba(56, 139, 255, 0.04);
+    box-shadow: 0 0 0 2px var(--accent-primary-glow);
+}
+
+.org-pg-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    gap: 12px;
+}
+
+.org-pg-card-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+
+.org-pg-card-icon {
+    font-size: 1.25rem;
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-card);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-subtle);
+}
+
+.org-pg-card-name {
+    display: block;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.org-pg-card.selected .org-pg-card-name {
+    color: var(--accent-primary);
+}
+
+.org-pg-card-desc {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+    margin-top: 1px;
+}
+
+.org-pg-card-check {
+    color: var(--accent-primary);
+    opacity: 0;
+    flex-shrink: 0;
+    transition: opacity 0.2s ease;
+}
+
+.org-pg-card.selected .org-pg-card-check {
+    opacity: 1;
+}
+
+/* Chip row below card header */
+.org-pg-card-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 0 16px 12px;
+    align-items: center;
+}
+
+/* Expanded method details (only when selected) */
+.org-pg-card-methods {
+    border-top: 1px solid var(--border-subtle);
+    padding: 12px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    animation: orgSlideDown 0.25s ease-out;
+}
+
+.org-pg-card-type-section {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.org-pg-card-type-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    padding-bottom: 4px;
+    border-bottom: 1px solid var(--border-subtle);
+    margin-bottom: 4px;
+}
+
+.org-pg-card-type-label.cash { color: #22c55e; }
+.org-pg-card-type-label.transfer { color: #3b82f6; }
+.org-pg-card-type-label.card { color: #a855f7; }
+
+.org-pg-card-method-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 10px;
+    background: var(--bg-card);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-subtle);
+    gap: 8px;
+}
+
+.org-pg-card-method-name {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+}
+
+.org-pg-card-method-code {
+    font-size: 0.6875rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+    color: var(--text-muted);
+    background: var(--bg-secondary);
+    padding: 2px 8px;
+    border-radius: 4px;
+    border: 1px solid var(--border-subtle);
+    flex-shrink: 0;
+}
+
+/* Empty state in payment tab */
+.org-pg-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: var(--space-xl);
+    color: var(--text-muted);
+    font-size: 0.875rem;
+    text-align: center;
+}
+
+.org-pg-empty-state span {
+    font-size: 2rem;
+    opacity: 0.5;
 }
