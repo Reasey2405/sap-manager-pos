@@ -7,6 +7,7 @@ import MonitoringPage from './components/MonitoringPage'
 import OrgStructurePage from './components/OrgStructurePage'
 import BankInformationPage from './components/BankInformationPage'
 import PaymentMethodsPage from './components/PaymentMethodsPage'
+import MasterDataSyncPage from './components/MasterDataSyncPage'
 import './components/MonitoringPage.css'
 import './components/OrgStructurePage.css'
 import './components/BankInformationPage.css'
@@ -129,6 +130,8 @@ function App() {
       navigateToPage('bank-information')
     } else if (cardTitle === 'Payment methods') {
       navigateToPage('payment-methods')
+    } else if (cardTitle === 'Master data sync') {
+      navigateToPage('master-data-sync')
     }
   }
 
@@ -197,6 +200,23 @@ function App() {
           toggleTheme={toggleTheme}
         />
         <PaymentMethodsPage onBack={() => navigateToPage('dashboard')} />
+      </div>
+    )
+  }
+
+  if (currentPage === 'master-data-sync') {
+    return (
+      <div className="app">
+        <Navbar
+          sections={sections}
+          activeSection={activeSection}
+          mobileMenuOpen={mobileMenuOpen}
+          setMobileMenuOpen={setMobileMenuOpen}
+          scrollToSection={scrollToSection}
+          theme={theme}
+          toggleTheme={toggleTheme}
+        />
+        <MasterDataSyncPage onBack={() => navigateToPage('dashboard')} />
       </div>
     )
   }

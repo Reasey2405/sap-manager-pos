@@ -44,7 +44,7 @@ const sections = [
             { title: 'Monitoring reports', icon: MonitoringReportsIcon },
             { title: 'Inbound call monitoring', icon: InboundCallIcon },
             { title: 'Master data queue', icon: MasterDataQueueIcon },
-            { title: 'Master data results', icon: MasterDataResultsIcon },
+            { title: 'Master data sync', icon: MasterDataResultsIcon, isImplemented: true },
         ],
     },
     {
