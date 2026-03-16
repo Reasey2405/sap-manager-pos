@@ -1,39 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 
-const API_BASE = 'http://localhost:9988'
-
-/* ===== API Helpers ===== */
-async function fetchJSON(url) {
-    const res = await fetch(url)
-    if (!res.ok) throw new Error(`GET ${url} failed: ${res.status}`)
-    return res.json()
-}
-
-async function postJSON(url, body) {
-    const res = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Accept: '*/*' },
-        body: JSON.stringify(body),
-    })
-    if (!res.ok) {
-        const text = await res.text().catch(() => '')
-        throw new Error(`POST ${url} failed: ${res.status} ${text}`)
-    }
-    return res.json().catch(() => ({}))
-}
-
-async function putJSON(url, body) {
-    const res = await fetch(url, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', Accept: '*/*' },
-        body: JSON.stringify(body),
-    })
-    if (!res.ok) {
-        const text = await res.text().catch(() => '')
-        throw new Error(`PUT ${url} failed: ${res.status} ${text}`)
-    }
-    return res.json().catch(() => ({}))
-}
+import { API_BASE, fetchJSON, postJSON, putJSON } from '../service/api'
 
 /* ===== Icons ===== */
 const BackIcon = () => (

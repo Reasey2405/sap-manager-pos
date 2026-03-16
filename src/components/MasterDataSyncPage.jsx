@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import './MasterDataSyncPage.css'
+import { API_BASE, fetchJSON } from '../service/api'
 
 /* ================================================================
    ICONS
@@ -97,7 +98,6 @@ const PosDevice = ({ w = 72, h = 62 }) => (
 /* ================================================================
    HELPERS
    ================================================================ */
-const API_URL = 'http://localhost:9988/api/monitoring'
 
 function fmt(ts) {
     if (!ts) return '—'
@@ -693,15 +693,17 @@ function MasterDataSyncPage({ onBack }) {
     const [lastFetched, setLastFetched] = useState(null)
 
     const fetchData = useCallback(async () => {
-        setLoading(true); setError(null)
+        setLoading(true)
+        setError('')
         try {
-            const res = await fetch(API_URL)
-            if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`)
-            setData(await res.json())
+            const data = await fetchJSON(`${API_BASE}/api/monitoring`)
+            setData(data)
             setLastFetched(new Date())
         } catch (err) {
-            setError(err.message || 'Failed to fetch sync data.')
-        } finally { setLoading(false) }
+            setError('Error: ' + err.message)
+        } finally {
+            setLoading(false)
+        }
     }, [])
 
     useEffect(() => { fetchData() }, [fetchData])

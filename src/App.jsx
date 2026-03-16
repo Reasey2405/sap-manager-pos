@@ -8,13 +8,20 @@ import OrgStructurePage from './components/OrgStructurePage'
 import BankInformationPage from './components/BankInformationPage'
 import PaymentMethodsPage from './components/PaymentMethodsPage'
 import MasterDataSyncPage from './components/MasterDataSyncPage'
+import LoginPage from './components/LoginPage'
 import './components/MonitoringPage.css'
 import './components/OrgStructurePage.css'
 import './components/BankInformationPage.css'
 import './components/PaymentMethodsPage.css'
+import './components/LoginPage.css'
+
+import { isAuthenticated, onSessionExpired, logout } from './service/auth'
 
 /* ===== App Component ===== */
 function App() {
+  const [loggedIn, setLoggedIn] = useState(() => isAuthenticated())
+  const [sessionExpired, setSessionExpired] = useState(false)
+
   const [theme, setTheme] = useState(() => {
     const saved = localStorage.getItem('sap-theme')
     return saved || 'dark'
@@ -27,6 +34,15 @@ function App() {
   })
   const sectionRefs = useRef({})
   const isClickScrolling = useRef(false)
+
+  // Listen for session expiration from the auth service
+  useEffect(() => {
+    const unsubscribe = onSessionExpired(() => {
+      setSessionExpired(true)
+      setLoggedIn(false)
+    })
+    return unsubscribe
+  }, [])
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme)
@@ -135,6 +151,44 @@ function App() {
     }
   }
 
+  const handleLogout = () => {
+    logout()
+    setLoggedIn(false)
+    setSessionExpired(false)
+  }
+
+  // ── Show Login if not authenticated ──────────────────────────
+  if (!loggedIn) {
+    return (
+      <LoginPage
+        onLoginSuccess={() => {
+          setLoggedIn(true)
+          setSessionExpired(false)
+        }}
+      />
+    )
+  }
+
+  // ── Session Expired Overlay ──────────────────────────────────
+  const sessionExpiredOverlay = sessionExpired && (
+    <div className="session-expired-overlay" onClick={() => handleLogout()}>
+      <div className="session-expired-card" onClick={(e) => e.stopPropagation()}>
+        <svg className="session-expired-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="12" r="10" />
+          <polyline points="12 6 12 12 16 14" />
+        </svg>
+        <h3>Session Expired</h3>
+        <p>Your session has timed out. Please sign in again to continue.</p>
+        <button className="session-expired-btn" onClick={handleLogout}>
+          <svg viewBox="0 0 20 20" fill="currentColor" style={{ width: 16, height: 16 }}>
+            <path fillRule="evenodd" d="M3 3a1 1 0 011 1v12a1 1 0 11-2 0V4a1 1 0 011-1zm7.707 3.293a1 1 0 010 1.414L9.414 9H17a1 1 0 110 2H9.414l1.293 1.293a1 1 0 01-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0z" clipRule="evenodd" />
+          </svg>
+          Sign In Again
+        </button>
+      </div>
+    </div>
+  )
+
   /* Render sub-pages */
   if (currentPage === 'monitoring') {
     return (
@@ -147,8 +201,10 @@ function App() {
           scrollToSection={scrollToSection}
           theme={theme}
           toggleTheme={toggleTheme}
+          onLogout={handleLogout}
         />
         <MonitoringPage onBack={() => navigateToPage('dashboard')} />
+        {sessionExpiredOverlay}
       </div>
     )
   }
@@ -164,8 +220,10 @@ function App() {
           scrollToSection={scrollToSection}
           theme={theme}
           toggleTheme={toggleTheme}
+          onLogout={handleLogout}
         />
         <OrgStructurePage onBack={() => navigateToPage('dashboard')} />
+        {sessionExpiredOverlay}
       </div>
     )
   }
@@ -181,8 +239,10 @@ function App() {
           scrollToSection={scrollToSection}
           theme={theme}
           toggleTheme={toggleTheme}
+          onLogout={handleLogout}
         />
         <BankInformationPage onBack={() => navigateToPage('dashboard')} />
+        {sessionExpiredOverlay}
       </div>
     )
   }
@@ -198,8 +258,10 @@ function App() {
           scrollToSection={scrollToSection}
           theme={theme}
           toggleTheme={toggleTheme}
+          onLogout={handleLogout}
         />
         <PaymentMethodsPage onBack={() => navigateToPage('dashboard')} />
+        {sessionExpiredOverlay}
       </div>
     )
   }
@@ -215,8 +277,10 @@ function App() {
           scrollToSection={scrollToSection}
           theme={theme}
           toggleTheme={toggleTheme}
+          onLogout={handleLogout}
         />
         <MasterDataSyncPage onBack={() => navigateToPage('dashboard')} />
+        {sessionExpiredOverlay}
       </div>
     )
   }
@@ -231,6 +295,7 @@ function App() {
         scrollToSection={scrollToSection}
         theme={theme}
         toggleTheme={toggleTheme}
+        onLogout={handleLogout}
       />
 
       <main className="main-content" id="main-content">
@@ -246,6 +311,8 @@ function App() {
           />
         ))}
       </main>
+
+      {sessionExpiredOverlay}
     </div>
   )
 }

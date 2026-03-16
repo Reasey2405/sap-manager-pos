@@ -59,6 +59,7 @@ const sections = [
             { title: 'Tax settings', icon: TaxIcon },
             { title: 'Terminal profiles', icon: TerminalIcon },
             { title: 'POS layout', icon: LayoutIcon },
+            { title: 'User management', icon: UsersIcon },
         ],
     },
     {
