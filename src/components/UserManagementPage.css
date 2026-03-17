@@ -1,0 +1,129 @@
+/* UserManagementPage.css */
+
+.user-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.user-card:hover {
+    border-color: var(--primary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.user-card.selected {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 1px var(--primary-color);
+}
+
+.user-card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.user-avatar-placeholder {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: var(--primary-color-dim);
+    color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.user-card-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.user-card-name {
+    font-weight: 600;
+    color: var(--text-color);
+    font-size: 15px;
+}
+
+.user-card-username {
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.user-role-badge {
+    align-self: flex-start;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 12px;
+    background: var(--primary-color-dim);
+    color: var(--primary-color);
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+.user-card-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border-color);
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.user-card-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.user-card-meta-item svg {
+    color: var(--text-tertiary);
+}
+
+.user-page-title {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.org-settings-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.user-actions-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 16px;
+}
+
+.btn-reset-password {
+    background: transparent;
+    color: #f44336;
+    border: 1px solid rgba(244, 67, 54, 0.3);
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.btn-reset-password:hover {
+    background: rgba(244, 67, 54, 0.1);
+    border-color: #f44336;
+}
+
+.password-reset-modal {
+    max-width: 400px;
+}

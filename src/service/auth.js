@@ -3,7 +3,7 @@
  * Handles login, token storage, refresh, and session management.
  */
 
-const API_BASE = 'http://localhost:9988'
+const API_BASE = import.meta.env.PROD ? '' : 'http://localhost:9988'
 const TOKEN_KEY = 'sap_access_token'
 const REFRESH_KEY = 'sap_refresh_token'
 const COMPANY_KEY = 'sap_company_id'

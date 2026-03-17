@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 
-import { API_BASE, fetchJSON, postJSON, putJSON } from '../service/api'
+import { API_BASE, fetchJSON, postJSON, putJSON, fetchText } from '../service/api'
 
 /* ===== Icons ===== */
 const BackIcon = () => (
@@ -455,6 +455,58 @@ function AddTerminalModal({ group, branches, seriesList, currencies, priceLists,
     const [submitting, setSubmitting] = useState(false)
     const [error, setError] = useState('')
 
+    const [activationCode, setActivationCode] = useState(null)
+    const [loadingCode, setLoadingCode] = useState(false)
+    const [copied, setCopied] = useState(false)
+
+    const handleCopyCode = (code) => {
+        if (!code || code === 'Error' || code.startsWith('Please') || code.includes(' ')) return;
+        navigator.clipboard.writeText(code).then(() => {
+            setCopied(true)
+            setTimeout(() => setCopied(false), 2000)
+        }).catch(err => console.error('Failed to copy', err))
+    }
+
+    const fetchActivationCode = async () => {
+        if (!form.posTerminalID) {
+            setActivationCode('Please enter Terminal ID on General tab first')
+            return
+        }
+        if (activationCode && activationCode !== 'Error' && !activationCode.startsWith('Please') && !activationCode.includes(' ')) {
+            handleCopyCode(activationCode)
+            return
+        }
+        if (loadingCode) return
+        setLoadingCode(true)
+        try {
+            const resData = await fetchText(`${API_BASE}/api/pos_terminal_register/register_code?posTerminalId=${form.posTerminalID}`)
+            let codeVal = ''
+            try {
+                const parsed = JSON.parse(resData)
+                if (parsed && typeof parsed === 'object') {
+                    codeVal = parsed.registerCode || parsed.code || JSON.stringify(parsed)
+                } else {
+                    codeVal = String(parsed)
+                }
+            } catch {
+                codeVal = resData.replace(/^"|"$/g, '')
+            }
+            setActivationCode(codeVal)
+            handleCopyCode(codeVal)
+        } catch (err) {
+            let errMsg = 'Error'
+            try {
+                const parsed = JSON.parse(err.message)
+                if (parsed && parsed.message) errMsg = parsed.message
+            } catch {
+                if (err.message && !err.message.includes('failed:')) errMsg = err.message
+            }
+            setActivationCode(errMsg)
+        } finally {
+            setLoadingCode(false)
+        }
+    }
+
     const invoiceSeries = seriesList.filter(s => s.objectCode === 13)
     const incomingPaymentSeries = seriesList.filter(s => s.objectCode === 24)
     const outgoingPaymentSeries = seriesList.filter(s => s.objectCode === 46)
@@ -658,6 +710,15 @@ function AddTerminalModal({ group, branches, seriesList, currencies, priceLists,
                                 </FormField>
                             </div>
 
+                            <div className="org-form-grid" style={{ marginTop: '16px' }}>
+                                <div className="org-form-field" style={{ cursor: 'pointer' }} onClick={fetchActivationCode} title={copied ? "Copied!" : "Click to show & copy activation code"}>
+                                    <label className="org-form-label">Activation Code</label>
+                                    <div style={{ color: copied ? '#28a745' : 'var(--primary-color, #007bff)', fontWeight: 600, padding: '8px 12px', background: 'var(--bg-light, #f8f9fa)', borderRadius: '4px', border: '1px solid var(--border-color, #eee)', transition: 'color 0.2s' }}>
+                                        {copied ? 'Copied to clipboard!' : (loadingCode ? 'Loading...' : (activationCode || 'Click to show'))}
+                                    </div>
+                                </div>
+                            </div>
+
                             <h4 className="org-form-section-title">
                                 Default Exchange Rates
                                 <button type="button" className="org-form-add-inline-btn" onClick={addExchangeRate}>
@@ -709,6 +770,74 @@ function TerminalSettingsPanel({ terminal, seriesList, currencies, priceLists, b
     const [saveMsg, setSaveMsg] = useState('')
     const [form, setForm] = useState({})
     const [activeTab, setActiveTab] = useState('general')
+
+    const [activationCode, setActivationCode] = useState(null)
+    const [loadingCode, setLoadingCode] = useState(false)
+    const [registering, setRegistering] = useState(false)
+    const [copied, setCopied] = useState(false)
+
+    useEffect(() => {
+        setActivationCode(null)
+        setCopied(false)
+    }, [terminal])
+
+    const handleCopyCode = (code) => {
+        if (!code || code === 'Error' || code.startsWith('Please') || code.includes(' ')) return;
+        navigator.clipboard.writeText(code).then(() => {
+            setCopied(true)
+            setTimeout(() => setCopied(false), 2000)
+        }).catch(err => console.error('Failed to copy', err))
+    }
+
+    const fetchActivationCode = async () => {
+        if (activationCode && activationCode !== 'Error' && !activationCode.startsWith('Please') && !activationCode.includes(' ')) {
+            handleCopyCode(activationCode)
+            return
+        }
+        if (loadingCode) return
+        setLoadingCode(true)
+        try {
+            const resData = await fetchText(`${API_BASE}/api/pos_terminal_register/register_code?posTerminalId=${terminal.posTerminalID}`)
+            let codeVal = ''
+            try {
+                const parsed = JSON.parse(resData)
+                if (parsed && typeof parsed === 'object') {
+                    codeVal = parsed.registerCode || parsed.code || JSON.stringify(parsed)
+                } else {
+                    codeVal = String(parsed)
+                }
+            } catch {
+                codeVal = resData.replace(/^"|"$/g, '')
+            }
+            setActivationCode(codeVal)
+            handleCopyCode(codeVal)
+        } catch (err) {
+            let errMsg = 'Error'
+            try {
+                const parsed = JSON.parse(err.message)
+                if (parsed && parsed.message) errMsg = parsed.message
+            } catch {
+                if (err.message && !err.message.includes('failed:')) errMsg = err.message
+            }
+            setActivationCode(errMsg)
+        } finally {
+            setLoadingCode(false)
+        }
+    }
+
+    const startRegistration = async () => {
+        setRegistering(true)
+        setSaveMsg('')
+        try {
+            await postJSON(`${API_BASE}/api/pos_terminal_register/startRegistration?posTerminalId=${terminal.posTerminalID}`)
+            setSaveMsg('Registration started successfully. A new code is generated.')
+            setActivationCode(null)
+        } catch (err) {
+            setSaveMsg('Registration Error: ' + err.message)
+        } finally {
+            setRegistering(false)
+        }
+    }
 
     useEffect(() => {
         setEditing(false)
@@ -844,6 +973,12 @@ function TerminalSettingsPanel({ terminal, seriesList, currencies, priceLists, b
                         {renderValue('Qty', terminal.qtyScale)}
                         {renderValue('Percent', terminal.percentScale)}
                         {renderValue('Rate', terminal.rateScale)}
+                        <div className="org-setting-row" style={{ cursor: 'pointer' }} onClick={fetchActivationCode} title={copied ? "Copied!" : "Click to show & copy activation code"}>
+                            <span className="org-setting-label">Activation Code</span>
+                            <span className="org-setting-value" style={{ color: copied ? '#28a745' : 'var(--primary-color, #007bff)', transition: 'color 0.2s' }}>
+                                {copied ? 'Copied to clipboard!' : (loadingCode ? 'Loading...' : (activationCode || 'Click to show'))}
+                            </span>
+                        </div>
                     </div>
                     {terminal.defaultExchangeRates?.length > 0 && (
                         <><div className="org-settings-divider" /><h4 className="org-settings-section-title">Exchange Rates</h4>
@@ -938,6 +1073,21 @@ function TerminalSettingsPanel({ terminal, seriesList, currencies, priceLists, b
                                 <FormField label="Qty"><input type="number" className="org-form-input" value={form.qtyScale ?? ''} onChange={e => updateField('qtyScale', e.target.value)} min="0" max="10" /></FormField>
                                 <FormField label="%"><input type="number" className="org-form-input" value={form.percentScale ?? ''} onChange={e => updateField('percentScale', e.target.value)} min="0" max="10" /></FormField>
                                 <FormField label="Rate"><input type="number" className="org-form-input" value={form.rateScale ?? ''} onChange={e => updateField('rateScale', e.target.value)} min="0" max="10" /></FormField>
+                            </div>
+
+                            <div className="org-form-grid" style={{ marginTop: '16px' }}>
+                                <div className="org-form-field">
+                                    <label className="org-form-label">Terminal Registration</label>
+                                    <button
+                                        type="button"
+                                        className="toolbar-btn primary"
+                                        onClick={startRegistration}
+                                        disabled={registering}
+                                        title="Create a new registration code for this terminal"
+                                    >
+                                        {registering ? 'Starting...' : 'Start Registration (New Code)'}
+                                    </button>
+                                </div>
                             </div>
 
                             <h4 className="org-form-section-title">

@@ -1,6 +1,6 @@
 import { getAuthHeaders, refreshAccessToken, notifySessionExpired } from './auth'
 
-export const API_BASE = 'http://localhost:9988'
+export const API_BASE = import.meta.env.PROD ? '' : 'http://localhost:9988'
 
 /**
  * Wrapper that retries once on 401 by refreshing the token.
@@ -31,11 +31,25 @@ export async function fetchJSON(url, options = {}) {
     return res.json()
 }
 
+export async function fetchText(url, options = {}) {
+    const res = await fetchWithAuth(url, options)
+    if (!res.ok) {
+        const text = await res.text().catch(() => '')
+        const err = new Error(text || `GET ${url} failed: ${res.status}`)
+        err.status = res.status
+        throw err
+    }
+    return res.text()
+}
+
 export async function postJSON(url, body) {
-    const res = await fetchWithAuth(url, {
+    const options = {
         method: 'POST',
-        body: JSON.stringify(body),
-    })
+    }
+    if (body !== undefined) {
+        options.body = JSON.stringify(body)
+    }
+    const res = await fetchWithAuth(url, options)
     if (!res.ok) {
         const text = await res.text().catch(() => '')
         throw new Error(`POST ${url} failed: ${res.status} ${text}`)
@@ -51,6 +65,18 @@ export async function putJSON(url, body) {
     if (!res.ok) {
         const text = await res.text().catch(() => '')
         throw new Error(`PUT ${url} failed: ${res.status} ${text}`)
+    }
+    return res.json().catch(() => ({}))
+}
+
+export async function patchJSON(url, body) {
+    const res = await fetchWithAuth(url, {
+        method: 'PATCH',
+        body: JSON.stringify(body),
+    })
+    if (!res.ok) {
+        const text = await res.text().catch(() => '')
+        throw new Error(`PATCH ${url} failed: ${res.status} ${text}`)
     }
     return res.json().catch(() => ({}))
 }

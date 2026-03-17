@@ -55,11 +55,11 @@ const sections = [
             { title: 'General settings', icon: SettingsIcon },
             { title: 'Payment methods', icon: PaymentIcon, isImplemented: true },
             { title: 'Bank Information', icon: BankIcon, isImplemented: true },
-            { title: 'Printer configuration', icon: PrinterIcon },
+            { title: 'User Group', icon: UsersIcon },
             { title: 'Tax settings', icon: TaxIcon },
             { title: 'Terminal profiles', icon: TerminalIcon },
             { title: 'POS layout', icon: LayoutIcon },
-            { title: 'User management', icon: UsersIcon },
+            { title: 'User management', icon: UsersIcon, isImplemented: true },
         ],
     },
     {
