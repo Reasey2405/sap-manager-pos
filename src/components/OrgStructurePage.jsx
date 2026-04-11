@@ -461,10 +461,32 @@ function AddTerminalModal({ group, branches, seriesList, currencies, priceLists,
 
     const handleCopyCode = (code) => {
         if (!code || code === 'Error' || code.startsWith('Please') || code.includes(' ')) return;
-        navigator.clipboard.writeText(code).then(() => {
-            setCopied(true)
-            setTimeout(() => setCopied(false), 2000)
-        }).catch(err => console.error('Failed to copy', err))
+        
+        const textToCopy = String(code);
+        
+        if (navigator && navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                setCopied(true);
+                setTimeout(() => setCopied(false), 2000);
+            }).catch(err => console.error('Failed to copy', err));
+        } else {
+            try {
+                const textArea = document.createElement("textarea");
+                textArea.value = textToCopy;
+                textArea.style.position = "fixed";
+                textArea.style.top = "0";
+                textArea.style.left = "0";
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                setCopied(true);
+                setTimeout(() => setCopied(false), 2000);
+            } catch (err) {
+                console.error('Fallback copy failed', err);
+            }
+        }
     }
 
     const fetchActivationCode = async () => {
@@ -783,10 +805,32 @@ function TerminalSettingsPanel({ terminal, seriesList, currencies, priceLists, b
 
     const handleCopyCode = (code) => {
         if (!code || code === 'Error' || code.startsWith('Please') || code.includes(' ')) return;
-        navigator.clipboard.writeText(code).then(() => {
-            setCopied(true)
-            setTimeout(() => setCopied(false), 2000)
-        }).catch(err => console.error('Failed to copy', err))
+        
+        const textToCopy = String(code);
+        
+        if (navigator && navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                setCopied(true);
+                setTimeout(() => setCopied(false), 2000);
+            }).catch(err => console.error('Failed to copy', err));
+        } else {
+            try {
+                const textArea = document.createElement("textarea");
+                textArea.value = textToCopy;
+                textArea.style.position = "fixed";
+                textArea.style.top = "0";
+                textArea.style.left = "0";
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                setCopied(true);
+                setTimeout(() => setCopied(false), 2000);
+            } catch (err) {
+                console.error('Fallback copy failed', err);
+            }
+        }
     }
 
     const fetchActivationCode = async () => {

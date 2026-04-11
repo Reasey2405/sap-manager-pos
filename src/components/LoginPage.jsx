@@ -65,7 +65,7 @@ export default function LoginPage({ onLoginSuccess }) {
               <circle cx="24" cy="18" r="2" fill="currentColor" />
             </svg>
           </div>
-          <h1 className="login-title">SAP Manager</h1>
+          <h1 className="login-title">BIZ POS Manager</h1>
           <p className="login-subtitle">Point of Sale Administration</p>
         </div>
 
@@ -196,7 +196,7 @@ export default function LoginPage({ onLoginSuccess }) {
         </form>
 
         <p className="login-footer">
-          SAP Manager POS &copy; {new Date().getFullYear()}
+          BIZ POS Manager &copy; {new Date().getFullYear()}
         </p>
       </div>
     </div>

@@ -1,38 +1,23 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
-/* ===== Sample Data ===== */
-const receiptData = [
-    { status: 'Released', duplicate: false, internalId: 136, posSystem: '21.6', dayEndClosing: '2169000I1013', receiptId: '21652702260001095', documentDate: '3/2/2026, 2:06:01 PM', customerId: 'C99999', totalGrossAmount: '476.92 USD', b1DocId: '1203236' },
-    { status: 'Released', duplicate: false, internalId: 135, posSystem: '21.6', dayEndClosing: '2169000I1012', receiptId: '21652702260001094', documentDate: '2/27/2026, 4:27:49 PM', customerId: 'C99999', totalGrossAmount: '346.48 USD', b1DocId: '1203235' },
-    { status: 'Cancelled', duplicate: false, internalId: 132, posSystem: '21.6', dayEndClosing: '2169000I1012', receiptId: '21652702260001094', documentDate: '2/27/2026, 4:27:49 PM', customerId: '', totalGrossAmount: '346.48 USD', b1DocId: '' },
-    { status: 'Released', duplicate: false, internalId: 129, posSystem: '21.6', dayEndClosing: '2169000I1010', receiptId: '21652102260001092', documentDate: '2/25/2026, 11:29:00 AM', customerId: 'C99999', totalGrossAmount: '74.14 USD', b1DocId: '1203224' },
-    { status: 'Released', duplicate: false, internalId: 126, posSystem: '21.6', dayEndClosing: '2169000I1009', receiptId: '21651302260001090', documentDate: '2/13/2026, 10:30:49 AM', customerId: 'C99999', totalGrossAmount: '20.00 USD', b1DocId: '1203522' },
-    { status: 'Released', duplicate: false, internalId: 123, posSystem: '21.6', dayEndClosing: '2169000I1008', receiptId: '21651302260001089', documentDate: '2/13/2026, 10:18:26 AM', customerId: 'C99999', totalGrossAmount: '41.00 USD', b1DocId: '1203521' },
-    { status: 'Released', duplicate: false, internalId: 122, posSystem: '21.6', dayEndClosing: '2169000I1008', receiptId: '21651302260001088', documentDate: '2/13/2026, 10:15:39 AM', customerId: 'C99999', totalGrossAmount: '15.00 USD', b1DocId: '1203520' },
-    { status: 'Cancelled', duplicate: false, internalId: 119, posSystem: '21.6', dayEndClosing: '2169000I1007', receiptId: '21651102260001084', documentDate: '2/11/2026, 10:28:43 AM', customerId: 'C99999', totalGrossAmount: '74.14 USD', b1DocId: '' },
-    { status: 'Cancelled', duplicate: false, internalId: 118, posSystem: '21.6', dayEndClosing: '2169000I1007', receiptId: '21651102260001083', documentDate: '2/11/2026, 10:27:47 AM', customerId: 'C99999', totalGrossAmount: '346.48 USD', b1DocId: '' },
-    { status: 'Released', duplicate: false, internalId: 117, posSystem: '21.6', dayEndClosing: '2169000I1007', receiptId: '21651102260001082', documentDate: '2/11/2026, 10:18:46 AM', customerId: '', totalGrossAmount: '74.14 USD', b1DocId: '1201531' },
-]
-
-const tabs = ['RECEIPTS', 'CASH TRANSACTIONS', 'SALES SUMMARIES']
+const tabs = ['SAP SYNC QUEUE']
 
 const columns = [
     { key: 'status', label: 'Status' },
-    { key: 'duplicate', label: 'Duplicate' },
-    { key: 'internalId', label: 'Internal ID' },
-    { key: 'posSystem', label: 'POS system' },
-    { key: 'dayEndClosing', label: 'Day-end closing' },
-    { key: 'receiptId', label: 'Receipt ID' },
-    { key: 'documentDate', label: 'Document date' },
-    { key: 'customerId', label: 'Customer ID' },
-    { key: 'totalGrossAmount', label: 'Total gross amount' },
-    { key: 'b1DocId', label: 'B1 doc ID' },
+    { key: 'receiptNumber', label: 'Receipt No.' },
+    { key: 'posTerminal', label: 'Terminal' },
+    { key: 'receiptDate', label: 'Receipt Date' },
+    { key: 'documentStatus', label: 'Doc Status' },
+    { key: 'totalPayment', label: 'Total Payment' },
+    { key: 'retryCount', label: 'Retries' },
+    { key: 'errorMessage', label: 'Error' },
 ]
 
 /* ===== Status Badge Component ===== */
 function StatusBadge({ status }) {
-    const className = `status-badge status-${status.toLowerCase()}`
-    return <span className={className}>{status}</span>
+    const displayStatus = status || 'UNKNOWN'
+    const className = `status-badge status-${displayStatus.toLowerCase()}`
+    return <span className={className}>{displayStatus}</span>
 }
 
 /* ===== Back Arrow Icon ===== */
@@ -45,19 +30,56 @@ const BackIcon = () => (
 
 /* ===== Monitoring Page Component ===== */
 function MonitoringPage({ onBack }) {
-    const [activeTab, setActiveTab] = useState('RECEIPTS')
-    const [filterType, setFilterType] = useState('All receipts')
+    const [activeTab, setActiveTab] = useState('SAP SYNC QUEUE')
+    const [filterType, setFilterType] = useState('ALL')
     const [selectedRows, setSelectedRows] = useState([])
     const [selectAll, setSelectAll] = useState(false)
+    const [retryResults, setRetryResults] = useState(null)
+    const [viewErrorModal, setViewErrorModal] = useState(null)
+
+    // API State
     const [currentPage, setCurrentPage] = useState(1)
+    const [data, setData] = useState([])
+    const [totalPages, setTotalPages] = useState(1)
+    const [loading, setLoading] = useState(false)
+    const [error, setError] = useState(null)
     const rowsPerPage = 10
-    const totalPages = 5
+
+    useEffect(() => {
+        fetchData();
+    }, [currentPage, filterType])
+
+    const fetchData = async () => {
+        setLoading(true)
+        setError(null)
+        try {
+            const pageIndex = Math.max(0, currentPage - 1)
+            let url = `http://localhost:9988/api/monitoring/sap-invoice-sync-que?page=${pageIndex}&size=${rowsPerPage}`
+            if (filterType !== 'ALL') {
+                url += `&status=${filterType}`
+            }
+            const response = await fetch(url)
+            if (!response.ok) {
+                throw new Error('Failed to fetch data')
+            }
+            const result = await response.json()
+            setData(result.content || [])
+            setTotalPages(result.totalPages || 1)
+            setSelectedRows([])
+            setSelectAll(false)
+        } catch (err) {
+            setError(err.message)
+            setData([])
+        } finally {
+            setLoading(false)
+        }
+    }
 
     const handleSelectAll = () => {
         if (selectAll) {
             setSelectedRows([])
         } else {
-            setSelectedRows(receiptData.map((_, i) => i))
+            setSelectedRows(data.map((_, i) => i))
         }
         setSelectAll(!selectAll)
     }
@@ -70,8 +92,82 @@ function MonitoringPage({ onBack }) {
         )
     }
 
+    const handleRetry = async () => {
+        if (selectedRows.length === 0) return;
+
+        setLoading(true);
+        setError(null);
+
+        try {
+            const payload = selectedRows.map(idx => ({
+                posTerminal: data[idx].posTerminal,
+                receiptNumber: data[idx].receiptNumber
+            }));
+
+            const response = await fetch('http://localhost:9988/api/monitoring/retry-sap-invoice-sync-que', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'accept': '*/*'
+                },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to retry selected receipts');
+            }
+
+            const results = await response.json();
+            setRetryResults(results);
+
+            setSelectedRows([]);
+            setSelectAll(false);
+            await fetchData();
+        } catch (err) {
+            setError(err.message);
+            setLoading(false);
+        }
+    };
+
     return (
         <div className="monitoring-page">
+            {/* Retry Results Modal */}
+            {retryResults && (
+                <div className="modal-overlay">
+                    <div className="modal-content">
+                        <h3>Retry Results ({retryResults.length})</h3>
+                        <div className="retry-results-list">
+                            {retryResults.map((res, i) => (
+                                <div key={i} className={`retry-result-item ${res.status === 'FAILED' ? 'error' : 'success'}`}>
+                                    <div style={{ marginBottom: '4px' }}>
+                                        <strong>{res.receiptNumber}:</strong> <StatusBadge status={res.status} />
+                                    </div>
+                                    {res.Message && <div className="retry-result-msg">{res.Message}</div>}
+                                </div>
+                            ))}
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '10px' }}>
+                            <button className="toolbar-btn primary" onClick={() => setRetryResults(null)}>Close</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Error Details Modal */}
+            {viewErrorModal && (
+                <div className="modal-overlay">
+                    <div className="modal-content">
+                        <h3>Error Details</h3>
+                        <div className="retry-result-msg" style={{ margin: '16px 0', borderTop: 'none', padding: 0 }}>
+                            {viewErrorModal}
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '10px' }}>
+                            <button className="toolbar-btn primary" onClick={() => setViewErrorModal(null)}>Close</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* Page Header */}
             <div className="monitoring-header">
                 <button className="back-button" onClick={onBack} id="monitoring-back-btn">
@@ -96,24 +192,35 @@ function MonitoringPage({ onBack }) {
 
             {/* Content Area */}
             <div className="monitoring-content">
-                <h2 className="monitoring-title">Point of sales receipts</h2>
+                <h2 className="monitoring-title">SAP Invoice Sync Queue</h2>
 
                 {/* Toolbar */}
                 <div className="monitoring-toolbar">
                     <div className="toolbar-left">
-                        <button className="toolbar-btn" id="release-btn">Release</button>
-                        <button className="toolbar-btn" id="cancel-btn">Cancel</button>
-                        <button className="toolbar-btn primary" id="refresh-btn">Refresh</button>
+                        <button
+                            className="toolbar-btn"
+                            id="release-btn"
+                            onClick={handleRetry}
+                            disabled={selectedRows.length === 0 || loading}
+                        >
+                            Retry Selected
+                        </button>
+                        <button className="toolbar-btn primary" id="refresh-btn" onClick={fetchData}>Refresh</button>
                         <select
                             className="toolbar-select"
                             value={filterType}
-                            onChange={(e) => setFilterType(e.target.value)}
+                            onChange={(e) => {
+                                setFilterType(e.target.value)
+                                setCurrentPage(1)
+                            }}
                             id="filter-type-select"
                         >
-                            <option>All receipts</option>
-                            <option>Released</option>
-                            <option>Cancelled</option>
-                            <option>Pending</option>
+                            <option value="ALL">All statuses</option>
+                            <option value="PENDING">Pending</option>
+                            <option value="PROCESSING">Processing</option>
+                            <option value="SUCCESS">Success</option>
+                            <option value="FAILED">Failed</option>
+                            <option value="VOID">Void</option>
                         </select>
                     </div>
                     <div className="toolbar-right">
@@ -147,7 +254,19 @@ function MonitoringPage({ onBack }) {
                             </tr>
                         </thead>
                         <tbody>
-                            {receiptData.map((row, idx) => (
+                            {loading ? (
+                                <tr>
+                                    <td colSpan={columns.length + 1} style={{ textAlign: 'center', padding: '30px' }}>Loading data...</td>
+                                </tr>
+                            ) : error ? (
+                                <tr>
+                                    <td colSpan={columns.length + 1} style={{ textAlign: 'center', padding: '30px', color: 'var(--status-cancelled)' }}>Error: {error}</td>
+                                </tr>
+                            ) : data.length === 0 ? (
+                                <tr>
+                                    <td colSpan={columns.length + 1} style={{ textAlign: 'center', padding: '30px' }}>No sync records found.</td>
+                                </tr>
+                            ) : data.map((row, idx) => (
                                 <tr
                                     key={idx}
                                     className={selectedRows.includes(idx) ? 'selected' : ''}
@@ -161,15 +280,28 @@ function MonitoringPage({ onBack }) {
                                         />
                                     </td>
                                     <td><StatusBadge status={row.status} /></td>
-                                    <td>{row.duplicate ? '☑' : ''}</td>
-                                    <td className="link-cell">{row.internalId}</td>
-                                    <td>{row.posSystem}</td>
-                                    <td className="mono">{row.dayEndClosing}</td>
-                                    <td className="mono">{row.receiptId}</td>
-                                    <td>{row.documentDate}</td>
-                                    <td>{row.customerId}</td>
-                                    <td className="amount-cell">{row.totalGrossAmount}</td>
-                                    <td>{row.b1DocId}</td>
+                                    <td className="link-cell">{row.receiptNumber}</td>
+                                    <td>{row.posTerminal}</td>
+                                    <td>{row.receiptDate && new Date(row.receiptDate).toLocaleString()}</td>
+                                    <td>{row.documentStatus}</td>
+                                    <td className="amount-cell">{row.totalPayment != null ? row.totalPayment.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '-'}</td>
+                                    <td style={{ textAlign: 'center' }}>{row.retryCount}</td>
+                                    <td style={{ maxWidth: '250px' }}>
+                                        {row.errorMessage ? (
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }} title={row.errorMessage}>
+                                                    {row.errorMessage}
+                                                </span>
+                                                <button
+                                                    className="link-cell"
+                                                    style={{ background: 'none', border: 'none', padding: 0, fontSize: '0.75rem', flexShrink: 0, cursor: 'pointer' }}
+                                                    onClick={() => setViewErrorModal(row.errorMessage)}
+                                                >
+                                                    Show
+                                                </button>
+                                            </div>
+                                        ) : '-'}
+                                    </td>
                                 </tr>
                             ))}
                         </tbody>
@@ -178,19 +310,15 @@ function MonitoringPage({ onBack }) {
 
                 {/* Pagination */}
                 <div className="table-pagination" id="table-pagination">
-                    <button className="page-btn" disabled>{'|<'}</button>
-                    <button className="page-btn" disabled>{'<'}</button>
-                    {Array.from({ length: totalPages }, (_, i) => (
-                        <button
-                            key={i + 1}
-                            className={`page-btn ${currentPage === i + 1 ? 'active' : ''}`}
-                            onClick={() => setCurrentPage(i + 1)}
-                        >
-                            {i + 1}
-                        </button>
-                    ))}
-                    <button className="page-btn" onClick={() => setCurrentPage(p => Math.min(p + 1, totalPages))}>{'>'}</button>
-                    <button className="page-btn" onClick={() => setCurrentPage(totalPages)}>{'>|'}</button>
+                    <button className="page-btn" disabled={currentPage === 1} onClick={() => setCurrentPage(1)}>{'|<'}</button>
+                    <button className="page-btn" disabled={currentPage === 1} onClick={() => setCurrentPage(p => Math.max(1, p - 1))}>{'<'}</button>
+
+                    <span style={{ display: 'flex', alignItems: 'center', padding: '0 16px', fontSize: '0.8125rem', color: 'var(--text-secondary)' }}>
+                        Page {currentPage} of {totalPages || 1}
+                    </span>
+
+                    <button className="page-btn" disabled={currentPage === totalPages || totalPages === 0} onClick={() => setCurrentPage(p => Math.min(p + 1, totalPages))}>{'>'}</button>
+                    <button className="page-btn" disabled={currentPage === totalPages || totalPages === 0} onClick={() => setCurrentPage(totalPages)}>{'>|'}</button>
                 </div>
             </div>
         </div>
