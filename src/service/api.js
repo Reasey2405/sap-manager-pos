@@ -69,6 +69,16 @@ export async function putJSON(url, body) {
     return res.json().catch(() => ({}))
 }
 
+export async function fetchSapSyncQueue(page, size, status) {
+    let url = `${API_BASE}/api/monitoring/sap-invoice-sync-que?page=${page}&size=${size}`
+    if (status !== 'ALL') url += `&status=${status}`
+    return fetchJSON(url)
+}
+
+export async function retrySapSyncQueue(payload) {
+    return postJSON(`${API_BASE}/api/monitoring/retry-sap-invoice-sync-que`, payload)
+}
+
 export async function patchJSON(url, body) {
     const res = await fetchWithAuth(url, {
         method: 'PATCH',

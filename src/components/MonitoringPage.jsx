@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { fetchSapSyncQueue, retrySapSyncQueue } from '../service/api'
 
 const tabs = ['SAP SYNC QUEUE']
 
@@ -54,15 +55,7 @@ function MonitoringPage({ onBack }) {
         setError(null)
         try {
             const pageIndex = Math.max(0, currentPage - 1)
-            let url = `http://localhost:9988/api/monitoring/sap-invoice-sync-que?page=${pageIndex}&size=${rowsPerPage}`
-            if (filterType !== 'ALL') {
-                url += `&status=${filterType}`
-            }
-            const response = await fetch(url)
-            if (!response.ok) {
-                throw new Error('Failed to fetch data')
-            }
-            const result = await response.json()
+            const result = await fetchSapSyncQueue(pageIndex, rowsPerPage, filterType)
             setData(result.content || [])
             setTotalPages(result.totalPages || 1)
             setSelectedRows([])
@@ -104,20 +97,7 @@ function MonitoringPage({ onBack }) {
                 receiptNumber: data[idx].receiptNumber
             }));
 
-            const response = await fetch('http://localhost:9988/api/monitoring/retry-sap-invoice-sync-que', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'accept': '*/*'
-                },
-                body: JSON.stringify(payload)
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to retry selected receipts');
-            }
-
-            const results = await response.json();
+            const results = await retrySapSyncQueue(payload);
             setRetryResults(results);
 
             setSelectedRows([]);
