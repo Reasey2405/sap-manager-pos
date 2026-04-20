@@ -52,7 +52,7 @@ const sections = [
         label: 'Point of Sales Configuration',
         cards: [
             { title: 'Organizational structure', icon: OrgStructureIcon, isImplemented: true },
-            { title: 'General settings', icon: SettingsIcon },
+            { title: 'Receipt Numbering', icon: SettingsIcon, isImplemented: true },
             { title: 'Payment methods', icon: PaymentIcon, isImplemented: true },
             { title: 'Bank Information', icon: BankIcon, isImplemented: true },
             { title: 'User Group', icon: UsersIcon },

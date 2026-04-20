@@ -10,7 +10,9 @@ import PaymentMethodsPage from './components/PaymentMethodsPage'
 import MasterDataSyncPage from './components/MasterDataSyncPage'
 import LoginPage from './components/LoginPage'
 import UserManagementPage from './components/UserManagementPage'
+import ReceiptNumberingPage from './components/ReceiptNumberingPage'
 import './components/MonitoringPage.css'
+import './components/ReceiptNumberingPage.css'
 import './components/OrgStructurePage.css'
 import './components/BankInformationPage.css'
 import './components/PaymentMethodsPage.css'
@@ -151,6 +153,8 @@ function App() {
       navigateToPage('master-data-sync')
     } else if (cardTitle === 'User management') {
       navigateToPage('user-management')
+    } else if (cardTitle === 'Receipt Numbering') {
+      navigateToPage('general-settings')
     }
   }
 
@@ -302,6 +306,25 @@ function App() {
           onLogout={handleLogout}
         />
         <UserManagementPage onBack={() => navigateToPage('dashboard')} />
+        {sessionExpiredOverlay}
+      </div>
+    )
+  }
+
+  if (currentPage === 'general-settings') {
+    return (
+      <div className="app">
+        <Navbar
+          sections={sections}
+          activeSection={activeSection}
+          mobileMenuOpen={mobileMenuOpen}
+          setMobileMenuOpen={setMobileMenuOpen}
+          scrollToSection={scrollToSection}
+          theme={theme}
+          toggleTheme={toggleTheme}
+          onLogout={handleLogout}
+        />
+        <ReceiptNumberingPage onBack={() => navigateToPage('dashboard')} />
         {sessionExpiredOverlay}
       </div>
     )
