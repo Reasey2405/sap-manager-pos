@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import './MasterDataSyncPage.css'
-import { API_BASE, fetchJSON } from '../service/api'
+import { API_BASE, fetchJSON, postJSON } from '../service/api'
 
 /* ================================================================
    ICONS
@@ -10,8 +10,8 @@ const BackIcon = () => (
         <line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" />
     </svg>
 )
-const RefreshIcon = ({ spinning }) => (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+const RefreshIcon = ({ spinning, size = 14 }) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
         style={{ animation: spinning ? 'mds-spin 0.8s linear infinite' : 'none' }}>
         <polyline points="23 4 23 10 17 10" /><polyline points="1 20 1 14 7 14" />
         <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
@@ -317,7 +317,7 @@ function TerminalPopupContent({ terminal }) {
 /* ================================================================
    STATUS TAB
    ================================================================ */
-function NodeCard({ accentClass, icon, label, sublabel, defaultOpen = true, id, sectionTitle, dotClass, count, children, loading, skeletonCount = 3 }) {
+function NodeCard({ accentClass, icon, label, sublabel, defaultOpen = true, id, sectionTitle, sectionAction, dotClass, count, children, loading, skeletonCount = 3 }) {
     const [open, setOpen] = useState(defaultOpen)
     return (
         <div className={`mds-node ${accentClass} ${open ? '' : 'mds-node-collapsed'}`}>
@@ -336,9 +336,14 @@ function NodeCard({ accentClass, icon, label, sublabel, defaultOpen = true, id, 
             </button>
             <Collapsible open={open}>
                 <div className="mds-node-content-pad">
-                    <div className="mds-node-section-title">
-                        <span className={`mds-dot ${dotClass}`} />{sectionTitle}
-                        {count != null && <span className="mds-section-count">{count}</span>}
+                    <div className="mds-node-section-title" style={{ display: 'flex', alignItems: 'center' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
+                            <span className={`mds-dot ${dotClass}`} />{sectionTitle}
+                        </div>
+                        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            {count != null && <span className="mds-section-count" style={{ marginLeft: 0 }}>{count}</span>}
+                            {sectionAction}
+                        </div>
                     </div>
                     {loading
                         ? <div className="mds-skeleton-wrap">{Array.from({ length: skeletonCount }, (_, k) => <div key={k} className="mds-skeleton-row" />)}</div>
@@ -350,7 +355,7 @@ function NodeCard({ accentClass, icon, label, sublabel, defaultOpen = true, id, 
     )
 }
 
-function StatusTab({ data, loading }) {
+function StatusTab({ data, loading, onSync, syncing }) {
     const sapSyncs = data?.sapMasterDataSync || []
     const terminals = data?.posTerminalDataSyncs || []
     const success = sapSyncs.filter(s => ['SUCCESS', 'COMPLETED'].includes((s.status || '').toUpperCase())).length
@@ -423,6 +428,9 @@ function StatusTab({ data, loading }) {
                     icon={<span className="mds-db-icon mds-db-second"><DatabaseIcon size={44} /></span>}
                     label="Second DB" sublabel="POS Local Store"
                     id="node-second" sectionTitle="Sync Monitoring" dotClass="mds-dot-purple"
+                    sectionAction={<button className="mds-sync-btn" disabled={syncing} onClick={() => onSync()}>
+                        <RefreshIcon spinning={syncing} />All
+                    </button>}
                     loading={loading && !data}
                 >
                     <div className="mds-second-db-stats">
@@ -438,6 +446,9 @@ function StatusTab({ data, loading }) {
                             <div key={i} className="mds-sync-type-row">
                                 <TypeBadge t={s.syncType} /><StatusBadge s={s.status} />
                                 {s.recordsSynced != null && <span className="mds-records-pill">{s.recordsSynced.toLocaleString()} rec</span>}
+                                <button className="mds-sync-btn icon-only" style={{ marginLeft: 'auto' }} disabled={syncing} onClick={() => onSync(s.syncType)} title={`Sync ${s.syncType}`}>
+                                    <RefreshIcon spinning={syncing} size={12} />
+                                </button>
                             </div>
                         ))}
                     </div>
@@ -691,6 +702,7 @@ function MasterDataSyncPage({ onBack }) {
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState(null)
     const [lastFetched, setLastFetched] = useState(null)
+    const [syncing, setSyncing] = useState(false)
 
     const fetchData = useCallback(async () => {
         setLoading(true)
@@ -705,6 +717,24 @@ function MasterDataSyncPage({ onBack }) {
             setLoading(false)
         }
     }, [])
+
+    const handleSync = async (syncType) => {
+        let endpoint = '/api/sync/all';
+        if (syncType) {
+            const typePath = syncType.toLowerCase().replace(/_/g, '-');
+            endpoint = `/api/sync/${typePath}`;
+        }
+
+        setSyncing(true)
+        try {
+            await postJSON(`${API_BASE}${endpoint}`);
+            fetchData();
+        } catch (err) {
+            setError(`Sync ${syncType || 'All'} failed: ` + err.message);
+        } finally {
+            setSyncing(false)
+        }
+    };
 
     useEffect(() => { fetchData() }, [fetchData])
 
@@ -744,7 +774,7 @@ function MasterDataSyncPage({ onBack }) {
                 <button className={`monitoring-tab ${activeTab === 'relationship' ? 'active' : ''}`} onClick={() => setActiveTab('relationship')} id="mds-tab-relationship">RELATIONSHIP</button>
             </div>
 
-            {activeTab === 'status' && <StatusTab data={data} loading={loading} />}
+            {activeTab === 'status' && <StatusTab data={data} loading={loading} onSync={handleSync} syncing={syncing} />}
             {activeTab === 'relationship' && <RelationshipTab data={data} loading={loading} />}
         </div>
     )

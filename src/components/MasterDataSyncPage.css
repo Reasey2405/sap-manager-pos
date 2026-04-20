@@ -1362,6 +1362,40 @@
     }
 }
 
+.mds-sync-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    font-size: 0.65rem;
+    font-weight: 600;
+    color: #fff;
+    background: var(--accent-primary, #6366f1);
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.mds-sync-btn.icon-only {
+    padding: 6px;
+}
+
+.mds-sync-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.mds-sync-btn:hover:not(:disabled) {
+    background: #4f46e5;
+    box-shadow: 0 2px 6px rgba(99, 102, 241, 0.25);
+}
+
+.mds-sync-btn:active:not(:disabled) {
+    transform: translateY(1px);
+}
+
 @media (max-width: 768px) {
 
     .mds-header,
