@@ -66,12 +66,9 @@ const sections = [
         id: 'pos-management',
         label: 'Point of Sales Management',
         cards: [
-            { title: 'Receipts', icon: ReceiptsIcon },
-            { title: 'Receipt exports', icon: ReceiptExportsIcon },
-            { title: 'Sales reports', icon: SalesReportsIcon },
+            { title: 'Reports', icon: SalesReportsIcon, isImplemented: true },
             { title: 'Table areas', icon: TableAreasIcon },
             { title: 'Tables', icon: TablesIcon },
-            { title: 'Sales summaries', icon: SalesSummariesIcon },
             { title: 'Drawers', icon: DrawersIcon },
         ],
     },

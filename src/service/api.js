@@ -90,3 +90,33 @@ export async function patchJSON(url, body) {
     }
     return res.json().catch(() => ({}))
 }
+
+/* ===== Report APIs ===== */
+
+function buildQueryString(params) {
+    const qs = Object.entries(params)
+        .filter(([, v]) => v != null && v !== '')
+        .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
+        .join('&')
+    return qs ? `?${qs}` : ''
+}
+
+export async function fetchReceipts(params = {}) {
+    const url = `${API_BASE}/api/reports/receipts${buildQueryString(params)}`
+    return fetchJSON(url)
+}
+
+export async function fetchSalesSummary(params = {}) {
+    const url = `${API_BASE}/api/reports/sales-summary${buildQueryString(params)}`
+    return fetchJSON(url)
+}
+
+export async function fetchItemSales(params = {}) {
+    const url = `${API_BASE}/api/reports/item-sales${buildQueryString(params)}`
+    return fetchJSON(url)
+}
+
+export async function fetchPaymentSummary(params = {}) {
+    const url = `${API_BASE}/api/reports/payment-summary${buildQueryString(params)}`
+    return fetchJSON(url)
+}
