@@ -215,7 +215,8 @@ function PosGroupModal({ branches, paymentGroups, initialData, onSubmit, onClose
         groupCode: initialData?.groupCode || '',
         groupName: initialData?.groupName || '',
         branchId: initialData?.branchId || '',
-        paymentGroupCode: initialData?.paymentGroupCode || ''
+        paymentGroupCode: initialData?.paymentGroupCode || '',
+        whsCode: initialData?.whsCode || ''
     })
     const [submitting, setSubmitting] = useState(false)
     const [error, setError] = useState('')
@@ -234,7 +235,8 @@ function PosGroupModal({ branches, paymentGroups, initialData, onSubmit, onClose
                 groupCode: form.groupCode,
                 groupName: form.groupName,
                 branchId: form.branchId ? parseInt(form.branchId) : null,
-                paymentGroupCode: form.paymentGroupCode || null
+                paymentGroupCode: form.paymentGroupCode || null,
+                whsCode: form.whsCode || null
             }, isEdit)
             onClose()
         } catch (err) {
@@ -307,6 +309,16 @@ function PosGroupModal({ branches, paymentGroups, initialData, onSubmit, onClose
                                     value={form.branchId}
                                     placeholder="Select branch"
                                     onChange={val => setForm(f => ({ ...f, branchId: val }))}
+                                />
+                            </FormField>
+                            <FormField label="Warehouse" required>
+                                <input
+                                    type="text"
+                                    className="org-form-input"
+                                    value={form.whsCode}
+                                    onChange={e => setForm(f => ({ ...f, whsCode: e.target.value }))}
+                                    placeholder="e.g. WH-001"
+                                    id="input-warehouse-code"
                                 />
                             </FormField>
 
@@ -461,9 +473,9 @@ function AddTerminalModal({ group, branches, seriesList, currencies, priceLists,
 
     const handleCopyCode = (code) => {
         if (!code || code === 'Error' || code.startsWith('Please') || code.includes(' ')) return;
-        
+
         const textToCopy = String(code);
-        
+
         if (navigator && navigator.clipboard && navigator.clipboard.writeText) {
             navigator.clipboard.writeText(textToCopy).then(() => {
                 setCopied(true);
@@ -805,9 +817,9 @@ function TerminalSettingsPanel({ terminal, seriesList, currencies, priceLists, b
 
     const handleCopyCode = (code) => {
         if (!code || code === 'Error' || code.startsWith('Please') || code.includes(' ')) return;
-        
+
         const textToCopy = String(code);
-        
+
         if (navigator && navigator.clipboard && navigator.clipboard.writeText) {
             navigator.clipboard.writeText(textToCopy).then(() => {
                 setCopied(true);
