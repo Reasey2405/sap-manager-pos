@@ -79,6 +79,26 @@ export async function retrySapSyncQueue(payload) {
     return postJSON(`${API_BASE}/api/monitoring/retry-sap-invoice-sync-que`, payload)
 }
 
+export async function fetchSapReturnReceiptSyncQueue(page, size, status) {
+    let url = `${API_BASE}/api/monitoring/sap-return-receipt-sync-que?page=${page}&size=${size}`
+    if (status !== 'ALL') url += `&status=${status}`
+    return fetchJSON(url)
+}
+
+export async function retrySapReturnReceiptSyncQueue(payload) {
+    return postJSON(`${API_BASE}/api/monitoring/retry-sap-return-receipt-sync-que`, payload)
+}
+
+export async function fetchSapFinancialReceiptSyncQueue(page, size, status) {
+    let url = `${API_BASE}/api/monitoring/sap-financial-receipt-sync-que?page=${page}&size=${size}`
+    if (status !== 'ALL') url += `&status=${status}`
+    return fetchJSON(url)
+}
+
+export async function retrySapFinancialReceiptSyncQueue(payload) {
+    return postJSON(`${API_BASE}/api/monitoring/retry-sap-financial-receipt-sync-que`, payload)
+}
+
 export async function patchJSON(url, body) {
     const res = await fetchWithAuth(url, {
         method: 'PATCH',
