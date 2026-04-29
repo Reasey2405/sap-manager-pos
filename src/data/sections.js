@@ -56,7 +56,7 @@ const sections = [
             { title: 'Payment methods', icon: PaymentIcon, isImplemented: true },
             { title: 'Bank Information', icon: BankIcon, isImplemented: true },
             { title: 'User Group', icon: UsersIcon },
-            { title: 'Tax settings', icon: TaxIcon },
+            { title: 'Currency Note', icon: TaxIcon, isImplemented: true },
             { title: 'Terminal profiles', icon: TerminalIcon },
             { title: 'POS layout', icon: LayoutIcon },
             { title: 'User management', icon: UsersIcon, isImplemented: true },

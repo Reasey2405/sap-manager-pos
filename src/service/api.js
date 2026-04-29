@@ -99,6 +99,15 @@ export async function retrySapFinancialReceiptSyncQueue(payload) {
     return postJSON(`${API_BASE}/api/monitoring/retry-sap-financial-receipt-sync-que`, payload)
 }
 
+export async function deleteJSON(url) {
+    const res = await fetchWithAuth(url, { method: 'DELETE' })
+    if (!res.ok) {
+        const text = await res.text().catch(() => '')
+        throw new Error(`DELETE ${url} failed: ${res.status} ${text}`)
+    }
+    return res.json().catch(() => ({}))
+}
+
 export async function patchJSON(url, body) {
     const res = await fetchWithAuth(url, {
         method: 'PATCH',
