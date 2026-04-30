@@ -13,6 +13,7 @@ import UserManagementPage from './components/UserManagementPage'
 import ReceiptNumberingPage from './components/ReceiptNumberingPage'
 import ReportsPage from './components/ReportsPage'
 import CurrencyNotePage from './components/CurrencyNotePage'
+import DiscountPage from './components/DiscountPage'
 import './components/MonitoringPage.css'
 import './components/ReportsPage.css'
 import './components/ReceiptNumberingPage.css'
@@ -21,6 +22,7 @@ import './components/BankInformationPage.css'
 import './components/PaymentMethodsPage.css'
 import './components/LoginPage.css'
 import './components/CurrencyNotePage.css'
+import './components/DiscountPage.css'
 
 import { isAuthenticated, onSessionExpired, logout } from './service/auth'
 
@@ -163,6 +165,8 @@ function App() {
       navigateToPage('reports')
     } else if (cardTitle === 'Currency Note') {
       navigateToPage('currency-note')
+    } else if (cardTitle === 'Discount rules') {
+      navigateToPage('discount-rules')
     }
   }
 
@@ -352,6 +356,25 @@ function App() {
           onLogout={handleLogout}
         />
         <CurrencyNotePage onBack={() => navigateToPage('dashboard')} />
+        {sessionExpiredOverlay}
+      </div>
+    )
+  }
+
+  if (currentPage === 'discount-rules') {
+    return (
+      <div className="app">
+        <Navbar
+          sections={sections}
+          activeSection={activeSection}
+          mobileMenuOpen={mobileMenuOpen}
+          setMobileMenuOpen={setMobileMenuOpen}
+          scrollToSection={scrollToSection}
+          theme={theme}
+          toggleTheme={toggleTheme}
+          onLogout={handleLogout}
+        />
+        <DiscountPage onBack={() => navigateToPage('dashboard')} />
         {sessionExpiredOverlay}
       </div>
     )

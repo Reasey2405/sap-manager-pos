@@ -149,3 +149,63 @@ export async function fetchPaymentSummary(params = {}) {
     const url = `${API_BASE}/api/reports/payment-summary${buildQueryString(params)}`
     return fetchJSON(url)
 }
+
+/* ===== Discount Scheme APIs ===== */
+
+export async function fetchDiscountSchemes() {
+    return fetchJSON(`${API_BASE}/api/discount/scheme`)
+}
+
+export async function fetchDiscountScheme(id) {
+    return fetchJSON(`${API_BASE}/api/discount/scheme/${id}`)
+}
+
+export async function fetchDiscountSchemesByStatus(status) {
+    return fetchJSON(`${API_BASE}/api/discount/scheme/status/${status}`)
+}
+
+export async function createDiscountScheme(data) {
+    return postJSON(`${API_BASE}/api/discount/scheme`, data)
+}
+
+export async function updateDiscountScheme(id, data) {
+    return putJSON(`${API_BASE}/api/discount/scheme/${id}`, data)
+}
+
+export async function deleteDiscountScheme(id) {
+    return deleteJSON(`${API_BASE}/api/discount/scheme/${id}`)
+}
+
+export async function activateScheme(id) {
+    return patchJSON(`${API_BASE}/api/discount/scheme/${id}/activate`)
+}
+
+export async function pauseScheme(id) {
+    return patchJSON(`${API_BASE}/api/discount/scheme/${id}/pause`)
+}
+
+export async function expireScheme(id) {
+    return patchJSON(`${API_BASE}/api/discount/scheme/${id}/expire`)
+}
+
+/* ===== Coupon APIs ===== */
+
+export async function generateCoupons(data) {
+    return postJSON(`${API_BASE}/api/discount/coupon/generate`, data)
+}
+
+export async function fetchCouponsByScheme(schemeId) {
+    return fetchJSON(`${API_BASE}/api/discount/coupon/scheme/${schemeId}`)
+}
+
+export async function activateCoupon(couponId) {
+    return patchJSON(`${API_BASE}/api/discount/coupon/${couponId}/activate`)
+}
+
+export async function deactivateCoupon(couponId) {
+    return patchJSON(`${API_BASE}/api/discount/coupon/${couponId}/deactivate`)
+}
+
+export async function validateCoupon(code) {
+    return fetchJSON(`${API_BASE}/api/discount/coupon/validate?code=${encodeURIComponent(code)}`)
+}

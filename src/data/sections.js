@@ -87,7 +87,7 @@ const sections = [
         label: 'Coupons',
         cards: [
             { title: 'Coupon management', icon: TagIcon },
-            { title: 'Discount rules', icon: PercentIcon },
+            { title: 'Discount rules', icon: PercentIcon, isImplemented: false },
             { title: 'Campaign overview', icon: ClipboardIcon },
             { title: 'Redemption reports', icon: MonitoringReportsIcon },
         ],
