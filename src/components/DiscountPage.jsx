@@ -438,6 +438,8 @@ function RuleDetailCard({ rule, index }) {
                         <div><span className="disc-dl-label">Max Discount:</span> <span>{rule.maxDiscountAmount ?? '--'}</span></div>
                         <div><span className="disc-dl-label">Min Order:</span> <span>{rule.minOrderAmount ?? '--'}</span></div>
                         <div><span className="disc-dl-label">Min Qty:</span> <span>{rule.minQuantity ?? '--'}</span></div>
+                        <div><span className="disc-dl-label">Min Line Total:</span> <span>{rule.minLineTotal ?? '--'}</span></div>
+                        <div><span className="disc-dl-label">Min Unit Price:</span> <span>{rule.minLineUnitPrice ?? '--'}</span></div>
                         <div><span className="disc-dl-label">Rounding:</span> <span>{rule.roundingRule ?? '--'}</span></div>
                     </div>
 
@@ -540,7 +542,7 @@ function SchemeModal({ scheme, onSubmit, onClose }) {
         updateField('rules', [...form.rules, {
             name: '', sequence: form.rules.length + 1, discountType: 'PERCENTAGE',
             discountValue: 0, applyTo: 'TRANSACTION', maxDiscountAmount: null, minOrderAmount: null,
-            minQuantity: null, roundingRule: 'NEAREST_CENT', conditions: [], tiers: [], buyXGetYRule: null
+            minQuantity: null, minLineTotal: null, minLineUnitPrice: null, roundingRule: 'NEAREST_CENT', conditions: [], tiers: [], buyXGetYRule: null
         }])
     }
     const updateRule = (idx, field, value) => {
@@ -669,6 +671,8 @@ function SchemeModal({ scheme, onSubmit, onClose }) {
                     maxDiscountAmount: r.maxDiscountAmount ? Number(r.maxDiscountAmount) : null,
                     minOrderAmount: r.minOrderAmount ? Number(r.minOrderAmount) : null,
                     minQuantity: r.minQuantity ? Number(r.minQuantity) : null,
+                    minLineTotal: r.minLineTotal ? Number(r.minLineTotal) : null,
+                    minLineUnitPrice: r.minLineUnitPrice ? Number(r.minLineUnitPrice) : null,
                     conditions: (r.conditions || []).map(c => ({ ...c })),
                     tiers: (r.tiers || []).map(t => ({
                         ...t,
@@ -864,6 +868,17 @@ function SchemeModal({ scheme, onSubmit, onClose }) {
                                             <select className="org-form-input" value={rule.roundingRule} onChange={e => updateRule(ri, 'roundingRule', e.target.value)}>
                                                 {ROUNDING_RULES.map(r => <option key={r} value={r}>{r}</option>)}
                                             </select>
+                                        </FormField>
+                                    </div>
+
+                                    <div className="org-form-grid three-col">
+                                        <FormField label="Min Line Total">
+                                            <input type="number" className="org-form-input" value={rule.minLineTotal || ''}
+                                                onChange={e => updateRule(ri, 'minLineTotal', e.target.value)} step="0.01" placeholder="None" />
+                                        </FormField>
+                                        <FormField label="Min Line Unit Price">
+                                            <input type="number" className="org-form-input" value={rule.minLineUnitPrice || ''}
+                                                onChange={e => updateRule(ri, 'minLineUnitPrice', e.target.value)} step="0.01" placeholder="None" />
                                         </FormField>
                                     </div>
 
