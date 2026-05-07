@@ -1,0 +1,273 @@
+/* ── Page wrapper ── */
+.ii-page-wrap {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1.5rem 3rem;
+}
+
+.ii-page-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-top: 0.5rem;
+}
+
+/* ── Item list ── */
+.ii-item-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.ii-item-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    padding: 0.7rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    border: 1px solid var(--border-color, rgba(255,255,255,0.08));
+    background: var(--bg-card, rgba(255,255,255,0.03));
+    transition: background 0.15s, border-color 0.15s;
+}
+
+.ii-item-card:hover {
+    background: var(--bg-card-hover, rgba(255,255,255,0.07));
+    border-color: var(--accent, #6366f1);
+}
+
+.ii-item-card.selected {
+    border-color: var(--accent, #6366f1);
+    background: var(--bg-card-selected, rgba(99,102,241,0.12));
+}
+
+.ii-item-code {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    color: var(--accent, #6366f1);
+    text-transform: uppercase;
+}
+
+.ii-item-name {
+    font-size: 0.9rem;
+    color: var(--text-primary, #f1f5f9);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ii-item-uom-count {
+    font-size: 0.72rem;
+    color: var(--text-muted, #94a3b8);
+}
+
+/* ── Right panel ── */
+.ii-panel {
+    background: var(--bg-surface, rgba(255,255,255,0.04));
+    border: 1px solid var(--border-color, rgba(255,255,255,0.08));
+    border-radius: 12px;
+    padding: 1.4rem;
+    min-height: 320px;
+}
+
+.ii-panel-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted, #94a3b8);
+    font-size: 0.9rem;
+}
+
+.ii-panel-header {
+    margin-bottom: 1rem;
+    padding-bottom: 0.8rem;
+    border-bottom: 1px solid var(--border-color, rgba(255,255,255,0.08));
+}
+
+.ii-panel-code {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: var(--accent, #6366f1);
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 0.2rem;
+}
+
+.ii-panel-name {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary, #f1f5f9);
+}
+
+/* ── UOM tabs ── */
+.ii-uom-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-bottom: 1.2rem;
+}
+
+.ii-uom-tab {
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    border: 1px solid var(--border-color, rgba(255,255,255,0.12));
+    background: transparent;
+    color: var(--text-secondary, #cbd5e1);
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+}
+
+.ii-uom-tab:hover {
+    border-color: var(--accent, #6366f1);
+    color: var(--text-primary, #f1f5f9);
+}
+
+.ii-uom-tab.active {
+    background: var(--accent, #6366f1);
+    border-color: var(--accent, #6366f1);
+    color: #fff;
+    font-weight: 600;
+}
+
+.ii-uom-tab-name {
+    opacity: 0.7;
+    font-weight: 400;
+}
+
+.ii-no-uom {
+    font-size: 0.85rem;
+    color: var(--text-muted, #94a3b8);
+    margin-bottom: 0.5rem;
+}
+
+/* ── Image area ── */
+.ii-image-area {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+}
+
+/* ── Upload zone ── */
+.ii-upload-zone {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 2.5rem 1.5rem;
+    border: 2px dashed var(--border-color, rgba(255,255,255,0.15));
+    border-radius: 10px;
+    cursor: pointer;
+    color: var(--text-muted, #94a3b8);
+    transition: border-color 0.15s, background 0.15s;
+    text-align: center;
+}
+
+.ii-upload-zone:hover,
+.ii-upload-zone.drag-over {
+    border-color: var(--accent, #6366f1);
+    background: rgba(99, 102, 241, 0.06);
+    color: var(--text-primary, #f1f5f9);
+}
+
+.ii-upload-hint {
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+.ii-upload-types {
+    font-size: 0.72rem;
+    opacity: 0.6;
+}
+
+/* ── Preview ── */
+.ii-preview-wrap {
+    background: var(--bg-secondary, rgba(0,0,0,0.2));
+    border-radius: 8px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 180px;
+    max-height: 340px;
+}
+
+.ii-preview-img {
+    max-width: 100%;
+    max-height: 340px;
+    object-fit: contain;
+    display: block;
+}
+
+.ii-meta-info {
+    font-size: 0.75rem;
+    color: var(--text-muted, #94a3b8);
+    margin: 0;
+}
+
+/* ── Actions ── */
+.ii-actions {
+    display: flex;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+}
+
+.ii-replace-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    cursor: pointer;
+}
+
+.ii-replace-btn.disabled {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+.ii-delete-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.4rem 0.9rem;
+    border-radius: 6px;
+    border: 1px solid rgba(239, 68, 68, 0.4);
+    background: rgba(239, 68, 68, 0.08);
+    color: #f87171;
+    font-size: 0.82rem;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.ii-delete-btn:hover:not(:disabled) {
+    background: rgba(239, 68, 68, 0.2);
+    border-color: #ef4444;
+}
+
+.ii-delete-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+/* ── Status message ── */
+.ii-msg {
+    font-size: 0.82rem;
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+}
+
+.ii-msg.success {
+    background: rgba(34, 197, 94, 0.12);
+    color: #4ade80;
+    border: 1px solid rgba(34, 197, 94, 0.25);
+}
+
+.ii-msg.error {
+    background: rgba(239, 68, 68, 0.1);
+    color: #f87171;
+    border: 1px solid rgba(239, 68, 68, 0.25);
+}

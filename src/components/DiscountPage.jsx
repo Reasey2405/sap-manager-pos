@@ -105,7 +105,7 @@ const ChevronUpIcon = () => (
 const STATUS_OPTIONS = ['DRAFT', 'ACTIVE', 'PAUSED', 'EXPIRED']
 const COMBINATION_MODES = ['EXCLUSIVE', 'ADDITIVE', 'BEST_OF']
 const SCOPES = ['GLOBAL', 'POS_GROUP', 'POS_TERMINAL']
-const DISCOUNT_TYPES = ['PERCENTAGE', 'FIXED_AMOUNT', 'TIERED', 'BUY_X_GET_Y', 'FREE_ITEM']
+const DISCOUNT_TYPES = ['PERCENTAGE', 'FIXED_AMOUNT', 'TIERED', 'BUY_X_GET_Y', 'BUY_COMBO_GET_Y', 'FREE_ITEM']
 const APPLY_TO = ['TRANSACTION', 'LINE_ITEM', 'CHEAPEST_ITEM']
 const ROUNDING_RULES = ['NEAREST_CENT', 'FLOOR', 'CEILING']
 const CONDITION_TYPES = ['PRODUCT', 'CATEGORY', 'CUSTOMER_GROUP', 'PAYMENT_METHOD', 'TIME_OF_DAY', 'DAY_OF_WEEK', 'QUANTITY_THRESHOLD', 'BASKET_VALUE', 'FIRST_PURCHASE', 'COUPON_CODE']
@@ -113,6 +113,7 @@ const CONDITION_OPERATORS = ['EQUALS', 'NOT_EQUALS', 'GREATER_THAN', 'LESS_THAN'
 const ENTITLEMENT_TYPES = ['PUBLIC', 'CUSTOMER_GROUP', 'SPECIFIC_CUSTOMER', 'COUPON']
 const COUPON_TYPES = ['SINGLE_USE', 'MULTI_USE']
 const BUY_X_GET_Y_SCOPES = ['SPECIFIC_PRODUCTS', 'ANY_PRODUCT']
+const BUY_COMBO_GET_Y_SCOPES = ['SPECIFIC_PRODUCT', 'CATEGORY', 'CHEAPEST_IN_BASKET']
 
 const STATUS_COLORS = {
     DRAFT: 'draft',
@@ -504,6 +505,34 @@ function RuleDetailCard({ rule, index }) {
                             )}
                         </div>
                     )}
+
+                    {/* BuyComboGetY */}
+                    {rule.buyComboGetYRule && (
+                        <div className="disc-rule-sub-section">
+                            <h5>Buy Combo Get Y</h5>
+                            <div className="disc-rule-detail-grid">
+                                <div><span className="disc-dl-label">Get Qty:</span> <span>{rule.buyComboGetYRule.getQuantity}</span></div>
+                                <div><span className="disc-dl-label">Get Scope:</span> <span>{rule.buyComboGetYRule.getScope}</span></div>
+                                <div><span className="disc-dl-label">Get Discount:</span> <span>{rule.buyComboGetYRule.getDiscountPercentage}%</span></div>
+                            </div>
+                            {rule.buyComboGetYRule.comboItems?.length > 0 && (
+                                <div className="disc-product-ids">
+                                    <span className="disc-dl-label">Combo Items:</span>
+                                    <div className="disc-tag-list inline">
+                                        {rule.buyComboGetYRule.comboItems.map((item, i) => (
+                                            <span key={i} className="disc-tag small">{item.requiredQty}x {item.itemCode}</span>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                            {rule.buyComboGetYRule.getProductIds?.length > 0 && (
+                                <div className="disc-product-ids">
+                                    <span className="disc-dl-label">Get Products:</span>
+                                    <div className="disc-tag-list inline">{rule.buyComboGetYRule.getProductIds.map((p, i) => <span key={i} className="disc-tag small">{p}</span>)}</div>
+                                </div>
+                            )}
+                        </div>
+                    )}
                 </div>
             )}
         </div>
@@ -542,7 +571,7 @@ function SchemeModal({ scheme, onSubmit, onClose }) {
         updateField('rules', [...form.rules, {
             name: '', sequence: form.rules.length + 1, discountType: 'PERCENTAGE',
             discountValue: 0, applyTo: 'TRANSACTION', maxDiscountAmount: null, minOrderAmount: null,
-            minQuantity: null, minLineTotal: null, minLineUnitPrice: null, roundingRule: 'NEAREST_CENT', conditions: [], tiers: [], buyXGetYRule: null
+            minQuantity: null, minLineTotal: null, minLineUnitPrice: null, roundingRule: 'NEAREST_CENT', conditions: [], tiers: [], buyXGetYRule: null, buyComboGetYRule: null
         }])
     }
     const updateRule = (idx, field, value) => {
@@ -630,6 +659,60 @@ function SchemeModal({ scheme, onSubmit, onClose }) {
         updateField('rules', updated)
     }
 
+    /* ── BuyComboGetY management ── */
+    const toggleBuyComboGetY = (ruleIdx) => {
+        const updated = [...form.rules]
+        if (updated[ruleIdx].buyComboGetYRule) {
+            updated[ruleIdx] = { ...updated[ruleIdx], buyComboGetYRule: null }
+        } else {
+            updated[ruleIdx] = {
+                ...updated[ruleIdx],
+                buyComboGetYRule: {
+                    comboItems: [{ itemCode: '', requiredQty: 1 }],
+                    getQuantity: 1, getScope: 'SPECIFIC_PRODUCT', getProductIds: [],
+                    getDiscountPercentage: 100
+                }
+            }
+        }
+        updateField('rules', updated)
+    }
+    const updateBuyComboGetY = (ruleIdx, field, value) => {
+        const updated = [...form.rules]
+        updated[ruleIdx] = {
+            ...updated[ruleIdx],
+            buyComboGetYRule: { ...updated[ruleIdx].buyComboGetYRule, [field]: value }
+        }
+        updateField('rules', updated)
+    }
+    const addComboItem = (ruleIdx) => {
+        const updated = [...form.rules]
+        const comboItems = [...(updated[ruleIdx].buyComboGetYRule.comboItems || []), { itemCode: '', requiredQty: 1 }]
+        updated[ruleIdx] = {
+            ...updated[ruleIdx],
+            buyComboGetYRule: { ...updated[ruleIdx].buyComboGetYRule, comboItems }
+        }
+        updateField('rules', updated)
+    }
+    const updateComboItem = (ruleIdx, itemIdx, field, value) => {
+        const updated = [...form.rules]
+        const comboItems = [...updated[ruleIdx].buyComboGetYRule.comboItems]
+        comboItems[itemIdx] = { ...comboItems[itemIdx], [field]: value }
+        updated[ruleIdx] = {
+            ...updated[ruleIdx],
+            buyComboGetYRule: { ...updated[ruleIdx].buyComboGetYRule, comboItems }
+        }
+        updateField('rules', updated)
+    }
+    const removeComboItem = (ruleIdx, itemIdx) => {
+        const updated = [...form.rules]
+        const comboItems = updated[ruleIdx].buyComboGetYRule.comboItems.filter((_, i) => i !== itemIdx)
+        updated[ruleIdx] = {
+            ...updated[ruleIdx],
+            buyComboGetYRule: { ...updated[ruleIdx].buyComboGetYRule, comboItems }
+        }
+        updateField('rules', updated)
+    }
+
     /* ── Entitlement management ── */
     const addEntitlement = () => {
         updateField('entitlements', [...form.entitlements, { entitlementType: 'PUBLIC', referenceId: '', usageLimitPerCustomer: null }])
@@ -664,35 +747,50 @@ function SchemeModal({ scheme, onSubmit, onClose }) {
                 approvedBy: form.approvedBy || null,
                 scope: form.scope,
                 scopeIds: form.scopeIds ? form.scopeIds.split(',').map(s => s.trim()).filter(Boolean) : [],
-                rules: form.rules.map((r, i) => ({
-                    ...r,
-                    sequence: r.sequence ?? i + 1,
-                    discountValue: Number(r.discountValue) || 0,
-                    maxDiscountAmount: r.maxDiscountAmount ? Number(r.maxDiscountAmount) : null,
-                    minOrderAmount: r.minOrderAmount ? Number(r.minOrderAmount) : null,
-                    minQuantity: r.minQuantity ? Number(r.minQuantity) : null,
-                    minLineTotal: r.minLineTotal ? Number(r.minLineTotal) : null,
-                    minLineUnitPrice: r.minLineUnitPrice ? Number(r.minLineUnitPrice) : null,
-                    conditions: (r.conditions || []).map(c => ({ ...c })),
-                    tiers: (r.tiers || []).map(t => ({
-                        ...t,
-                        minValue: Number(t.minValue) || 0,
-                        maxValue: t.maxValue ? Number(t.maxValue) : null,
-                        discountValue: Number(t.discountValue) || 0,
-                    })),
-                    buyXGetYRule: r.buyXGetYRule ? {
-                        ...r.buyXGetYRule,
-                        buyQuantity: Number(r.buyXGetYRule.buyQuantity) || 1,
-                        getQuantity: Number(r.buyXGetYRule.getQuantity) || 1,
-                        getDiscountPercentage: Number(r.buyXGetYRule.getDiscountPercentage) || 100,
-                        buyProductIds: typeof r.buyXGetYRule.buyProductIds === 'string'
-                            ? r.buyXGetYRule.buyProductIds.split(',').map(s => s.trim()).filter(Boolean)
-                            : (r.buyXGetYRule.buyProductIds || []),
-                        getProductIds: typeof r.buyXGetYRule.getProductIds === 'string'
-                            ? r.buyXGetYRule.getProductIds.split(',').map(s => s.trim()).filter(Boolean)
-                            : (r.buyXGetYRule.getProductIds || []),
-                    } : null,
-                })),
+                rules: form.rules.map((r, i) => {
+                    const isBuyCombo = r.discountType === 'BUY_COMBO_GET_Y';
+                    return {
+                        ...r,
+                        sequence: r.sequence ?? i + 1,
+                        discountValue: isBuyCombo ? null : (Number(r.discountValue) || 0),
+                        maxDiscountAmount: r.maxDiscountAmount ? Number(r.maxDiscountAmount) : null,
+                        minOrderAmount: r.minOrderAmount ? Number(r.minOrderAmount) : null,
+                        minQuantity: r.minQuantity ? Number(r.minQuantity) : null,
+                        minLineTotal: r.minLineTotal ? Number(r.minLineTotal) : null,
+                        minLineUnitPrice: r.minLineUnitPrice ? Number(r.minLineUnitPrice) : null,
+                        conditions: (r.conditions || []).map(c => ({ ...c })),
+                        tiers: (r.tiers || []).map(t => ({
+                            ...t,
+                            minValue: Number(t.minValue) || 0,
+                            maxValue: t.maxValue ? Number(t.maxValue) : null,
+                            discountValue: Number(t.discountValue) || 0,
+                        })),
+                        buyXGetYRule: (isBuyCombo || !r.buyXGetYRule) ? null : {
+                            ...r.buyXGetYRule,
+                            buyQuantity: Number(r.buyXGetYRule.buyQuantity) || 1,
+                            getQuantity: Number(r.buyXGetYRule.getQuantity) || 1,
+                            getDiscountPercentage: Number(r.buyXGetYRule.getDiscountPercentage) || 100,
+                            buyProductIds: typeof r.buyXGetYRule.buyProductIds === 'string'
+                                ? r.buyXGetYRule.buyProductIds.split(',').map(s => s.trim()).filter(Boolean)
+                                : (r.buyXGetYRule.buyProductIds || []),
+                            getProductIds: typeof r.buyXGetYRule.getProductIds === 'string'
+                                ? r.buyXGetYRule.getProductIds.split(',').map(s => s.trim()).filter(Boolean)
+                                : (r.buyXGetYRule.getProductIds || []),
+                        },
+                        buyComboGetYRule: (!isBuyCombo || !r.buyComboGetYRule) ? null : {
+                            ...r.buyComboGetYRule,
+                            getQuantity: Number(r.buyComboGetYRule.getQuantity) || 1,
+                            getDiscountPercentage: Number(r.buyComboGetYRule.getDiscountPercentage) || 100,
+                            getProductIds: typeof r.buyComboGetYRule.getProductIds === 'string'
+                                ? r.buyComboGetYRule.getProductIds.split(',').map(s => s.trim()).filter(Boolean)
+                                : (r.buyComboGetYRule.getProductIds || []),
+                            comboItems: (r.buyComboGetYRule.comboItems || []).map(ci => ({
+                                itemCode: ci.itemCode,
+                                requiredQty: Number(ci.requiredQty) || 1
+                            })).filter(ci => ci.itemCode)
+                        }
+                    };
+                }),
                 entitlements: form.entitlements.map(ent => ({
                     ...ent,
                     usageLimitPerCustomer: ent.usageLimitPerCustomer ? Number(ent.usageLimitPerCustomer) : null,
@@ -1003,6 +1101,74 @@ function SchemeModal({ scheme, onSubmit, onClose }) {
                                                     )}
                                                     <button type="button" className="toolbar-btn tiny danger" onClick={() => toggleBuyXGetY(ri)}>
                                                         <TrashIcon /> Remove Buy X Get Y
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+
+                                    {/* BuyComboGetY (for BUY_COMBO_GET_Y type) */}
+                                    {rule.discountType === 'BUY_COMBO_GET_Y' && (
+                                        <div className="disc-sub-section">
+                                            <div className="disc-section-header small">
+                                                <span>Buy Combo Get Y Rule</span>
+                                                {!rule.buyComboGetYRule && (
+                                                    <button type="button" className="toolbar-btn tiny" onClick={() => toggleBuyComboGetY(ri)}>
+                                                        <PlusIcon /> Configure
+                                                    </button>
+                                                )}
+                                            </div>
+                                            {rule.buyComboGetYRule && (
+                                                <div className="disc-bxgy-editor">
+                                                    <div className="disc-section-header small">
+                                                        <span>Combo Items</span>
+                                                        <button type="button" className="toolbar-btn tiny" onClick={() => addComboItem(ri)}>
+                                                            <PlusIcon /> Add Item
+                                                        </button>
+                                                    </div>
+                                                    {(rule.buyComboGetYRule.comboItems || []).map((item, idx) => (
+                                                        <div key={idx} className="org-form-grid three-col" style={{ alignItems: 'flex-end', marginBottom: '8px' }}>
+                                                            <FormField label="Item Code" required>
+                                                                <input type="text" className="org-form-input" value={item.itemCode}
+                                                                    onChange={e => updateComboItem(ri, idx, 'itemCode', e.target.value)} placeholder="ITEM-A" />
+                                                            </FormField>
+                                                            <FormField label="Required Qty" required>
+                                                                <input type="number" className="org-form-input" value={item.requiredQty}
+                                                                    onChange={e => updateComboItem(ri, idx, 'requiredQty', e.target.value)} min={1} />
+                                                            </FormField>
+                                                            <div>
+                                                                <button type="button" className="toolbar-btn tiny danger" onClick={() => removeComboItem(ri, idx)} style={{ marginBottom: '4px' }}>
+                                                                    <TrashIcon /> Remove
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                    <div className="org-form-divider" style={{ margin: '16px 0' }} />
+                                                    <div className="org-form-grid three-col">
+                                                        <FormField label="Get Quantity" required>
+                                                            <input type="number" className="org-form-input" value={rule.buyComboGetYRule.getQuantity}
+                                                                onChange={e => updateBuyComboGetY(ri, 'getQuantity', e.target.value)} min={1} />
+                                                        </FormField>
+                                                        <FormField label="Get Scope" required>
+                                                            <select className="org-form-input" value={rule.buyComboGetYRule.getScope}
+                                                                onChange={e => updateBuyComboGetY(ri, 'getScope', e.target.value)}>
+                                                                {BUY_COMBO_GET_Y_SCOPES.map(s => <option key={s} value={s}>{s}</option>)}
+                                                            </select>
+                                                        </FormField>
+                                                        <FormField label="Get Discount %" required>
+                                                            <input type="number" className="org-form-input" value={rule.buyComboGetYRule.getDiscountPercentage}
+                                                                onChange={e => updateBuyComboGetY(ri, 'getDiscountPercentage', e.target.value)} step="0.01" max={100} />
+                                                        </FormField>
+                                                    </div>
+                                                    {rule.buyComboGetYRule.getScope !== 'CHEAPEST_IN_BASKET' && (
+                                                        <FormField label="Get Product IDs" hint="Comma-separated">
+                                                            <input type="text" className="org-form-input"
+                                                                value={Array.isArray(rule.buyComboGetYRule.getProductIds) ? rule.buyComboGetYRule.getProductIds.join(', ') : rule.buyComboGetYRule.getProductIds || ''}
+                                                                onChange={e => updateBuyComboGetY(ri, 'getProductIds', e.target.value)} />
+                                                        </FormField>
+                                                    )}
+                                                    <button type="button" className="toolbar-btn tiny danger" onClick={() => toggleBuyComboGetY(ri)} style={{ marginTop: '16px' }}>
+                                                        <TrashIcon /> Remove Buy Combo Get Y
                                                     </button>
                                                 </div>
                                             )}

@@ -1,20 +1,28 @@
-import { getAuthHeaders, refreshAccessToken, notifySessionExpired } from './auth'
+import { getAuthHeaders, getAccessToken, refreshAccessToken, notifySessionExpired } from './auth'
 
 export const API_BASE = import.meta.env.PROD ? '' : 'http://localhost:9988'
 
 /**
  * Wrapper that retries once on 401 by refreshing the token.
  */
-async function fetchWithAuth(url, options = {}) {
-    // First attempt
-    options.headers = getAuthHeaders(options.headers)
+export async function fetchWithAuth(url, options = {}) {
+    // When the body is FormData let the browser set Content-Type automatically
+    // (it must include the multipart boundary). For all other requests use the
+    // standard JSON headers.
+    const isFormData = options.body instanceof FormData
+    options.headers = isFormData
+        ? { Authorization: `Bearer ${getAccessToken()}`, Accept: '*/*', ...options.headers }
+        : getAuthHeaders(options.headers)
+
     let res = await fetch(url, options)
 
     // If 401, try to refresh and retry once
     if (res.status === 401) {
         try {
             await refreshAccessToken()
-            options.headers = getAuthHeaders(options.headers)
+            options.headers = isFormData
+                ? { Authorization: `Bearer ${getAccessToken()}`, Accept: '*/*', ...options.headers }
+                : getAuthHeaders(options.headers)
             res = await fetch(url, options)
         } catch {
             notifySessionExpired()
@@ -208,4 +216,43 @@ export async function deactivateCoupon(couponId) {
 
 export async function validateCoupon(code) {
     return fetchJSON(`${API_BASE}/api/discount/coupon/validate?code=${encodeURIComponent(code)}`)
+}
+
+/* ===== Item APIs ===== */
+
+export async function fetchItemsWithUom(search = '') {
+    const qs = search ? `?search=${encodeURIComponent(search)}` : ''
+    return fetchJSON(`${API_BASE}/api/master_data/items${qs}`)
+}
+
+/* ===== Item Image APIs ===== */
+
+export async function fetchItemImageMeta(itemCode, uomEntry) {
+    return fetchJSON(`${API_BASE}/api/item-image/${encodeURIComponent(itemCode)}/uom/${uomEntry}`)
+}
+
+export async function fetchItemImageBlob(itemCode, uomEntry) {
+    const res = await fetchWithAuth(
+        `${API_BASE}/api/item-image/${encodeURIComponent(itemCode)}/uom/${uomEntry}/raw`
+    )
+    if (!res.ok) throw new Error(`No image: ${res.status}`)
+    return res.blob()
+}
+
+export async function uploadItemImage(itemCode, uomEntry, file) {
+    const form = new FormData()
+    form.append('file', file)
+    const res = await fetchWithAuth(
+        `${API_BASE}/api/item-image/${encodeURIComponent(itemCode)}/uom/${uomEntry}`,
+        { method: 'POST', body: form }
+    )
+    if (!res.ok) {
+        const text = await res.text().catch(() => '')
+        throw new Error(`Upload failed: ${res.status} ${text}`)
+    }
+    return res.json()
+}
+
+export async function deleteItemImage(itemCode, uomEntry) {
+    return deleteJSON(`${API_BASE}/api/item-image/${encodeURIComponent(itemCode)}/uom/${uomEntry}`)
 }

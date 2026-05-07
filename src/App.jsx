@@ -14,6 +14,7 @@ import ReceiptNumberingPage from './components/ReceiptNumberingPage'
 import ReportsPage from './components/ReportsPage'
 import CurrencyNotePage from './components/CurrencyNotePage'
 import DiscountPage from './components/DiscountPage'
+import ItemImagePage from './components/ItemImagePage'
 import './components/MonitoringPage.css'
 import './components/ReportsPage.css'
 import './components/ReceiptNumberingPage.css'
@@ -23,6 +24,7 @@ import './components/PaymentMethodsPage.css'
 import './components/LoginPage.css'
 import './components/CurrencyNotePage.css'
 import './components/DiscountPage.css'
+import './components/ItemImagePage.css'
 
 import { isAuthenticated, onSessionExpired, logout } from './service/auth'
 
@@ -167,6 +169,8 @@ function App() {
       navigateToPage('currency-note')
     } else if (cardTitle === 'Discount rules') {
       navigateToPage('discount-rules')
+    } else if (cardTitle === 'Item Img') {
+      navigateToPage('item-img')
     }
   }
 
@@ -375,6 +379,25 @@ function App() {
           onLogout={handleLogout}
         />
         <DiscountPage onBack={() => navigateToPage('dashboard')} />
+        {sessionExpiredOverlay}
+      </div>
+    )
+  }
+
+  if (currentPage === 'item-img') {
+    return (
+      <div className="app">
+        <Navbar
+          sections={sections}
+          activeSection={activeSection}
+          mobileMenuOpen={mobileMenuOpen}
+          setMobileMenuOpen={setMobileMenuOpen}
+          scrollToSection={scrollToSection}
+          theme={theme}
+          toggleTheme={toggleTheme}
+          onLogout={handleLogout}
+        />
+        <ItemImagePage onBack={() => navigateToPage('dashboard')} />
         {sessionExpiredOverlay}
       </div>
     )

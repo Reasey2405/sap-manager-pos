@@ -33,6 +33,7 @@ import {
     InboxIcon,
     FileTextIcon,
     BankIcon,
+    ImageIcon,
 } from '../components/Icons'
 
 const sections = [
@@ -60,6 +61,7 @@ const sections = [
             { title: 'Terminal profiles', icon: TerminalIcon },
             { title: 'POS layout', icon: LayoutIcon },
             { title: 'User management', icon: UsersIcon, isImplemented: true },
+            { title: 'Item Img', icon: ImageIcon, isImplemented: true },
         ],
     },
     {
