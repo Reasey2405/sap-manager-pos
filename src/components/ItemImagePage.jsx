@@ -19,14 +19,14 @@ const SearchIcon = () => (
         <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
     </svg>
 )
-const UploadIcon = () => (
-    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+const UploadIcon = ({ size = 32 }) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
         <polyline points="16 16 12 12 8 16" /><line x1="12" y1="12" x2="12" y2="21" />
         <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3" />
     </svg>
 )
 const TrashIcon = () => (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <polyline points="3 6 5 6 21 6" />
         <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
         <path d="M10 11v6M14 11v6M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
@@ -37,23 +37,39 @@ const RefreshIcon = () => (
         <polyline points="23 4 23 10 17 10" /><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
     </svg>
 )
+const BoxIcon = () => (
+    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+        <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+        <line x1="12" y1="22.08" x2="12" y2="12" />
+    </svg>
+)
+const ImageIcon = () => (
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="3" y="3" width="18" height="18" rx="2" />
+        <circle cx="8.5" cy="8.5" r="1.5" />
+        <polyline points="21 15 16 10 5 21" />
+    </svg>
+)
 
 /* ── UOM tab strip ── */
 function UomTabs({ uoms, selected, onSelect }) {
     return (
-        <div className="ii-uom-tabs">
-            {uoms.map(u => (
-                <button
-                    key={u.uomEntry}
-                    className={`ii-uom-tab${selected?.uomEntry === u.uomEntry ? ' active' : ''}`}
-                    onClick={() => onSelect(u)}
-                >
-                    {u.uomCode}
-                    {u.uomName && u.uomName !== u.uomCode && (
-                        <span className="ii-uom-tab-name"> · {u.uomName}</span>
-                    )}
-                </button>
-            ))}
+        <div className="ii-uom-tabs-wrap">
+            <div className="ii-uom-tabs">
+                {uoms.map(u => (
+                    <button
+                        key={u.uomEntry}
+                        className={`ii-uom-tab${selected?.uomEntry === u.uomEntry ? ' active' : ''}`}
+                        onClick={() => onSelect(u)}
+                    >
+                        {u.uomCode}
+                        {u.uomName && u.uomName !== u.uomCode && (
+                            <span className="ii-uom-tab-name"> · {u.uomName}</span>
+                        )}
+                    </button>
+                ))}
+            </div>
         </div>
     )
 }
@@ -76,11 +92,11 @@ function UploadZone({ onFile, busy }) {
             onDragLeave={() => setDragging(false)}
             onDrop={e => { e.preventDefault(); setDragging(false); handle(e.dataTransfer.files[0]) }}
         >
-            <UploadIcon />
+            <UploadIcon size={36} />
             <p className="ii-upload-hint">
                 {busy ? 'Uploading…' : 'Drop an image here or click to browse'}
             </p>
-            <span className="ii-upload-types">PNG, JPG, WEBP</span>
+            <span className="ii-upload-types">PNG · JPG · WEBP</span>
             <input
                 ref={inputRef}
                 type="file"
@@ -94,13 +110,12 @@ function UploadZone({ onFile, busy }) {
 
 /* ── Right panel ── */
 function ImagePanel({ item, uom, onUomChange }) {
-    const [meta, setMeta]         = useState(null)   // null = no image
-    const [imgUrl, setImgUrl]     = useState(null)
+    const [meta, setMeta] = useState(null)
+    const [imgUrl, setImgUrl] = useState(null)
     const [loadingImg, setLoading] = useState(false)
-    const [busy, setBusy]         = useState(false)
-    const [msg, setMsg]           = useState('')
+    const [busy, setBusy] = useState(false)
+    const [msg, setMsg] = useState('')
 
-    /* Revoke previous blob URL on unmount / change */
     useEffect(() => {
         return () => { if (imgUrl) URL.revokeObjectURL(imgUrl) }
     }, [imgUrl])
@@ -114,7 +129,6 @@ function ImagePanel({ item, uom, onUomChange }) {
         try {
             const m = await fetchItemImageMeta(item.itemCode, uom.uomEntry)
             setMeta(m)
-            // null means no image exists yet — skip blob fetch, show upload zone
             if (m) {
                 const blob = await fetchItemImageBlob(item.itemCode, uom.uomEntry)
                 setImgUrl(URL.createObjectURL(blob))
@@ -160,6 +174,7 @@ function ImagePanel({ item, uom, onUomChange }) {
 
     if (!item) return (
         <div className="ii-panel ii-panel-empty">
+            <ImageIcon />
             <p>Select an item from the list</p>
         </div>
     )
@@ -168,10 +183,8 @@ function ImagePanel({ item, uom, onUomChange }) {
         <div className="ii-panel">
             {/* Item header */}
             <div className="ii-panel-header">
-                <div>
-                    <span className="ii-panel-code">{item.itemCode}</span>
-                    <h3 className="ii-panel-name">{item.itemName || '—'}</h3>
-                </div>
+                <span className="ii-panel-code">{item.itemCode}</span>
+                <h3 className="ii-panel-name">{item.itemName || '—'}</h3>
             </div>
 
             {/* UOM tabs */}
@@ -192,11 +205,13 @@ function ImagePanel({ item, uom, onUomChange }) {
                                 <img src={imgUrl} alt={`${item.itemCode} · ${uom.uomCode}`} className="ii-preview-img" />
                             </div>
                             <p className="ii-meta-info">
-                                {meta?.fileName} &nbsp;·&nbsp; last updated {meta?.updatedAt ? new Date(meta.updatedAt).toLocaleDateString() : '—'}
+                                <span>{meta?.fileName}</span>
+                                <span className="ii-meta-sep">·</span>
+                                <span>Updated {meta?.updatedAt ? new Date(meta.updatedAt).toLocaleDateString() : '—'}</span>
                             </p>
                             <div className="ii-actions">
                                 <label className={`toolbar-btn primary ii-replace-btn${busy ? ' disabled' : ''}`}>
-                                    <UploadIcon style={{ width: 14, height: 14 }} /> Replace
+                                    <UploadIcon size={14} /> Replace
                                     <input type="file" accept="image/*" style={{ display: 'none' }}
                                         onChange={e => handleUpload(e.target.files[0])} disabled={busy} />
                                 </label>
@@ -220,15 +235,14 @@ function ImagePanel({ item, uom, onUomChange }) {
 
 /* ── Main page ── */
 export default function ItemImagePage({ onBack }) {
-    const [items, setItems]         = useState([])
-    const [loading, setLoading]     = useState(true)
-    const [error, setError]         = useState('')
-    const [search, setSearch]       = useState('')
+    const [items, setItems] = useState([])
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState('')
+    const [search, setSearch] = useState('')
     const [debouncedSearch, setDebounced] = useState('')
     const [selectedItem, setSelectedItem] = useState(null)
-    const [selectedUom, setSelectedUom]   = useState(null)
+    const [selectedUom, setSelectedUom] = useState(null)
 
-    /* Debounce search input by 400 ms */
     useEffect(() => {
         const t = setTimeout(() => setDebounced(search), 400)
         return () => clearTimeout(t)
@@ -258,73 +272,86 @@ export default function ItemImagePage({ onBack }) {
         <div className="org-page">
             <div className="ii-page-wrap">
 
-                {/* Back + title */}
-                <div className="org-title-section">
-                    <button className="back-button" onClick={onBack}>
-                        <BackIcon /><span>Back to Dashboard</span>
-                    </button>
-                    <div className="ii-page-header">
-                        <div>
-                            <h2 className="org-page-title">Item Images</h2>
-                            <p className="org-page-subtitle">Assign one image per item × UOM</p>
+                {/* ── Top: back + title + search ── */}
+                <div className="ii-top">
+                    <div className="org-title-section">
+                        <button className="back-button" onClick={onBack}>
+                            <BackIcon /><span>Back to Dashboard</span>
+                        </button>
+                        <div className="ii-page-header">
+                            <div>
+                                <h2 className="org-page-title">Item Images</h2>
+                                <p className="org-page-subtitle">Assign one image per item × UOM</p>
+                            </div>
                         </div>
                     </div>
+
+                    <div className="ii-search-row">
+                        <div className="org-search-wrapper ii-search-grow">
+                            <SearchIcon />
+                            <input
+                                type="text"
+                                className="org-search-input"
+                                placeholder="Search by item code or name…"
+                                value={search}
+                                onChange={e => setSearch(e.target.value)}
+                            />
+                        </div>
+                        <button className="toolbar-btn" onClick={() => loadItems(debouncedSearch)}>
+                            <RefreshIcon /> Refresh
+                        </button>
+                    </div>
+
+                    {error && (
+                        <div className="org-error-banner">
+                            <span>⚠ {error}</span>
+                            <button className="org-error-retry" onClick={() => loadItems(debouncedSearch)}>Retry</button>
+                        </div>
+                    )}
                 </div>
 
-                {/* Search bar */}
-                <div className="cn-search-bar">
-                    <div className="org-search-wrapper cn-search-expand">
-                        <SearchIcon />
-                        <input
-                            type="text"
-                            className="org-search-input"
-                            placeholder="Search by item code or name…"
-                            value={search}
-                            onChange={e => setSearch(e.target.value)}
-                        />
-                    </div>
-                    <button className="toolbar-btn" onClick={() => loadItems(debouncedSearch)}>
-                        <RefreshIcon /> Refresh
-                    </button>
-                </div>
-
-                {error && (
-                    <div className="org-error-banner">
-                        <span>⚠ {error}</span>
-                        <button className="org-error-retry" onClick={() => loadItems(debouncedSearch)}>Retry</button>
-                    </div>
-                )}
-
-                {/* Two-column body */}
-                <div className="cn-body">
+                {/* ── Body: two columns ── */}
+                <div className="ii-body">
 
                     {/* Left — item list */}
-                    <div className="cn-list-col">
-                        {loading ? (
-                            <div className="org-loading"><div className="org-spinner" /><span>Loading items…</span></div>
-                        ) : items.length === 0 ? (
-                            <div className="org-empty-state">
-                                <p>{debouncedSearch ? `No items matching "${debouncedSearch}"` : 'No items found.'}</p>
-                            </div>
-                        ) : (
-                            <div className="ii-item-list">
-                                {items.map(item => (
+                    <div className="ii-list-col">
+                        <div className="ii-list-header">
+                            <span className="ii-list-title">Items</span>
+                            {!loading && (
+                                <span className="ii-list-count">{items.length}</span>
+                            )}
+                        </div>
+
+                        <div className="ii-list-scroll">
+                            {loading ? (
+                                <div className="org-loading"><div className="org-spinner" /><span>Loading…</span></div>
+                            ) : items.length === 0 ? (
+                                <div className="ii-empty-state">
+                                    <BoxIcon />
+                                    <p>{debouncedSearch ? `No items matching "${debouncedSearch}"` : 'No items found.'}</p>
+                                </div>
+                            ) : (
+                                items.map(item => (
                                     <div
                                         key={item.itemCode}
                                         className={`ii-item-card${selectedItem?.itemCode === item.itemCode ? ' selected' : ''}`}
                                         onClick={() => handleSelectItem(item)}
                                     >
-                                        <span className="ii-item-code">{item.itemCode}</span>
+                                        <div className="ii-item-row">
+                                            <span className="ii-item-code">{item.itemCode}</span>
+                                            <span className="ii-uom-badge">
+                                                {item.uoms.length} UOM{item.uoms.length !== 1 ? 's' : ''}
+                                            </span>
+                                        </div>
                                         <span className="ii-item-name">{item.itemName || '—'}</span>
-                                        <span className="ii-item-uom-count">{item.uoms.length} UOM{item.uoms.length !== 1 ? 's' : ''}</span>
                                     </div>
-                                ))}
-                            </div>
-                        )}
+                                ))
+                            )}
+                        </div>
                     </div>
 
                     {/* Right — image panel */}
-                    <div className="cn-panel-col">
+                    <div className="ii-panel-col">
                         <ImagePanel
                             item={selectedItem}
                             uom={selectedUom}

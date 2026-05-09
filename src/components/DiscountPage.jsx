@@ -105,7 +105,7 @@ const ChevronUpIcon = () => (
 const STATUS_OPTIONS = ['DRAFT', 'ACTIVE', 'PAUSED', 'EXPIRED']
 const COMBINATION_MODES = ['EXCLUSIVE', 'ADDITIVE', 'BEST_OF']
 const SCOPES = ['GLOBAL', 'POS_GROUP', 'POS_TERMINAL']
-const DISCOUNT_TYPES = ['PERCENTAGE', 'FIXED_AMOUNT', 'TIERED', 'BUY_X_GET_Y', 'BUY_COMBO_GET_Y', 'FREE_ITEM']
+const DISCOUNT_TYPES = ['PERCENTAGE', 'FIXED_AMOUNT', 'TIERED', 'BUY_X_GET_Y', 'BUY_COMBO_GET_Y', 'FREE_ITEM', 'REDUCE_TO_CLEAR']
 const APPLY_TO = ['TRANSACTION', 'LINE_ITEM', 'CHEAPEST_ITEM']
 const ROUNDING_RULES = ['NEAREST_CENT', 'FLOOR', 'CEILING']
 const CONDITION_TYPES = ['PRODUCT', 'CATEGORY', 'CUSTOMER_GROUP', 'PAYMENT_METHOD', 'TIME_OF_DAY', 'DAY_OF_WEEK', 'QUANTITY_THRESHOLD', 'BASKET_VALUE', 'FIRST_PURCHASE', 'COUPON_CODE']
@@ -480,6 +480,29 @@ function RuleDetailCard({ rule, index }) {
                         </div>
                     )}
 
+                    {/* RTC Time Tiers */}
+                    {rule.rtcTiers && rule.rtcTiers.length > 0 && (
+                        <div className="disc-rule-sub-section">
+                            <h5>RTC Time Windows ({rule.rtcTiers.length})</h5>
+                            <table className="disc-tier-table">
+                                <thead>
+                                    <tr><th>#</th><th>From</th><th>To</th><th>Type</th><th>Value</th></tr>
+                                </thead>
+                                <tbody>
+                                    {rule.rtcTiers.map((t, ti) => (
+                                        <tr key={t.id || ti}>
+                                            <td>{t.sequence}</td>
+                                            <td>{Array.isArray(t.fromTime) ? `${String(t.fromTime[0]).padStart(2, '0')}:${String(t.fromTime[1]).padStart(2, '0')}` : t.fromTime}</td>
+                                            <td>{Array.isArray(t.toTime) ? `${String(t.toTime[0]).padStart(2, '0')}:${String(t.toTime[1]).padStart(2, '0')}` : t.toTime}</td>
+                                            <td>{t.discountType}</td>
+                                            <td>{t.discountValue}{t.discountType === 'PERCENTAGE' ? '%' : ''}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
+
                     {/* BuyXGetY */}
                     {rule.buyXGetYRule && (
                         <div className="disc-rule-sub-section">
@@ -571,7 +594,8 @@ function SchemeModal({ scheme, onSubmit, onClose }) {
         updateField('rules', [...form.rules, {
             name: '', sequence: form.rules.length + 1, discountType: 'PERCENTAGE',
             discountValue: 0, applyTo: 'TRANSACTION', maxDiscountAmount: null, minOrderAmount: null,
-            minQuantity: null, minLineTotal: null, minLineUnitPrice: null, roundingRule: 'NEAREST_CENT', conditions: [], tiers: [], buyXGetYRule: null, buyComboGetYRule: null
+            minQuantity: null, minLineTotal: null, minLineUnitPrice: null, roundingRule: 'NEAREST_CENT',
+            conditions: [], tiers: [], buyXGetYRule: null, buyComboGetYRule: null, rtcTiers: []
         }])
     }
     const updateRule = (idx, field, value) => {
@@ -629,6 +653,32 @@ function SchemeModal({ scheme, onSubmit, onClose }) {
         updated[ruleIdx] = {
             ...updated[ruleIdx],
             tiers: updated[ruleIdx].tiers.filter((_, i) => i !== tierIdx)
+        }
+        updateField('rules', updated)
+    }
+
+    /* ── RTC tier management ── */
+    const addRtcTier = (ruleIdx) => {
+        const updated = [...form.rules]
+        const existing = updated[ruleIdx].rtcTiers || []
+        updated[ruleIdx] = {
+            ...updated[ruleIdx],
+            rtcTiers: [...existing, { sequence: existing.length + 1, fromTime: '18:00', toTime: '20:00', discountType: 'PERCENTAGE', discountValue: 10 }]
+        }
+        updateField('rules', updated)
+    }
+    const updateRtcTier = (ruleIdx, tierIdx, field, value) => {
+        const updated = [...form.rules]
+        const tiers = [...updated[ruleIdx].rtcTiers]
+        tiers[tierIdx] = { ...tiers[tierIdx], [field]: value }
+        updated[ruleIdx] = { ...updated[ruleIdx], rtcTiers: tiers }
+        updateField('rules', updated)
+    }
+    const removeRtcTier = (ruleIdx, tierIdx) => {
+        const updated = [...form.rules]
+        updated[ruleIdx] = {
+            ...updated[ruleIdx],
+            rtcTiers: updated[ruleIdx].rtcTiers.filter((_, i) => i !== tierIdx)
         }
         updateField('rules', updated)
     }
@@ -788,7 +838,16 @@ function SchemeModal({ scheme, onSubmit, onClose }) {
                                 itemCode: ci.itemCode,
                                 requiredQty: Number(ci.requiredQty) || 1
                             })).filter(ci => ci.itemCode)
-                        }
+                        },
+                        rtcTiers: r.discountType === 'REDUCE_TO_CLEAR'
+                            ? (r.rtcTiers || []).map((t, ti) => ({
+                                sequence: t.sequence ?? ti + 1,
+                                fromTime: t.fromTime,
+                                toTime: t.toTime,
+                                discountType: t.discountType,
+                                discountValue: Number(t.discountValue) || 0,
+                            }))
+                            : []
                     };
                 }),
                 entitlements: form.entitlements.map(ent => ({
@@ -1103,6 +1162,54 @@ function SchemeModal({ scheme, onSubmit, onClose }) {
                                                         <TrashIcon /> Remove Buy X Get Y
                                                     </button>
                                                 </div>
+                                            )}
+                                        </div>
+                                    )}
+
+                                    {/* RTC Time Tiers (for REDUCE_TO_CLEAR type) */}
+                                    {rule.discountType === 'REDUCE_TO_CLEAR' && (
+                                        <div className="disc-sub-section">
+                                            <div className="disc-section-header small">
+                                                <span>Time Windows ({rule.rtcTiers?.length || 0})</span>
+                                                <button type="button" className="toolbar-btn tiny" onClick={() => addRtcTier(ri)}>
+                                                    <PlusIcon /> Add Window
+                                                </button>
+                                            </div>
+                                            <p className="disc-form-hint" style={{ marginBottom: 8 }}>
+                                                Each window applies a different discount in its time range. Evaluated in sequence order — first match wins.
+                                            </p>
+                                            {(rule.rtcTiers || []).map((tier, ti) => (
+                                                <div key={ti} className="disc-tier-editor">
+                                                    <FormField label="Seq">
+                                                        <input type="number" className="org-form-input small" value={tier.sequence}
+                                                            onChange={e => updateRtcTier(ri, ti, 'sequence', Number(e.target.value))} min={1} />
+                                                    </FormField>
+                                                    <FormField label="From">
+                                                        <input type="time" className="org-form-input small" value={tier.fromTime}
+                                                            onChange={e => updateRtcTier(ri, ti, 'fromTime', e.target.value)} />
+                                                    </FormField>
+                                                    <FormField label="To">
+                                                        <input type="time" className="org-form-input small" value={tier.toTime}
+                                                            onChange={e => updateRtcTier(ri, ti, 'toTime', e.target.value)} />
+                                                    </FormField>
+                                                    <FormField label="Type">
+                                                        <select className="org-form-input small" value={tier.discountType}
+                                                            onChange={e => updateRtcTier(ri, ti, 'discountType', e.target.value)}>
+                                                            <option value="PERCENTAGE">PERCENTAGE</option>
+                                                            <option value="FIXED_AMOUNT">FIXED_AMOUNT</option>
+                                                        </select>
+                                                    </FormField>
+                                                    <FormField label="Value">
+                                                        <input type="number" className="org-form-input small" value={tier.discountValue}
+                                                            onChange={e => updateRtcTier(ri, ti, 'discountValue', e.target.value)} step="0.01" />
+                                                    </FormField>
+                                                    <button type="button" className="toolbar-btn tiny danger disc-tier-remove" onClick={() => removeRtcTier(ri, ti)}>
+                                                        <TrashIcon />
+                                                    </button>
+                                                </div>
+                                            ))}
+                                            {(rule.rtcTiers || []).length === 0 && (
+                                                <p className="disc-empty-text">No time windows yet. Add one to define when each discount applies.</p>
                                             )}
                                         </div>
                                     )}
