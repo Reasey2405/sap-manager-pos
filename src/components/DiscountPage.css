@@ -612,6 +612,7 @@
 .disc-rule-editor {
     background: var(--bg-secondary);
     border: 1px solid var(--border-subtle);
+    border-left: 3px solid var(--accent-primary, #818cf8);
     border-radius: var(--radius-md);
     padding: var(--space-md);
     margin-bottom: var(--space-md);
@@ -621,9 +622,63 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: var(--space-sm);
     margin-bottom: var(--space-md);
+    padding-bottom: var(--space-sm);
+    border-bottom: 1px solid var(--border-subtle);
 }
 
+.disc-rule-editor-title-group {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    min-width: 0;
+}
+
+.disc-rule-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #fff;
+    background: var(--accent-primary, #818cf8);
+    letter-spacing: 0.04em;
+    flex-shrink: 0;
+}
+
+.disc-rule-name-preview {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 240px;
+}
+
+.disc-rule-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 9px;
+    border-radius: 10px;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border-subtle);
+    letter-spacing: 0.02em;
+}
+
+.disc-rule-chip-type {
+    color: var(--accent-primary, #818cf8);
+    background: rgba(129, 140, 248, 0.12);
+    border-color: rgba(129, 140, 248, 0.3);
+}
+
+/* Legacy title style — kept for any other usage */
 .disc-rule-editor-title {
     font-size: 0.875rem;
     font-weight: 700;
@@ -637,6 +692,58 @@
     border-top: 1px solid var(--border-subtle);
 }
 
+/* ── Conditions List (numbered + AND separator) ── */
+.disc-conditions-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.disc-condition-row {
+    display: flex;
+    flex-direction: column;
+}
+
+.disc-condition-and {
+    align-self: flex-start;
+    margin: 4px 0 4px 14px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: var(--text-muted, #6b7280);
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border-subtle);
+}
+
+.disc-condition-wrapper {
+    display: flex;
+    align-items: stretch;
+    gap: var(--space-xs);
+}
+
+.disc-condition-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    flex-shrink: 0;
+    border-radius: var(--radius-sm, 6px);
+    background: rgba(129, 140, 248, 0.10);
+    color: var(--accent-primary, #818cf8);
+    font-size: 0.6875rem;
+    font-weight: 700;
+}
+
+.disc-condition-body {
+    flex: 1;
+    min-width: 0;
+}
+
+.disc-condition-body .disc-condition-editor {
+    margin-bottom: 0;
+}
+
 /* ── Condition Editor Row ── */
 .disc-condition-editor {
     display: flex;
@@ -648,6 +755,36 @@
 .disc-condition-editor .org-form-input.small {
     font-size: 0.75rem;
     padding: 6px 8px;
+}
+
+/* Type + operator size to their longest option; value/picker fills rest. */
+.disc-condition-editor > select.org-form-input.small {
+    flex: 0 0 auto;
+    width: auto;
+}
+
+.disc-condition-editor > input.org-form-input.small,
+.disc-condition-editor > .disc-time-range-inputs,
+.disc-condition-editor > .disc-condition-value,
+.disc-condition-editor > .disc-lookup-value {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.disc-condition-value {
+    min-width: 0;
+}
+
+.disc-time-range-inputs {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+}
+
+.disc-time-range-separator {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    white-space: nowrap;
 }
 
 /* ── Tier Editor Row ── */
@@ -667,9 +804,115 @@
     margin-bottom: 4px;
 }
 
-/* ── BuyXGetY Editor ── */
+/* ── BuyXGetY / BuyComboGetY Editor ── */
 .disc-bxgy-editor {
     padding: var(--space-sm) 0;
+}
+
+/* Two-stage layout: Buy ▶ Get */
+.disc-bxgy-stage {
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: var(--space-md);
+    background: rgba(255, 255, 255, 0.015);
+}
+
+.disc-bxgy-stage.buy {
+    border-left: 3px solid #f59e0b;
+}
+
+.disc-bxgy-stage.get {
+    border-left: 3px solid #22c55e;
+}
+
+.disc-bxgy-stage-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-md);
+}
+
+.disc-bxgy-stage-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.disc-bxgy-stage-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--accent-primary, #818cf8);
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.disc-bxgy-stage.get .disc-bxgy-stage-num {
+    background: #22c55e;
+}
+
+.disc-bxgy-stage.buy .disc-bxgy-stage-num {
+    background: #f59e0b;
+}
+
+/* Arrow connector between Buy and Get */
+.disc-bxgy-arrow {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    margin: var(--space-md) 0;
+    color: var(--text-muted, #6b7280);
+}
+
+.disc-bxgy-arrow-line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--border-subtle), transparent);
+}
+
+.disc-bxgy-arrow-label {
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: rgba(34, 197, 94, 0.12);
+    color: #22c55e;
+}
+
+/* Combo item row */
+.disc-combo-item-row {
+    display: grid;
+    grid-template-columns: 32px 2fr 1fr auto;
+    gap: var(--space-sm);
+    align-items: flex-end;
+    margin-bottom: var(--space-sm);
+}
+
+.disc-combo-item-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 32px;
+    border-radius: var(--radius-sm, 6px);
+    background: rgba(245, 158, 11, 0.15);
+    color: #f59e0b;
+    font-size: 0.75rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.disc-combo-item-remove {
+    margin-bottom: 4px;
 }
 
 /* ── Entitlement Editor ── */
@@ -1171,4 +1414,286 @@
     .disc-campaign-summary-grid {
         grid-template-columns: 1fr;
     }
+}
+
+/* ═══════════════════════════════════════════════════
+   Multi-Select Popup (Scope picker)
+   ═══════════════════════════════════════════════════ */
+
+/* Trigger button */
+.disc-ms-trigger {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 0 12px;
+    height: 36px;
+    background: var(--input-bg, #1e2533);
+    border: 1px solid var(--border-color, #2d3748);
+    border-radius: 6px;
+    color: var(--text-secondary, #a0aec0);
+    font-size: 0.8125rem;
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s;
+    text-align: left;
+}
+
+.disc-ms-trigger:hover {
+    border-color: var(--accent, #818cf8);
+    color: var(--text-primary, #e2e8f0);
+}
+
+.disc-ms-trigger.has-value {
+    color: var(--text-primary, #e2e8f0);
+    border-color: rgba(129, 140, 248, 0.4);
+}
+
+.disc-ms-trigger-label {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.disc-ms-trigger-arrow {
+    font-size: 1rem;
+    color: var(--text-muted, #6b7280);
+    line-height: 1;
+    transform: rotate(90deg);
+    display: inline-block;
+}
+
+/* Overlay */
+.disc-ms-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background: rgba(0, 0, 0, 0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: disc-ms-fade-in 0.15s ease;
+}
+
+@keyframes disc-ms-fade-in {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+/* Popup panel */
+.disc-ms-popup {
+    background: var(--bg-card, #1a2035);
+    border: 1px solid var(--border-color, #2d3748);
+    border-radius: 10px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    width: 340px;
+    max-width: 92vw;
+    display: flex;
+    flex-direction: column;
+    animation: disc-ms-slide-up 0.18s ease;
+    overflow: hidden;
+}
+
+@keyframes disc-ms-slide-up {
+    from { transform: translateY(16px); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
+}
+
+/* Header */
+.disc-ms-popup-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px 12px;
+}
+
+.disc-ms-popup-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-primary, #e2e8f0);
+}
+
+.disc-ms-popup-count {
+    font-size: 0.75rem;
+    color: var(--accent, #818cf8);
+    background: rgba(129, 140, 248, 0.12);
+    padding: 2px 8px;
+    border-radius: 10px;
+}
+
+/* Select All row */
+.disc-ms-popup-selectall {
+    padding: 2px 8px 6px;
+}
+
+.disc-ms-popup-divider {
+    height: 1px;
+    background: var(--border-color, #2d3748);
+    flex-shrink: 0;
+}
+
+/* Rows (shared by Select All and items) */
+.disc-ms-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.8125rem;
+    color: var(--text-secondary, #a0aec0);
+    transition: background 0.12s, color 0.12s;
+    user-select: none;
+}
+
+.disc-ms-row:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-primary, #e2e8f0);
+}
+
+.disc-ms-row.selected {
+    color: var(--accent, #818cf8);
+    background: rgba(129, 140, 248, 0.08);
+}
+
+.disc-ms-row input[type="checkbox"] {
+    width: 15px;
+    height: 15px;
+    accent-color: var(--accent, #818cf8);
+    flex-shrink: 0;
+    cursor: pointer;
+}
+
+.disc-ms-row-label {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.disc-ms-row-sub {
+    font-size: 0.6875rem;
+    color: var(--text-muted, #6b7280);
+    flex-shrink: 0;
+}
+
+/* Scrollable list */
+.disc-ms-popup-list {
+    overflow-y: auto;
+    max-height: 260px;
+    padding: 6px 8px;
+}
+
+.disc-ms-popup-empty {
+    padding: 20px;
+    text-align: center;
+    font-size: 0.8125rem;
+    color: var(--text-muted, #6b7280);
+    margin: 0;
+}
+
+/* Footer */
+.disc-ms-popup-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 10px 16px;
+}
+
+/* ───── Lookup Picker (extends MultiSelect popup styles) ───── */
+.disc-lookup-value {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+}
+
+.disc-lookup-value > .org-form-input {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.disc-lookup-value > .toolbar-btn {
+    flex: 0 0 auto;
+}
+
+.disc-lookup-popup {
+    background: var(--bg-card, #1a2035);
+    border: 1px solid var(--border-color, #2d3748);
+    border-radius: 10px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    width: 720px;
+    max-width: 94vw;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    animation: disc-ms-slide-up 0.18s ease;
+    overflow: hidden;
+}
+
+.disc-lookup-search {
+    padding: 8px 16px 10px;
+}
+
+.disc-lookup-list {
+    overflow: auto;
+    flex: 1;
+    padding: 4px 8px;
+}
+
+.disc-lookup-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8125rem;
+    color: var(--text-secondary, #a0aec0);
+}
+
+.disc-lookup-table thead th {
+    position: sticky;
+    top: 0;
+    background: var(--bg-card, #1a2035);
+    text-align: left;
+    padding: 8px 10px;
+    font-weight: 600;
+    color: var(--text-primary, #e2e8f0);
+    border-bottom: 1px solid var(--border-color, #2d3748);
+    z-index: 1;
+}
+
+.disc-lookup-table tbody tr {
+    cursor: pointer;
+    transition: background 0.12s, color 0.12s;
+}
+
+.disc-lookup-table tbody tr:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-primary, #e2e8f0);
+}
+
+.disc-lookup-table tbody tr.selected {
+    background: rgba(129, 140, 248, 0.10);
+    color: var(--accent, #818cf8);
+}
+
+.disc-lookup-table td {
+    padding: 7px 10px;
+    border-bottom: 1px solid rgba(45, 55, 72, 0.5);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 220px;
+}
+
+.disc-lookup-table input[type="checkbox"] {
+    width: 15px;
+    height: 15px;
+    accent-color: var(--accent, #818cf8);
+    cursor: pointer;
+}
+
+.disc-lookup-empty {
+    text-align: center;
+    padding: 20px;
+    color: var(--text-muted, #6b7280);
 }

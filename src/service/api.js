@@ -225,6 +225,24 @@ export async function fetchItemsWithUom(search = '') {
     return fetchJSON(`${API_BASE}/api/master_data/items${qs}`)
 }
 
+/* ===== Discount lookup data APIs ===== */
+
+export async function fetchDiscountProductData() {
+    return fetchJSON(`${API_BASE}/api/master_data/discount_data/product`)
+}
+
+export async function fetchDiscountCategoryData() {
+    return fetchJSON(`${API_BASE}/api/master_data/discount_data/category`)
+}
+
+export async function fetchDiscountCustomerGroupData() {
+    return fetchJSON(`${API_BASE}/api/master_data/discount_data/customer_group`)
+}
+
+export async function fetchDiscountPaymentGroupData() {
+    return fetchJSON(`${API_BASE}/api/master_data/discount_data/payment_group`)
+}
+
 /* ===== Item Image APIs ===== */
 
 export async function fetchItemImageMeta(itemCode, uomEntry) {
