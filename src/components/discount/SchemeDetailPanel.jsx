@@ -140,7 +140,11 @@ export default function SchemeDetailPanel({ scheme, onClose, onRefresh, onEdit }
 
     const doAction = async (fn, label) => {
         setActing(true); setMsg('')
-        try { await fn(scheme.id); setMsg(`${label} successful`); onRefresh() }
+        try {
+            await fn(scheme.id)
+            await onRefresh?.()
+            setMsg(`${label} successful`)
+        }
         catch (err) { setMsg('Error: ' + err.message) }
         finally { setActing(false) }
     }
@@ -175,6 +179,7 @@ export default function SchemeDetailPanel({ scheme, onClose, onRefresh, onEdit }
                 <div className="org-settings-info-item"><span className="org-settings-info-label">ID</span><span className="org-settings-info-value mono">{scheme.id}</span></div>
                 <div className="org-settings-info-item"><span className="org-settings-info-label">Priority</span><span className="org-settings-info-value">{scheme.priority ?? '--'}</span></div>
                 <div className="org-settings-info-item"><span className="org-settings-info-label">Combination</span><span className="org-settings-info-value">{scheme.combinationMode}</span></div>
+                <div className="org-settings-info-item"><span className="org-settings-info-label">Calculation</span><span className="org-settings-info-value">{scheme.calculationMode || '--'}</span></div>
                 <div className="org-settings-info-item"><span className="org-settings-info-label">Scope</span><span className="org-settings-info-value">{scheme.scope}</span></div>
             </div>
             <div className="org-settings-divider" />

@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react'
 import {
-    STATUS_OPTIONS, COMBINATION_MODES, SCOPES, DISCOUNT_TYPES, APPLY_TO,
+    STATUS_OPTIONS, COMBINATION_MODES, CALCULATION_MODES, SCOPES, DISCOUNT_TYPES, APPLY_TO,
     ROUNDING_RULES, ENTITLEMENT_TYPES, BUY_X_GET_Y_SCOPES, BUY_COMBO_GET_Y_SCOPES, toLocalInput
 } from './constants'
 import { PercentSvgIcon, CloseIcon, PlusIcon, TrashIcon } from './Icons'
@@ -35,6 +35,7 @@ export default function SchemeModal({ scheme, terminals = [], onSubmit, onClose 
         status: scheme?.status || 'DRAFT',
         priority: scheme?.priority ?? 1,
         combinationMode: scheme?.combinationMode || 'EXCLUSIVE',
+        calculationMode: scheme?.calculationMode || 'GROSS',
         validFrom: toLocalInput(scheme?.validFrom) || '',
         validTo: toLocalInput(scheme?.validTo) || '',
         approvedBy: scheme?.approvedBy || '',
@@ -232,6 +233,7 @@ export default function SchemeModal({ scheme, terminals = [], onSubmit, onClose 
                 status: form.status,
                 priority: Number(form.priority),
                 combinationMode: form.combinationMode,
+                calculationMode: form.calculationMode,
                 validFrom: form.validFrom,
                 validTo: form.validTo,
                 approvedBy: form.approvedBy || null,
@@ -363,9 +365,10 @@ export default function SchemeModal({ scheme, terminals = [], onSubmit, onClose 
                                         {COMBINATION_MODES.map(m => <option key={m} value={m}>{m}</option>)}
                                     </select>
                                 </FormField>
-                                <FormField label="Approved By">
-                                    <input type="text" className="org-form-input" value={form.approvedBy}
-                                        onChange={e => updateField('approvedBy', e.target.value)} placeholder="Approver name" />
+                                <FormField label="Calculation Mode">
+                                    <select className="org-form-input" value={form.calculationMode} onChange={e => updateField('calculationMode', e.target.value)}>
+                                        {CALCULATION_MODES.map(m => <option key={m} value={m}>{m}</option>)}
+                                    </select>
                                 </FormField>
                             </div>
 
@@ -386,6 +389,13 @@ export default function SchemeModal({ scheme, terminals = [], onSubmit, onClose 
                                         {SCOPES.map(s => <option key={s} value={s}>{s}</option>)}
                                     </select>
                                 </FormField>
+                                <FormField label="Approved By">
+                                    <input type="text" className="org-form-input" value={form.approvedBy}
+                                        onChange={e => updateField('approvedBy', e.target.value)} placeholder="Approver name" />
+                                </FormField>
+                            </div>
+
+                            <div className="org-form-grid">
                                 {(form.scope === 'POS_GROUP' || form.scope === 'POS_TERMINAL') && (
                                     <FormField label={form.scope === 'POS_GROUP' ? 'POS Groups' : 'POS Terminals'}>
                                         <MultiSelectDropdown

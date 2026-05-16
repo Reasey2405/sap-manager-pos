@@ -49,7 +49,12 @@ export default function DiscountPage({ onBack, initialTab = 'schemes' }) {
         setError('')
         try {
             const data = await fetchDiscountSchemes()
-            setSchemes(Array.isArray(data) ? data : [])
+            const nextSchemes = Array.isArray(data) ? data : []
+            setSchemes(nextSchemes)
+            setSelectedScheme(current => {
+                if (!current) return current
+                return nextSchemes.find(scheme => scheme.id === current.id) || current
+            })
         } catch (err) {
             setError(err.message)
         } finally {

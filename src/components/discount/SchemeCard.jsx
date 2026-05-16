@@ -19,6 +19,7 @@ export default function SchemeCard({ scheme, isSelected, onSelect }) {
             <div className="disc-scheme-card-meta">
                 <div className="disc-scheme-card-meta-item"><span className="disc-meta-label">Priority</span><span className="disc-meta-value">{scheme.priority ?? '--'}</span></div>
                 <div className="disc-scheme-card-meta-item"><span className="disc-meta-label">Mode</span><span className="disc-meta-value">{scheme.combinationMode || '--'}</span></div>
+                <div className="disc-scheme-card-meta-item"><span className="disc-meta-label">Calc</span><span className="disc-meta-value">{scheme.calculationMode || '--'}</span></div>
                 <div className="disc-scheme-card-meta-item"><span className="disc-meta-label">Scope</span><span className="disc-meta-value">{scheme.scope || '--'}</span></div>
                 <div className="disc-scheme-card-meta-item"><span className="disc-meta-label">Rules</span><span className="disc-meta-value">{ruleCount}</span></div>
             </div>

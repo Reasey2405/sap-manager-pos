@@ -2,10 +2,33 @@
 
 /* -- Root page -- */
 .gs-page {
+    --gs-page-bg: var(--bg-primary, #0a1628);
+    --gs-panel-bg: rgba(22, 32, 52, 0.72);
+    --gs-input-bg: #0a0f1d;
+    --gs-soft-bg: rgba(30, 41, 59, 0.15);
+    --gs-chip-bg: rgba(30, 41, 59, 0.5);
+    --gs-readonly-bg: rgba(30, 41, 59, 0.3);
+    --gs-strong-border: rgba(30, 41, 59, 0.8);
+    --gs-icon-muted: rgba(71, 85, 105, 0.6);
+    --gs-code-bg: rgba(10, 15, 29, 0.8);
+    --gs-heading: var(--text-primary, #e8ecf2);
+    --gs-dropdown-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
     min-height: calc(100vh - 48px);
-    background: var(--bg-body, #0a0f1d);
+    background: var(--gs-page-bg);
     color: var(--text-primary, #cbd5e1);
     font-family: inherit;
+}
+
+[data-theme="light"] .gs-page {
+    --gs-panel-bg: rgba(255, 255, 255, 0.72);
+    --gs-input-bg: #f8fafc;
+    --gs-soft-bg: #f8fafc;
+    --gs-chip-bg: #eef2f7;
+    --gs-readonly-bg: #e5e7eb;
+    --gs-strong-border: rgba(148, 163, 184, 0.28);
+    --gs-icon-muted: #94a3b8;
+    --gs-code-bg: #f1f5f9;
+    --gs-dropdown-shadow: 0 20px 50px rgba(15, 23, 42, 0.12);
 }
 
 .gs-wrap {
@@ -55,7 +78,7 @@
 .gs-title {
     font-size: 1.5rem;
     font-weight: 700;
-    color: #fff;
+    color: var(--gs-heading);
     letter-spacing: -0.02em;
     margin: 0;
 }
@@ -148,8 +171,8 @@
     align-items: center;
     gap: 24px;
     padding: 20px 24px;
-    background: rgba(20, 27, 45, 0.5);
-    border: 1px solid rgba(51, 65, 85, 0.5);
+    background: var(--gs-panel-bg);
+    border: 1px solid var(--border-card, rgba(51, 65, 85, 0.5));
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
     border-radius: 16px;
@@ -190,7 +213,7 @@
 
 .gs-term-trigger {
     width: 100%;
-    background: var(--bg-body, #0a0f1d);
+    background: var(--gs-input-bg);
     border: 1px solid var(--border-card, rgba(51, 65, 85, 0.5));
     border-radius: 12px;
     padding: 12px 16px;
@@ -223,7 +246,7 @@
     font-family: 'JetBrains Mono', 'Fira Code', monospace;
     font-weight: 700;
     font-size: 0.875rem;
-    color: #fff;
+    color: var(--gs-heading);
     letter-spacing: -0.02em;
 }
 
@@ -257,7 +280,7 @@
     background: var(--bg-card, #141b2d);
     border: 1px solid var(--border-card, rgba(51, 65, 85, 0.5));
     border-radius: 12px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+    box-shadow: var(--gs-dropdown-shadow);
     z-index: 50;
     overflow: hidden;
     animation: gs-dropdown-in 0.2s ease;
@@ -270,8 +293,8 @@
 
 .gs-term-search-wrap {
     padding: 12px;
-    border-bottom: 1px solid rgba(30, 41, 59, 0.8);
-    background: rgba(10, 15, 29, 0.5);
+    border-bottom: 1px solid var(--gs-strong-border);
+    background: var(--gs-soft-bg);
     position: relative;
 }
 
@@ -285,12 +308,12 @@
 
 .gs-term-search {
     width: 100%;
-    background: var(--bg-body, #0a0f1d);
+    background: var(--gs-input-bg);
     border: 1px solid var(--border-card, rgba(51, 65, 85, 0.5));
     border-radius: 8px;
     padding: 10px 16px 10px 36px;
     font-size: 0.8125rem;
-    color: #fff;
+    color: var(--gs-heading);
     outline: none;
     transition: border-color 0.2s ease;
     font-family: inherit;
@@ -342,7 +365,7 @@
     font-family: 'JetBrains Mono', 'Fira Code', monospace;
     font-weight: 700;
     font-size: 0.875rem;
-    color: #fff;
+    color: var(--gs-heading);
     letter-spacing: -0.02em;
 }
 
@@ -401,8 +424,8 @@
     align-items: center;
     justify-content: space-between;
     padding: 20px 24px;
-    border-bottom: 1px solid var(--border-card, rgba(30, 41, 59, 0.8));
-    background: rgba(30, 41, 59, 0.15);
+    border-bottom: 1px solid var(--gs-strong-border);
+    background: var(--gs-soft-bg);
 }
 
 .gs-card-header-left {
@@ -430,7 +453,7 @@
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.12em;
-    color: #fff;
+    color: var(--gs-heading);
     margin: 0;
 }
 
@@ -441,7 +464,7 @@
     font-size: 0.625rem;
     font-weight: 700;
     color: var(--text-muted, #475569);
-    background: rgba(30, 41, 59, 0.5);
+    background: var(--gs-chip-bg);
     padding: 6px 12px;
     border-radius: 20px;
     border: 1px solid rgba(51, 65, 85, 0.5);
@@ -510,7 +533,7 @@
     align-items: center;
     gap: 8px;
     padding: 6px 12px;
-    background: rgba(30, 41, 59, 0.5);
+    background: var(--gs-chip-bg);
     border: 1px solid var(--border-card, rgba(51, 65, 85, 0.5));
     border-radius: 8px;
     cursor: pointer;
@@ -564,7 +587,7 @@
 
 .gs-format-textarea {
     width: 100%;
-    background: var(--bg-body, #0a0f1d);
+    background: var(--gs-input-bg);
     border: 1px solid var(--border-card, rgba(51, 65, 85, 0.5));
     border-radius: 12px;
     padding: 14px 16px;
@@ -716,12 +739,12 @@
 .gs-seq-field input,
 .gs-seq-field select {
     width: 100%;
-    background: var(--bg-body, #0a0f1d);
+    background: var(--gs-input-bg);
     border: 1px solid var(--border-card, rgba(51, 65, 85, 0.5));
     border-radius: 12px;
     padding: 12px 16px;
     font-size: 0.875rem;
-    color: #fff;
+    color: var(--gs-heading);
     outline: none;
     transition: border-color 0.2s ease;
     -webkit-appearance: none;
@@ -736,8 +759,8 @@
 }
 
 .gs-seq-field input.gs-readonly {
-    background: rgba(30, 41, 59, 0.3);
-    border-color: rgba(30, 41, 59, 0.8);
+    background: var(--gs-readonly-bg);
+    border-color: var(--gs-strong-border);
     color: var(--text-secondary, #94a3b8);
     cursor: not-allowed;
 }
@@ -756,8 +779,8 @@
     align-items: center;
     justify-content: space-between;
     padding: 20px;
-    background: var(--bg-body, #0a0f1d);
-    border: 1px solid var(--border-card, rgba(30, 41, 59, 0.8));
+    background: var(--gs-input-bg);
+    border: 1px solid var(--gs-strong-border);
     border-radius: 16px;
 }
 
@@ -798,13 +821,13 @@
     font-family: 'JetBrains Mono', 'Fira Code', monospace;
     font-size: 1.25rem;
     font-weight: 700;
-    color: #fff;
+    color: var(--gs-heading);
     letter-spacing: -0.04em;
 }
 
 .gs-refresh-btn {
     padding: 8px 16px;
-    background: rgba(30, 41, 59, 0.8);
+    background: var(--gs-chip-bg);
     border: 1px solid var(--border-card, rgba(51, 65, 85, 0.5));
     border-radius: 8px;
     font-size: 0.625rem;
@@ -843,7 +866,7 @@
     gap: 8px;
     font-size: 0.875rem;
     font-weight: 700;
-    color: #fff;
+    color: var(--gs-heading);
     margin: 0 0 24px;
 }
 
@@ -876,17 +899,17 @@
     left: 12px;
     top: 50%;
     transform: translateY(-50%);
-    color: rgba(71, 85, 105, 0.6);
+    color: var(--gs-icon-muted);
 }
 
 .gs-ctx-input-wrap input {
     width: 100%;
-    background: var(--bg-body, #0a0f1d);
+    background: var(--gs-input-bg);
     border: 1px solid var(--border-card, rgba(51, 65, 85, 0.5));
     border-radius: 12px;
     padding: 10px 16px 10px 38px;
     font-size: 0.75rem;
-    color: #fff;
+    color: var(--gs-heading);
     outline: none;
     transition: border-color 0.2s ease;
     font-family: inherit;
@@ -901,7 +924,7 @@
 .gs-token-ref {
     margin-top: 32px;
     padding-top: 24px;
-    border-top: 1px solid var(--border-card, rgba(30, 41, 59, 0.8));
+    border-top: 1px solid var(--gs-strong-border);
 }
 
 .gs-token-ref-header {
@@ -919,7 +942,7 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 8px;
-    background: rgba(30, 41, 59, 0.2);
+    background: var(--gs-soft-bg);
     border-radius: 12px;
     padding: 16px;
 }
@@ -936,8 +959,8 @@
     align-items: center;
     justify-content: space-between;
     padding: 14px 20px;
-    background: rgba(30, 41, 59, 0.3);
-    border-bottom: 1px solid var(--border-card, rgba(30, 41, 59, 0.8));
+    background: var(--gs-soft-bg);
+    border-bottom: 1px solid var(--gs-strong-border);
 }
 
 .gs-audit-header-left {
@@ -955,7 +978,7 @@
     font-weight: 900;
     text-transform: uppercase;
     letter-spacing: 0.15em;
-    color: #fff;
+    color: var(--gs-heading);
 }
 
 .gs-audit-view-all {
@@ -1006,7 +1029,7 @@
     top: 16px;
     bottom: 0;
     width: 1px;
-    background: var(--border-card, rgba(30, 41, 59, 0.8));
+    background: var(--gs-strong-border);
 }
 
 .gs-audit-dot {
@@ -1016,7 +1039,7 @@
     flex-shrink: 0;
     z-index: 1;
     border: 2px solid var(--border-card, #334155);
-    background: rgba(30, 41, 59, 0.5);
+    background: var(--gs-chip-bg);
 }
 
 .gs-audit-dot.current {
@@ -1034,7 +1057,7 @@
 .gs-audit-action {
     font-size: 0.625rem;
     font-weight: 700;
-    color: #fff;
+    color: var(--gs-heading);
 }
 
 .gs-audit-meta {
@@ -1046,8 +1069,8 @@
     display: block;
     margin-top: 8px;
     padding: 6px 10px;
-    background: rgba(10, 15, 29, 0.8);
-    border: 1px solid var(--border-card, rgba(30, 41, 59, 0.8));
+    background: var(--gs-code-bg);
+    border: 1px solid var(--gs-strong-border);
     border-radius: 6px;
     font-family: 'JetBrains Mono', 'Fira Code', monospace;
     font-size: 0.5625rem;
