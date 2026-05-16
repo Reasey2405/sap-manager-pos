@@ -1,0 +1,3804 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Discount Engine — QA Sign-Off Document</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+    :root {
+      --blue-dark: #1F4E79;
+      --blue-mid: #2E75B6;
+      --blue-light: #D6E4F0;
+      --blue-pale: #EBF3FA;
+      --green-dark: #1E7145;
+      --green-light: #E2EFDA;
+      --orange-dark: #C55A11;
+      --orange-light: #FCE4D6;
+      --gray-dark: #595959;
+      --gray-mid: #888;
+      --gray-light: #F2F2F2;
+      --white: #fff;
+      --border: #B8CCE4;
+      --sidebar-w: 260px;
+      --font: 'IBM Plex Sans', sans-serif;
+      --mono: 'IBM Plex Mono', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font);
+      font-size: 14px;
+      line-height: 1.65;
+      color: #222;
+      background: #f5f7fa;
+    }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: var(--sidebar-w);
+      height: 100vh;
+      background: var(--blue-dark);
+      overflow-y: auto;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar-header {
+      padding: 24px 20px 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .sidebar-header .logo {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.5);
+      margin-bottom: 6px;
+    }
+
+    .sidebar-header .title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #fff;
+      line-height: 1.4;
+    }
+
+    .sidebar-header .badge {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 2px 8px;
+      background: var(--orange-dark);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      border-radius: 2px;
+    }
+
+    .toc {
+      padding: 16px 0 24px;
+      flex: 1;
+    }
+
+    .toc a {
+      display: block;
+      padding: 5px 20px;
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.65);
+      text-decoration: none;
+      transition: all 0.15s;
+      border-left: 2px solid transparent;
+      line-height: 1.4;
+    }
+
+    .toc a:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.08);
+      border-left-color: var(--blue-mid);
+    }
+
+    .toc a.h1 {
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.85);
+      padding-top: 10px;
+      font-size: 12px;
+    }
+
+    .toc a.h2 {
+      padding-left: 32px;
+      font-size: 11.5px;
+    }
+
+    .toc a.h3 {
+      padding-left: 44px;
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.45);
+    }
+
+    .toc-section-label {
+      padding: 14px 20px 4px;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.3);
+    }
+
+    /* ── MAIN CONTENT ── */
+    .main {
+      margin-left: var(--sidebar-w);
+      min-height: 100vh;
+    }
+
+    /* Cover */
+    .cover {
+      background: linear-gradient(135deg, var(--blue-dark) 0%, var(--blue-mid) 100%);
+      color: #fff;
+      padding: 80px 64px 64px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cover::before {
+      content: '';
+      position: absolute;
+      top: -60px;
+      right: -60px;
+      width: 300px;
+      height: 300px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .cover::after {
+      content: '';
+      position: absolute;
+      bottom: -40px;
+      left: 200px;
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .cover .org {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.5);
+      margin-bottom: 16px;
+    }
+
+    .cover h1 {
+      font-size: 42px;
+      font-weight: 700;
+      line-height: 1.15;
+      margin-bottom: 8px;
+      letter-spacing: -0.5px;
+    }
+
+    .cover .subtitle {
+      font-size: 18px;
+      color: rgba(255, 255, 255, 0.65);
+      margin-bottom: 40px;
+      font-weight: 300;
+    }
+
+    .cover-meta {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 6px;
+      overflow: hidden;
+      max-width: 640px;
+    }
+
+    .cover-meta-item {
+      background: rgba(255, 255, 255, 0.08);
+      padding: 14px 16px;
+    }
+
+    .cover-meta-item .label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.45);
+      margin-bottom: 4px;
+    }
+
+    .cover-meta-item .value {
+      font-size: 13px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .cover-meta-item .value.pending {
+      color: #FFB86C;
+    }
+
+    /* Content area */
+    .content {
+      padding: 0 64px 80px;
+      max-width: 1100px;
+    }
+
+    /* Sections */
+    .section {
+      padding-top: 56px;
+      border-top: 2px solid var(--blue-light);
+      margin-top: 56px;
+    }
+
+    .section:first-child {
+      border-top: none;
+      margin-top: 0;
+    }
+
+    h1.section-title {
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--blue-dark);
+      margin-bottom: 8px;
+      line-height: 1.2;
+    }
+
+    h2.sub-title {
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--blue-mid);
+      margin: 36px 0 10px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--blue-light);
+    }
+
+    summary.sub-title {
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--blue-mid);
+      margin: 36px 0 10px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--blue-light);
+      cursor: pointer;
+      list-style: none;
+      display: block;
+    }
+
+    summary.sub-title::-webkit-details-marker {
+      display: none;
+    }
+
+    summary.sub-title::before {
+      content: '\25B6';
+      display: inline-block;
+      margin-right: 8px;
+      font-size: 11px;
+      color: var(--blue-mid);
+      transition: transform 0.15s ease;
+    }
+
+    details[open] > summary.sub-title::before {
+      transform: rotate(90deg);
+    }
+
+    h3.sub-sub-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--gray-dark);
+      margin: 24px 0 8px;
+    }
+
+    p.body-text {
+      color: #333;
+      margin-bottom: 12px;
+      max-width: 820px;
+    }
+
+    /* Tab headers */
+    .tab-header {
+      background: var(--blue-mid);
+      color: #fff;
+      padding: 14px 20px;
+      font-size: 15px;
+      font-weight: 600;
+      border-radius: 6px 6px 0 0;
+      margin-top: 32px;
+      letter-spacing: 0.3px;
+    }
+
+    /* Info boxes */
+    .info-box {
+      background: var(--blue-pale);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--blue-mid);
+      border-radius: 0 6px 6px 0;
+      padding: 16px 20px;
+      margin: 16px 0;
+      max-width: 820px;
+    }
+
+    .info-box.green {
+      background: var(--green-light);
+      border-left-color: var(--green-dark);
+    }
+
+    .info-box.orange {
+      background: var(--orange-light);
+      border-left-color: var(--orange-dark);
+    }
+
+    .info-box strong {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--blue-mid);
+      margin-bottom: 8px;
+    }
+
+    .info-box.green strong {
+      color: var(--green-dark);
+    }
+
+    .info-box.orange strong {
+      color: var(--orange-dark);
+    }
+
+    .info-box p,
+    .info-box li {
+      font-size: 13px;
+      color: #333;
+      margin-bottom: 4px;
+    }
+
+    /* Tables */
+    .tbl-wrap {
+      overflow-x: auto;
+      margin: 16px 0 24px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    th {
+      background: var(--blue-dark);
+      color: #fff;
+      padding: 10px 14px;
+      text-align: left;
+      font-weight: 600;
+      font-size: 12px;
+      letter-spacing: 0.3px;
+    }
+
+    td {
+      padding: 9px 14px;
+      border: 1px solid var(--border);
+      vertical-align: top;
+      line-height: 1.5;
+    }
+
+    tr:nth-child(even) td {
+      background: var(--gray-light);
+    }
+
+    tr:nth-child(odd) td {
+      background: #fff;
+    }
+
+    td.field-name {
+      font-weight: 600;
+      color: var(--blue-mid);
+      white-space: nowrap;
+    }
+
+    td.options {
+      font-style: italic;
+      color: var(--gray-dark);
+      font-size: 12px;
+    }
+
+    td.mono {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--blue-dark);
+      font-weight: 500;
+    }
+
+    td .cross-ref {
+      display: inline-block;
+      margin-top: 4px;
+      font-size: 11.5px;
+      color: var(--blue-mid);
+      text-decoration: underline;
+      cursor: pointer;
+    }
+
+    td .cross-ref:hover {
+      color: var(--blue-dark);
+    }
+
+    /* Evaluation pipeline stage table */
+    .stage-num {
+      font-weight: 700;
+      color: var(--blue-dark);
+      text-align: center;
+      font-size: 13px;
+    }
+
+    .stage-level {
+      font-size: 11px;
+      color: var(--gray-mid);
+      font-style: italic;
+      text-align: center;
+    }
+
+    .stage-name {
+      font-weight: 600;
+      font-size: 13px;
+    }
+
+    /* Combination mode cards */
+    .mode-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin: 16px 0 24px;
+    }
+
+    .mode-card {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .mode-card-header {
+      padding: 12px 16px;
+      font-weight: 700;
+      font-size: 14px;
+      letter-spacing: 1px;
+      text-align: center;
+    }
+
+    .mode-card.additive .mode-card-header {
+      background: var(--green-light);
+      color: var(--green-dark);
+    }
+
+    .mode-card.exclusive .mode-card-header {
+      background: var(--orange-light);
+      color: var(--orange-dark);
+    }
+
+    .mode-card.bestof .mode-card-header {
+      background: var(--blue-light);
+      color: var(--blue-mid);
+    }
+
+    .mode-card-body {
+      padding: 12px 16px;
+      background: #fff;
+      font-size: 13px;
+    }
+
+    .mode-card-body .example {
+      margin-top: 8px;
+      font-size: 12px;
+      color: var(--gray-dark);
+      font-style: italic;
+      padding-top: 8px;
+      border-top: 1px solid var(--gray-light);
+    }
+
+    /* Discount type cards */
+    .discount-type-card {
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+
+    .dt-header {
+      background: var(--blue-dark);
+      color: #fff;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .dt-badge {
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 500;
+      background: rgba(255, 255, 255, 0.15);
+      padding: 2px 8px;
+      border-radius: 3px;
+      letter-spacing: 0.5px;
+    }
+
+    .dt-label {
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .dt-body {
+      padding: 14px 16px;
+      background: #fff;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .dt-desc {
+      font-size: 13px;
+      color: #333;
+    }
+
+    .dt-ui-note {
+      background: var(--blue-pale);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 10px 12px;
+      font-size: 12.5px;
+      color: #333;
+    }
+
+    .dt-ui-note strong {
+      display: block;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--blue-mid);
+      margin-bottom: 4px;
+    }
+
+    .dt-example {
+      grid-column: 1 / -1;
+      background: var(--green-light);
+      border: 1px solid #b6d7a8;
+      border-radius: 4px;
+      padding: 8px 12px;
+      font-size: 12.5px;
+      color: var(--green-dark);
+    }
+
+    .dt-example strong {
+      font-weight: 600;
+    }
+
+    /* Test case tables */
+    .test-id {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--blue-mid);
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .pass-fail-cell {
+      text-align: center;
+      min-width: 80px;
+    }
+
+    .pass-fail-box {
+      display: inline-flex;
+      gap: 6px;
+    }
+
+    .pf-btn {
+      padding: 3px 8px;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      background: #fff;
+      transition: all 0.15s;
+      user-select: none;
+    }
+
+    .pf-btn.pass:hover,
+    .pf-btn.pass.active {
+      background: var(--green-dark);
+      color: #fff;
+      border-color: var(--green-dark);
+    }
+
+    .pf-btn.fail:hover,
+    .pf-btn.fail.active {
+      background: var(--orange-dark);
+      color: #fff;
+      border-color: var(--orange-dark);
+    }
+
+    /* AC table */
+    .ac-status {
+      color: var(--orange-dark);
+      font-weight: 600;
+      font-size: 12px;
+    }
+
+    .ac-status.passed {
+      color: var(--green-dark);
+    }
+
+    /* Sign-off table */
+    .signoff-table td {
+      min-height: 48px;
+      height: 48px;
+    }
+
+    /* Progress bar */
+    .test-progress {
+      background: var(--blue-pale);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 16px 20px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .progress-bar-wrap {
+      flex: 1;
+      height: 8px;
+      background: var(--gray-light);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--blue-mid), var(--green-dark));
+      border-radius: 4px;
+      transition: width 0.3s;
+    }
+
+    .progress-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--blue-dark);
+      white-space: nowrap;
+    }
+
+    .progress-pct {
+      font-size: 13px;
+      color: var(--gray-dark);
+      white-space: nowrap;
+      min-width: 40px;
+      text-align: right;
+    }
+
+    /* Phase boxes */
+    .phase-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin: 16px 0 24px;
+      max-width: 760px;
+    }
+
+    .phase-box {
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .phase-box-header {
+      background: var(--blue-mid);
+      color: #fff;
+      padding: 10px 16px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    .phase-box-header.current {
+      background: var(--blue-dark);
+    }
+
+    .phase-box-body {
+      padding: 12px 16px;
+      background: #fff;
+      font-size: 13px;
+      color: #333;
+    }
+
+    /* Priority step table */
+    .step-num {
+      background: var(--blue-mid);
+      color: #fff;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    /* Print */
+    @media print {
+      .sidebar {
+        display: none;
+      }
+
+      .main {
+        margin-left: 0;
+      }
+
+      .content {
+        padding: 0 32px 40px;
+      }
+
+      .cover {
+        padding: 40px 32px;
+      }
+
+      .pf-btn {
+        display: none;
+      }
+
+      .test-progress {
+        display: none;
+      }
+
+      .section {
+        page-break-before: always;
+      }
+
+      .section:first-child {
+        page-break-before: avoid;
+      }
+    }
+
+    /* Scrollbar */
+    .sidebar::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .sidebar::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .sidebar::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 2px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ── SIDEBAR ── -->
+  <nav class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">BizDimention POS</div>
+      <div class="title">Discount Engine<br>QA Sign-Off</div>
+      <span class="badge">Phase 1</span>
+    </div>
+    <div class="toc">
+      <div class="toc-section-label">Contents</div>
+      <a href="#cover" class="h1">Cover</a>
+      <a href="#s1" class="h1">1. Purpose</a>
+      <a href="#s2" class="h1">2. What Is the Discount Engine?</a>
+      <a href="#s2-1" class="h2">2.1 Full Evaluation Flow</a>
+      <a href="#s2-2" class="h2">2.2 Level Summary</a>
+      <a href="#s2-3" class="h2">2.3 How a Receipt Is Read</a>
+      <a href="#s3" class="h1">3. Setting Up a Discount Scheme</a>
+      <a href="#s3-tab1" class="h2">Tab 1 — General</a>
+      <a href="#s3-tab2" class="h2">Tab 2 — Rules</a>
+      <a href="#s3-1" class="h3">3.1 Rule Fields</a>
+      <a href="#s3-2" class="h3">3.2 Discount Types</a>
+      <a href="#s3-3" class="h3">3.3 Conditions</a>
+      <a href="#s3-tab3" class="h2">Tab 3 — Entitlements</a>
+      <a href="#s4" class="h1">4. How Discounts Are Combined</a>
+      <a href="#s5" class="h1">5. Scheme Priority System</a>
+      <a href="#s5-1" class="h2">5.1 How Priority Works</a>
+      <a href="#s5-2" class="h2">5.2 Evaluation Flow</a>
+      <a href="#s6" class="h1">6. Line Discount First</a>
+      <a href="#s6-1" class="h2">6.1 The Rule</a>
+      <a href="#s6-2" class="h2">6.2 Worked Example</a>
+      <a href="#s6-3" class="h2">6.3 Where in the Code</a>
+      <a href="#s6-4" class="h2">6.4 Scheme Calculation Mode (Gross vs Net)</a>
+      <a href="#s7" class="h1">7. Rounding, Thresholds & Line Qualifiers</a>
+      <a href="#s7-1" class="h2">7.1 Rounding Rules</a>
+      <a href="#s7-2" class="h2">7.2 Rule Threshold Gates</a>
+      <a href="#s7-3" class="h2">7.3 Line Qualifier Gates</a>
+      <a href="#s8" class="h1">8. QA Test Cases</a>
+      <a href="#s8-1" class="h2">8.1 Discount Type Tests</a>
+      <a href="#s8-2" class="h2">8.2 Condition Tests</a>
+      <a href="#s8-3" class="h2">8.3 Entitlement & Scope</a>
+      <a href="#s8-4" class="h2">8.4 Combination Mode</a>
+      <a href="#s8-5" class="h2">8.5 Edge Cases</a>
+      <a href="#s8-6" class="h2">8.6 Priority Tests</a>
+      <a href="#s8-7" class="h2">8.7 Line-First Transaction</a>
+      <a href="#s8-8" class="h2">8.8 Rounding Tests</a>
+      <a href="#s8-9" class="h2">8.9 Threshold Tests</a>
+      <a href="#s8-10" class="h2">8.10 Line Qualifier Tests</a>
+      <a href="#s8-11" class="h2">8.11 Condition Operators</a>
+      <a href="#s8-12" class="h2">8.12 Coupon & Retrieval</a>
+      <a href="#s8-13" class="h2">8.13 Preview & Cap</a>
+      <a href="#s8-14" class="h2">8.14 Calculation Mode (Gross vs Net)</a>
+      <a href="#s9" class="h1">9. Acceptance Criteria</a>
+      <a href="#s10" class="h1">10. Out of Scope</a>
+      <a href="#s11" class="h1">11. QA Sign-Off</a>
+      <div style="padding: 16px 20px 24px; border-top: 1px solid rgba(255,255,255,0.12); margin-top: auto;">
+        <button onclick="exportToTxt()" style="
+        width: 100%;
+        padding: 10px 0;
+        background: #2E75B6;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        font-family: 'IBM Plex Sans', sans-serif;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        letter-spacing: 0.5px;
+        transition: background 0.15s;
+      " onmouseover="this.style.background='#1F4E79'" onmouseout="this.style.background='#2E75B6'">
+          ⬇ Save Results as .txt
+        </button>
+      </div>
+    </div><!-- /sidebar -->
+  </nav>
+
+  <!-- ── MAIN ── -->
+  <main class="main">
+
+    <!-- Cover -->
+    <div class="cover" id="cover">
+      <div class="org">BizDimention POS Manager</div>
+      <h1>Discount Engine</h1>
+      <div class="subtitle">QA Sign-Off Document</div>
+      <div class="cover-meta">
+        <div class="cover-meta-item">
+          <div class="label">Type</div>
+          <div class="value">QA Sign-Off</div>
+        </div>
+        <div class="cover-meta-item">
+          <div class="label">Phase</div>
+          <div class="value">1 — Manager Online</div>
+        </div>
+        <div class="cover-meta-item">
+          <div class="label">Status</div>
+          <div class="value pending">Pending Sign-Off</div>
+        </div>
+        <div class="cover-meta-item">
+          <div class="label">Version</div>
+          <div class="value">1.0</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- ── S1 ── -->
+      <div class="section" id="s1">
+        <h1 class="section-title">1. Purpose of This Document</h1>
+        <p class="body-text">This document is a formal QA sign-off package for the Discount Engine developed in the POS
+          Manager system. It explains what was built, how it works, what must be tested, and what criteria must be met
+          before development moves to Phase 2.</p>
+        <p class="body-text" style="font-style:italic;color:var(--gray-dark)">Written for QA testers who may not have a
+          software development background. Technical concepts are explained in plain language throughout.</p>
+
+        <div class="phase-grid">
+          <div class="phase-box">
+            <div class="phase-box-header current">Phase 1 — Current</div>
+            <div class="phase-box-body">The Discount Engine is built and tested in the POS Manager only. The POS Manager
+              is always online. No offline terminals are involved yet.</div>
+          </div>
+          <div class="phase-box">
+            <div class="phase-box-header">Phase 2 — Future</div>
+            <div class="phase-box-body">Once QA confirms Phase 1 is working correctly, the same discount logic will be
+              replicated into the offline POS Terminal.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── S2 ── -->
+      <div class="section" id="s2">
+        <h1 class="section-title">2. What Is the Discount Engine?</h1>
+        <p class="body-text">The Discount Engine is the part of the system that decides whether a customer gets a
+          discount, how much that discount is, and which discounts apply when a customer is at the checkout.</p>
+        <p class="body-text">When a cashier scans items at the POS terminal, the system sends the receipt to the
+          Discount Engine. The engine runs the receipt through a fixed sequence of evaluation stages — from the broadest
+          filter down to the finest detail — and returns the final discounted total.</p>
+
+        <h2 class="sub-title" id="s2-1">2.1 Full Evaluation Flow — Biggest to Smallest</h2>
+        <p class="body-text">Every receipt is processed through exactly these stages in this order. Stages 1–2 are
+          receipt-level gates. Stages 3–5 loop through each qualifying scheme. Stage 6 resolves competing discounts.
+          Stages 7–9 finalise and package the result.</p>
+
+        <div class="tbl-wrap">
+          <table>
+            <tr>
+              <th style="width:60px">Stage</th>
+              <th style="width:80px">Level</th>
+              <th style="width:220px">Stage Name</th>
+              <th>What Happens — Plain English</th>
+            </tr>
+            <tr>
+              <td class="stage-num">1</td>
+              <td class="stage-level">Receipt</td>
+              <td class="stage-name">Receipt Validation</td>
+              <td>The receipt is checked before anything else. If it has no lines, or any line has a missing or negative
+                quantity/price, an error is returned immediately. Nothing else runs.</td>
+            </tr>
+            <tr>
+              <td class="stage-num">2</td>
+              <td class="stage-level">Receipt</td>
+              <td class="stage-name">Active Scheme Lookup</td>
+              <td>The engine fetches all ACTIVE schemes within their valid date range. Only these are candidates.</td>
+            </tr>
+            <tr>
+              <td class="stage-num">3</td>
+              <td class="stage-level">Scheme</td>
+              <td class="stage-name">Scope Filter</td>
+              <td>Each candidate scheme is checked against the receipt's POS terminal and group. GLOBAL schemes pass
+                always. POS_TERMINAL and POS_GROUP schemes only pass if the terminal/group matches. Failing schemes are
+                dropped.</td>
+            </tr>
+            <tr>
+              <td class="stage-num">4</td>
+              <td class="stage-level">Scheme</td>
+              <td class="stage-name">Entitlement Filter</td>
+              <td>Each remaining scheme is checked against who the customer is. PUBLIC schemes pass for anyone.
+                CUSTOMER_GROUP, SPECIFIC_CUSTOMER, and COUPON schemes only pass if the receipt matches. Failing schemes
+                are dropped.</td>
+            </tr>
+            <tr>
+              <td class="stage-num">5a</td>
+              <td class="stage-level">Rule</td>
+              <td class="stage-name">Rule Sequence Sort</td>
+              <td>Inside each scheme, rules are sorted by their sequence number (lowest first) before evaluation begins.
+              </td>
+            </tr>
+            <tr>
+              <td class="stage-num">5b</td>
+              <td class="stage-level">Rule</td>
+              <td class="stage-name">Rule Threshold Gates</td>
+              <td>Each rule's minimum order amount and minimum quantity are checked. If the receipt total is below
+                minOrderAmount, or item count is below minQuantity, the entire rule is skipped.</td>
+            </tr>
+            <tr>
+              <td class="stage-num">5c</td>
+              <td class="stage-level">Rule</td>
+              <td class="stage-name">Condition Evaluation</td>
+              <td>ALL conditions on the rule are evaluated: product, category, time of day, day of week, receipt value,
+                quantity, payment method, first purchase, coupon code. Every condition must pass. If any fails, the
+                whole rule is skipped.</td>
+            </tr>
+            <tr>
+              <td class="stage-num">5d</td>
+              <td class="stage-level">Receipt Line</td>
+              <td class="stage-name">Line Qualifier Gates</td>
+              <td>For LINE_ITEM and CHEAPEST_ITEM types, each receipt line is checked against minLineTotal and
+                minLineUnitPrice. Lines that don't meet these are silently excluded.</td>
+            </tr>
+            <tr>
+              <td class="stage-num">5e</td>
+              <td class="stage-level">Receipt Line</td>
+              <td class="stage-name">Discount Calculation</td>
+              <td>The discount amount is calculated for each qualifying line or the transaction. Rounding is applied.
+                The per-result maxDiscountAmount cap is applied. Zero-discount results are removed.</td>
+            </tr>
+            <tr>
+              <td class="stage-num">5f</td>
+              <td class="stage-level">Scheme</td>
+              <td class="stage-name">Per-Scheme Transaction Recalculation (1st)</td>
+              <td>Transaction-level discounts are recalculated so their base reflects the line discounts already
+                calculated in this scheme.</td>
+            </tr>
+            <tr>
+              <td class="stage-num">5g</td>
+              <td class="stage-level">Scheme</td>
+              <td class="stage-name">Scheme Total Saving Tally</td>
+              <td>The total saving for this scheme is summed. Used later for combination resolution (best-of, exclusive
+                winner selection).</td>
+            </tr>
+            <tr>
+              <td class="stage-num">6</td>
+              <td class="stage-level">Receipt</td>
+              <td class="stage-name">Combination Resolution</td>
+              <td>Schemes sorted by priority (highest first) and grouped. EXCLUSIVE → highest saving wins, all
+                processing stops. ADDITIVE → all stack. BEST_OF → only highest saving kept. Winning BEST_OF merged with
+                ADDITIVE results.</td>
+            </tr>
+            <tr>
+              <td class="stage-num">7</td>
+              <td class="stage-level">Receipt</td>
+              <td class="stage-name">Final Transaction Recalculation (2nd)</td>
+              <td>recalculateTransactionDiscounts() called again on the fully merged result set. Ensures transaction
+                discounts reflect combined line discounts from ALL schemes.</td>
+            </tr>
+            <tr>
+              <td class="stage-num">8</td>
+              <td class="stage-level">Receipt</td>
+              <td class="stage-name">Receipt Total Cap</td>
+              <td>Ensures total discounts never exceed the original receipt total. If combined discounts would go
+                negative, they are proportionally trimmed.</td>
+            </tr>
+            <tr>
+              <td class="stage-num">9</td>
+              <td class="stage-level">Receipt</td>
+              <td class="stage-name">Response Build</td>
+              <td>Final result assembled: original total, total discount, final payable total, and a line-by-line
+                breakdown of every discount applied.</td>
+            </tr>
+          </table>
+        </div>
+
+        <div class="info-box">
+          <strong>Key Rule: Stages Never Run Out of Order</strong>
+          <p>The engine always runs these stages in sequence. A receipt that fails Stage 1 never reaches Stage 2. A
+            scheme that fails scope (Stage 3) is never checked for entitlement (Stage 4). A rule that fails threshold
+            gates (Stage 5b) never has its conditions evaluated (Stage 5c).</p>
+          <p style="margin-top:6px">QA must test failures at EACH stage independently — not just verify the final result
+            is zero.</p>
+        </div>
+
+        <h2 class="sub-title" id="s2-2">2.2 Level Summary</h2>
+        <div class="tbl-wrap">
+          <table>
+            <tr>
+              <th>Level</th>
+              <th>Applies To</th>
+              <th>What It Means</th>
+            </tr>
+            <tr>
+              <td class="field-name">Receipt</td>
+              <td>The whole transaction</td>
+              <td>Evaluated once per receipt. Affects whether any discount runs at all, or what the final combined
+                result looks like.</td>
+            </tr>
+            <tr>
+              <td class="field-name">Scheme</td>
+              <td>One discount scheme</td>
+              <td>Evaluated once per qualifying scheme. Determines whether the whole scheme applies to this receipt.
+              </td>
+            </tr>
+            <tr>
+              <td class="field-name">Rule</td>
+              <td>One rule within a scheme</td>
+              <td>Evaluated once per rule. A scheme can have multiple rules; each is evaluated independently.</td>
+            </tr>
+            <tr>
+              <td class="field-name">Receipt Line</td>
+              <td>One item line on the receipt</td>
+              <td>Evaluated once per receipt line. Determines whether each individual product qualifies for the
+                discount.</td>
+            </tr>
+          </table>
+        </div>
+
+        <details class="collapsible-sub-section" id="s2-3">
+        <summary class="sub-title">2.3 How a Receipt Is Read by the Discount Engine (Developer Only)</summary>
+        <p class="body-text">Before evaluation begins, the receipt fields are mapped into the format the engine expects.
+          QA must know which fields drive which discount behaviour.</p>
+        <div class="info-box">
+          <strong>What This Means for QA</strong>
+          <p>If a receipt field is missing or null, any discount that depends on it will not fire. Voided and Cancelled
+            lines are removed before evaluation — they never receive a discount.</p>
+        </div>
+
+        <h3 class="sub-sub-title">2.3.1 Receipt Header Fields</h3>
+        <div class="tbl-wrap">
+          <table>
+            <tr>
+              <th>Receipt Field</th>
+              <th>Used For</th>
+              <th>How the Engine Uses It</th>
+            </tr>
+            <tr>
+              <td class="field-name">posTerminalID</td>
+              <td>Terminal scope check</td>
+              <td>Identifies which POS terminal sent this receipt. Discounts set up for a specific terminal only apply
+                if this matches.</td>
+            </tr>
+            <tr>
+              <td class="field-name" style="font-style:italic;font-weight:400">posTerminalID → POS Group lookup</td>
+              <td>Group scope check</td>
+              <td>The system looks up which POS group this terminal belongs to. Discounts set up for a POS group apply
+                if the terminal is in that group. Null if terminal has no group.</td>
+            </tr>
+            <tr>
+              <td class="field-name">cardCode</td>
+              <td>Customer identity check</td>
+              <td>Used to match discounts restricted to a specific named customer.</td>
+            </tr>
+            <tr>
+              <td class="field-name" style="font-style:italic;font-weight:400">cardCode → Customer group lookup</td>
+              <td>Customer group check</td>
+              <td>The system looks up which group this customer belongs to. Used for CUSTOMER_GROUP entitlement and
+                condition matching. Null if customer not found.</td>
+            </tr>
+            <tr>
+              <td class="field-name">(always false — hardcoded)</td>
+              <td>First purchase flag</td>
+              <td><strong style="color:var(--orange-dark)">Always set to false.</strong> FIRST_PURCHASE discounts will
+                never fire through this path.</td>
+            </tr>
+            <tr>
+              <td class="field-name">payments[0].paymentType</td>
+              <td>Payment method check</td>
+              <td>Only the first payment line's type is used. If the receipt has no payments or the first payment has no
+                type, payment-method discounts will not apply.</td>
+            </tr>
+            <tr>
+              <td class="field-name">couponCodes (separate parameter)</td>
+              <td>Coupon check</td>
+              <td>Passed in separately — not stored on the ReceiptDto. If not provided, all coupon-based discounts will
+                not apply.</td>
+            </tr>
+          </table>
+        </div>
+
+        <h3 class="sub-sub-title">2.3.2 Receipt Line Fields</h3>
+        <div class="tbl-wrap">
+          <table>
+            <tr>
+              <th>Receipt Line Field</th>
+              <th>Used For</th>
+              <th>How the Engine Uses It</th>
+            </tr>
+            <tr>
+              <td class="field-name">id (line ID)</td>
+              <td>Receipt line number</td>
+              <td>Identifies which line the discount is applied to. If null, a counter (1, 2, 3…) is used instead.</td>
+            </tr>
+            <tr>
+              <td class="field-name">itemCode</td>
+              <td>Product matching</td>
+              <td>Used to check if a specific product is required by the discount rule (PRODUCT condition, BUY_X_GET_Y
+                scope).</td>
+            </tr>
+            <tr>
+              <td class="field-name" style="font-style:italic;font-weight:400">itemCode → item category lookup</td>
+              <td>Category matching</td>
+              <td>The system looks up the item's group code. Used for CATEGORY condition matching. Null if item not
+                found.</td>
+            </tr>
+            <tr>
+              <td class="field-name">quantity</td>
+              <td>Item count & line total</td>
+              <td>Used to count total items (QUANTITY_THRESHOLD), calculate the line total, and BUY_X_GET_Y trigger
+                counts. Defaults to zero if blank.</td>
+            </tr>
+            <tr>
+              <td class="field-name">unitPrice (or price fallback)</td>
+              <td>Price per item</td>
+              <td>Engine uses unitPrice first; falls back to price field if null. Defaults to zero if both blank.</td>
+            </tr>
+            <tr>
+              <td class="field-name">(auto-calculated)</td>
+              <td>Line total</td>
+              <td>quantity × unitPrice. Calculated by the engine. Used in BASKET_VALUE condition, minLineTotal gate, and
+                all line discount calculations.</td>
+            </tr>
+            <tr>
+              <td class="field-name" style="color:var(--orange-dark)">documentStatus = Void/Cancel</td>
+              <td>Line exclusion</td>
+              <td>Voided and Cancelled lines are completely removed before the engine runs. They never receive a
+                discount.</td>
+            </tr>
+          </table>
+        </div>
+
+        <h3 class="sub-sub-title">2.3.3 Receipt Fields That Do NOT Affect Discounts</h3>
+        <div class="tbl-wrap">
+          <table>
+            <tr>
+              <th>Receipt Field</th>
+              <th>Why It Does Not Affect Discounts</th>
+            </tr>
+            <tr>
+              <td class="field-name" style="font-style:italic;color:var(--gray-dark)">receiptNumber</td>
+              <td>Only used after discounts are calculated, when recording which discounts were applied.</td>
+            </tr>
+            <tr>
+              <td class="field-name" style="font-style:italic;color:var(--gray-dark)">discountPercent / totalDiscount
+                (header)</td>
+              <td>Existing POS receipt discount fields. The engine ignores them and calculates its own discounts from
+                scratch.</td>
+            </tr>
+            <tr>
+              <td class="field-name" style="font-style:italic;color:var(--gray-dark)">totalBeforeDiscount /
+                totalAfterDiscount / totalAfterTax</td>
+              <td>Pre-calculated receipt totals. The engine recalculates from receipt lines — it does not trust these.
+              </td>
+            </tr>
+            <tr>
+              <td class="field-name" style="font-style:italic;color:var(--gray-dark)">taxAmount / vatGroupRate /
+                vatGroup</td>
+              <td>Tax is not considered during discount evaluation. The engine works on pre-tax prices.</td>
+            </tr>
+            <tr>
+              <td class="field-name" style="font-style:italic;color:var(--gray-dark)">cardName</td>
+              <td>Customer name. Only the customer code (cardCode) matters for entitlement.</td>
+            </tr>
+            <tr>
+              <td class="field-name" style="font-style:italic;color:var(--gray-dark)">series / SAP document references
+              </td>
+              <td>SAP integration fields. Irrelevant to discount calculation.</td>
+            </tr>
+            <tr>
+              <td class="field-name" style="font-style:italic;color:var(--gray-dark)">payments[1], [2], … (non-first
+                payments)</td>
+              <td>Only the first payment line's type is checked. Additional payment methods are ignored.</td>
+            </tr>
+            <tr>
+              <td class="field-name" style="font-style:italic;color:var(--gray-dark)">Receipt line: totalPrice /
+                discountPercent / uomEntry / uomName</td>
+              <td>Pre-calculated POS values. The engine recalculates from quantity × unitPrice.</td>
+            </tr>
+          </table>
+        </div>
+        </details>
+      </div>
+
+      <!-- ── S3 ── -->
+      <div class="section" id="s3">
+        <h1 class="section-title">3. Setting Up a Discount Scheme in the Manager</h1>
+        <p class="body-text">Before running any test, a discount scheme must be configured in the Manager UI. The scheme
+          is set up across three tabs: General, Rules, and Entitlements. This section walks through every field QA will
+          see on screen, in the same order as the UI.</p>
+
+        <!-- TAB 1 -->
+        <div class="tab-header" id="s3-tab1">TAB 1 — General</div>
+        <p class="body-text" style="margin-top:12px">The General tab defines the scheme identity, validity dates, how it
+          combines with other discounts, and which terminals it applies to.</p>
+        <div class="tbl-wrap">
+          <table>
+            <tr>
+              <th style="width:160px">UI Field</th>
+              <th style="width:200px">Options / Format</th>
+              <th>What It Controls</th>
+            </tr>
+            <tr>
+              <td class="field-name">Name</td>
+              <td class="options">Free text (required)</td>
+              <td>Display name. Shown in the discount result so QA can identify which scheme fired.</td>
+            </tr>
+            <tr>
+              <td class="field-name">Status</td>
+              <td class="options">ACTIVE or DRAFT</td>
+              <td>Only ACTIVE schemes run in normal operation. DRAFT schemes can be tested in Preview mode without
+                affecting real transactions.</td>
+            </tr>
+            <tr>
+              <td class="field-name">Description</td>
+              <td class="options">Free text (optional)</td>
+              <td>Internal notes only. Not used by the engine.</td>
+            </tr>
+            <tr>
+              <td class="field-name">Priority</td>
+              <td class="options">Number (e.g. 100)</td>
+              <td>Higher number = evaluated first. When multiple schemes qualify, higher priority is processed first. <a
+                  class="cross-ref" href="#s5">→ Section 5: Scheme Priority System</a></td>
+            </tr>
+            <tr>
+              <td class="field-name">Combination Mode</td>
+              <td class="options">EXCLUSIVE, ADDITIVE, BEST_OF</td>
+              <td>Controls how this scheme interacts with other qualifying schemes. <a class="cross-ref" href="#s4">→
+                  Section 4: How Multiple Discounts Are Combined</a></td>
+            </tr>
+            <tr>
+              <td class="field-name">Calculation Mode</td>
+              <td class="options">GROSS, NET</td>
+              <td>GROSS: the scheme will calculate but running total will not be deducted
+                NET: the scheme will calculate and the running total will be deducted
+                <a class="cross-ref" href="#s6-4">→ Section 6.4: Scheme Calculation Mode (Gross vs Net)</a>
+              </td>
+            </tr>
+            <tr>
+              <td class="field-name">Approved By</td>
+              <td class="options">Free text (optional)</td>
+              <td>Approver name for internal records. Not used by the engine.</td>
+            </tr>
+            <tr>
+              <td class="field-name">Valid From</td>
+              <td class="options">Date and time (required)</td>
+              <td>The scheme will not apply to receipts before this date and time.</td>
+            </tr>
+            <tr>
+              <td class="field-name">Valid To</td>
+              <td class="options">Date and time (required)</td>
+              <td>The scheme will not apply to receipts after this date and time.</td>
+            </tr>
+            <tr>
+              <td class="field-name">Scope</td>
+              <td class="options">GLOBAL, POS_GROUP, POS_TERMINAL</td>
+              <td>GLOBAL: applies to all terminals. POS_GROUP: only terminals in the specified group. POS_TERMINAL: only
+                the specified terminal(s).</td>
+            </tr>
+          </table>
+        </div>
+
+        <!-- TAB 2 -->
+        <div class="tab-header" id="s3-tab2">TAB 2 — Rules</div>
+        <p class="body-text" style="margin-top:12px">A scheme can have one or more rules. Rules are evaluated in
+          sequence order (lowest number first). Each rule defines the discount type, when it applies, and any conditions
+          that must be met.</p>
+
+        <h2 class="sub-title" id="s3-1">3.1 Rule Fields</h2>
+        <div class="tbl-wrap">
+          <table>
+            <tr>
+              <th style="width:160px">UI Field</th>
+              <th style="width:200px">Options / Format</th>
+              <th>What It Controls</th>
+            </tr>
+            <tr>
+              <td class="field-name">Name</td>
+              <td class="options">Free text</td>
+              <td>Label for this rule. Shown in the discount result so QA can see which rule fired.</td>
+            </tr>
+            <tr>
+              <td class="field-name">Sequence</td>
+              <td class="options">Number (e.g. 1, 2, 3)</td>
+              <td>The order this rule runs within the scheme. Lower number runs first.</td>
+            </tr>
+            <tr>
+              <td class="field-name">Discount Type</td>
+              <td class="options">See Section 3.2</td>
+              <td>The type of discount. Changing the type shows/hides additional fields. <a class="cross-ref"
+                  href="#s3-2">→ Section 3.2: Discount Types</a></td>
+            </tr>
+            <tr>
+              <td class="field-name">Discount Value</td>
+              <td class="options">Number</td>
+              <td>The discount amount. For PERCENTAGE: % rate (e.g. 10 = 10%). For FIXED_AMOUNT: dollar amount. For
+                FREE_ITEM: not required.</td>
+            </tr>
+            <tr>
+              <td class="field-name">Apply To</td>
+              <td class="options">LINE_ITEM, TRANSACTION, CHEAPEST_ITEM</td>
+              <td>LINE_ITEM: each qualifying receipt line. TRANSACTION: whole receipt total after line discounts.
+                CHEAPEST_ITEM: only the lowest-priced qualifying item. <a class="cross-ref" href="#s6">→ Section 6: Line
+                  Discount First</a></td>
+            </tr>
+            <tr>
+              <td class="field-name">Max Discount</td>
+              <td class="options">Number or No limit</td>
+              <td>A ceiling on how much this rule can discount. If the calculated amount exceeds this, it is trimmed.
+              </td>
+            </tr>
+            <tr>
+              <td class="field-name">Min Order Amount</td>
+              <td class="options">Number or None</td>
+              <td>The receipt total must be at least this value for this rule to run. <a class="cross-ref"
+                  href="#s7-2">→ Section 7.2: Rule Threshold Gates</a></td>
+            </tr>
+            <tr>
+              <td class="field-name">Min Quantity</td>
+              <td class="options">Number or None</td>
+              <td>Total number of items on the receipt must be at least this number for this rule to run. <a
+                  class="cross-ref" href="#s7-2">→ Section 7.2: Rule Threshold Gates</a></td>
+            </tr>
+            <tr>
+              <td class="field-name">Rounding</td>
+              <td class="options">NEAREST_CENT, FLOOR, CEILING</td>
+              <td>How the discount is rounded to the nearest cent. NEAREST_CENT: standard rounding (default). FLOOR:
+                always round down. CEILING: always round up. <a class="cross-ref" href="#s7-1">→ Section 7.1: Rounding
+                  Rules</a></td>
+            </tr>
+            <tr>
+              <td class="field-name">Min Line Total</td>
+              <td class="options">Number or None</td>
+              <td>LINE_ITEM/CHEAPEST_ITEM only: a receipt line must total at least this value to qualify. Lines below
+                are skipped. <a class="cross-ref" href="#s7-3">→ Section 7.3: Line Qualifier Gates</a></td>
+            </tr>
+            <tr>
+              <td class="field-name">Min Line Unit Price</td>
+              <td class="options">Number or None</td>
+              <td>LINE_ITEM/CHEAPEST_ITEM only: the item unit price must be at least this value to qualify. <a
+                  class="cross-ref" href="#s7-3">→ Section 7.3: Line Qualifier Gates</a></td>
+            </tr>
+          </table>
+        </div>
+
+        <h2 class="sub-title" id="s3-2">3.2 Discount Types</h2>
+        <p class="body-text">Select the Discount Type first — the form shows or hides additional fields depending on the
+          type.</p>
+
+        <div class="discount-type-card">
+          <div class="dt-header"><span class="dt-badge">PERCENTAGE</span><span class="dt-label">Percentage Off</span>
+          </div>
+          <div class="dt-body">
+            <div class="dt-desc">Reduces the price by a percentage. Can apply to the whole receipt total, individual
+              receipt lines, or only the cheapest item.</div>
+            <div class="dt-ui-note"><strong>UI Setup</strong>Enter the % rate in Discount Value (e.g. 10 = 10%). Set
+              Apply To: TRANSACTION for whole receipt, LINE_ITEM per line, or CHEAPEST_ITEM for the lowest-priced item.
+            </div>
+            <div class="dt-example"><strong>Example:</strong> 10% off all items. Receipt total $100 → Discount $10 →
+              Final $90.</div>
+          </div>
+        </div>
+
+        <div class="discount-type-card">
+          <div class="dt-header"><span class="dt-badge">FIXED_AMOUNT</span><span class="dt-label">Fixed Amount
+              Off</span></div>
+          <div class="dt-body">
+            <div class="dt-desc">Removes a fixed dollar amount. Can target the whole receipt total, a receipt line, or
+              the cheapest item. The discount never exceeds the item price or receipt total.</div>
+            <div class="dt-ui-note"><strong>UI Setup</strong>Enter the dollar amount in Discount Value (e.g. 5 = $5
+              off). Set Apply To as needed.</div>
+            <div class="dt-example"><strong>Example:</strong> $5 off. Receipt total $50 → Discount $5 → Final $45.</div>
+          </div>
+        </div>
+
+        <div class="discount-type-card">
+          <div class="dt-header"><span class="dt-badge">FREE_ITEM</span><span class="dt-label">Free Item</span></div>
+          <div class="dt-body">
+            <div class="dt-desc">Makes a qualifying item completely free (100% discount). The item's full price becomes
+              the discount amount.</div>
+            <div class="dt-ui-note"><strong>UI Setup</strong>Discount Value not required — 100% is applied
+              automatically. Set Apply To = LINE_ITEM or CHEAPEST_ITEM. Add a PRODUCT condition to specify which item is
+              free.</div>
+            <div class="dt-example"><strong>Example:</strong> PRODUCT condition = SKU-GIFT → Customer adds it → full
+              price discounted → pays $0 for that item.</div>
+          </div>
+        </div>
+
+        <div class="discount-type-card">
+          <div class="dt-header"><span class="dt-badge">FIXED_PRICE</span><span class="dt-label">Fixed Price</span>
+          </div>
+          <div class="dt-body">
+            <div class="dt-desc">Forces a specific item to sell at a set price regardless of its normal price. Discount
+              = (normal price − fixed price) × quantity.</div>
+            <div class="dt-ui-note"><strong>UI Setup</strong>Enter the target selling price in Discount Value (e.g. 15 =
+              item sells for $15). Add a PRODUCT condition to target specific items.</div>
+            <div class="dt-example"><strong>Example:</strong> Item normally $25, fixed price $15, qty 2 → Discount $20.
+            </div>
+          </div>
+        </div>
+
+        <div class="discount-type-card">
+          <div class="dt-header"><span class="dt-badge">TIERED</span><span class="dt-label">Tiered Discount</span></div>
+          <div class="dt-body">
+            <div class="dt-desc">Different discount rates unlock at different receipt total thresholds. The engine
+              applies the first matching tier.</div>
+            <div class="dt-ui-note"><strong>UI Setup</strong>After selecting TIERED, define tiers. Each needs a Min
+              Value, optional Max Value, and discount rate (PERCENTAGE or FIXED_AMOUNT).</div>
+            <div class="dt-example"><strong>Example:</strong> Tier 1: $50–$99 = 5% off. Tier 2: $100+ = 10% off. Receipt
+              $120 → 10% off → Discount $12.</div>
+          </div>
+        </div>
+
+        <div class="discount-type-card">
+          <div class="dt-header"><span class="dt-badge">BUY_X_GET_Y</span><span class="dt-label">Buy X Get Y</span>
+          </div>
+          <div class="dt-body">
+            <div class="dt-desc">Buy a required number of qualifying items and receive a reward discount on other items.
+              Reward items selected by cheapest price first.</div>
+            <div class="dt-ui-note"><strong>UI Setup</strong>A sub-section appears. Set: Buy Quantity, Buy Scope, Buy
+              Product IDs, Get Quantity, Reward Scope (SPECIFIC_PRODUCT, CATEGORY, or CHEAPEST_IN_BASKET), and Reward
+              Discount %.</div>
+            <div class="dt-example"><strong>Example:</strong> Buy 2 get 1 free (100%). Customer buys 3 eligible items →
+              cheapest one is free.</div>
+          </div>
+        </div>
+
+        <div class="discount-type-card">
+          <div class="dt-header"><span class="dt-badge">BUY_COMBO_GET_Y</span><span class="dt-label">Buy Combo Get
+              Y</span></div>
+          <div class="dt-body">
+            <div class="dt-desc">Requires a specific combination of different products (each at a minimum quantity) to
+              unlock a reward. ALL listed combo items must be present on the receipt.</div>
+            <div class="dt-ui-note"><strong>UI Setup</strong>A BUY COMBO GET Y sub-section appears with two parts: (1)
+              CUSTOMER BUYS THESE TOGETHER — add each required item with Item Code and Required Qty. (2) CUSTOMER
+              RECEIVES REWARD — set Reward Quantity, Reward Scope, Reward Discount %, and Reward Product IDs.</div>
+            <div class="dt-example"><strong>Example:</strong> Combo: 1× ITEM-A + 2× ITEM-B required → THEN GET: 1
+              specific product at 100% off.</div>
+          </div>
+        </div>
+
+        <div class="discount-type-card">
+          <div class="dt-header"><span class="dt-badge">REDUCE_TO_CLEAR</span><span class="dt-label">Reduce to Clear
+              (RTC)</span></div>
+          <div class="dt-body">
+            <div class="dt-desc">Time-based discount tiers that deepen automatically as the day progresses. Used for
+              perishable or time-sensitive stock.</div>
+            <div class="dt-ui-note"><strong>UI Setup</strong>Define time tiers. Each needs a Sequence number, From Time,
+              To Time, and discount rate. Engine checks current time and applies the first matching tier.</div>
+            <div class="dt-example"><strong>Example:</strong> Tier 1: 4PM–6PM = 20% off. Tier 2: 6PM–8PM = 50% off. Tier
+              3: 8PM–close = 100% off.</div>
+          </div>
+        </div>
+
+        <h2 class="sub-title" id="s3-3">3.3 Rule Conditions</h2>
+        <p class="body-text">Each rule can have one or more Conditions added via the + Add button. ALL conditions must
+          be true for the rule to fire.</p>
+        <div class="tbl-wrap">
+          <table>
+            <tr>
+              <th style="width:180px">Condition Type</th>
+              <th style="width:260px">Available Operators</th>
+              <th>What to Enter as Value</th>
+            </tr>
+            <tr>
+              <td class="mono">PRODUCT</td>
+              <td>EQUALS, NOT_EQUALS, IN, NOT_IN</td>
+              <td>Item code(s). Comma-separated for IN/NOT_IN (e.g. SKU-001,SKU-002).</td>
+            </tr>
+            <tr>
+              <td class="mono">CATEGORY</td>
+              <td>EQUALS, NOT_EQUALS, IN, NOT_IN</td>
+              <td>Category/item group code(s). Comma-separated for multiple.</td>
+            </tr>
+            <tr>
+              <td class="mono">CUSTOMER_GROUP</td>
+              <td>EQUALS, NOT_EQUALS, IN, NOT_IN</td>
+              <td>Customer group code (e.g. VIP, STAFF).</td>
+            </tr>
+            <tr>
+              <td class="mono">PAYMENT_METHOD</td>
+              <td>EQUALS, NOT_EQUALS, IN, NOT_IN</td>
+              <td>Payment type name (e.g. CASH, CARD).</td>
+            </tr>
+            <tr>
+              <td class="mono">TIME_OF_DAY</td>
+              <td>EQUALS, NOT_EQUALS, BETWEEN, GREATER_THAN, LESS_THAN, GREATER_EQUAL, LESS_EQUAL</td>
+              <td>Time in HH:MM format. For BETWEEN enter two times comma-separated (e.g. 12:00,14:00).</td>
+            </tr>
+            <tr>
+              <td class="mono">DAY_OF_WEEK</td>
+              <td>IN (comma-separated days)</td>
+              <td>Day name(s) in full uppercase comma-separated (e.g. MONDAY,TUESDAY).</td>
+            </tr>
+            <tr>
+              <td class="mono">QUANTITY_THRESHOLD</td>
+              <td>EQUALS, GREATER_THAN, LESS_THAN, GREATER_EQUAL, LESS_EQUAL, BETWEEN</td>
+              <td>Total item count as a number. For BETWEEN enter min,max comma-separated.</td>
+            </tr>
+            <tr>
+              <td class="mono">BASKET_VALUE</td>
+              <td>EQUALS, GREATER_THAN, LESS_THAN, GREATER_EQUAL, LESS_EQUAL, BETWEEN</td>
+              <td>Receipt total as a number. For BETWEEN enter min,max (e.g. 50,100).</td>
+            </tr>
+            <tr>
+              <td class="mono">FIRST_PURCHASE</td>
+              <td>true/false flag</td>
+              <td>No value needed. Note: currently always false via the receipt mapping — see Section 2.3.</td>
+            </tr>
+            <tr>
+              <td class="mono">COUPON_CODE</td>
+              <td>EQUALS or 'any'</td>
+              <td>Enter the exact coupon code, or enter <em>any</em> to match any coupon present.</td>
+            </tr>
+          </table>
+        </div>
+
+        <!-- TAB 3 -->
+        <div class="tab-header" id="s3-tab3">TAB 3 — Entitlements</div>
+        <p class="body-text" style="margin-top:12px">Entitlements control who is allowed to use this discount. A scheme
+          with no entitlements is PUBLIC (anyone). Multiple entitlements can be added — a customer only needs to match
+          ONE.</p>
+        <div class="tbl-wrap">
+          <table>
+            <tr>
+              <th style="width:160px">UI Field</th>
+              <th style="width:220px">Options / Format</th>
+              <th>What It Controls</th>
+            </tr>
+            <tr>
+              <td class="field-name">Type</td>
+              <td class="options">PUBLIC, CUSTOMER_GROUP, SPECIFIC_CUSTOMER, COUPON</td>
+              <td>PUBLIC: no restriction. CUSTOMER_GROUP: only customers in a specified group. SPECIFIC_CUSTOMER: only
+                one named customer. COUPON: only customers presenting a valid coupon linked to this scheme.</td>
+            </tr>
+            <tr>
+              <td class="field-name">Reference ID</td>
+              <td class="options">Customer ID or Group code</td>
+              <td>For CUSTOMER_GROUP: enter the group code (e.g. VIP). For SPECIFIC_CUSTOMER: enter the customer card
+                code. Leave blank for PUBLIC and COUPON.</td>
+            </tr>
+            <tr>
+              <td class="field-name">Usage Limit / Customer</td>
+              <td class="options">Number or Unlimited</td>
+              <td>How many times one customer can use this discount. Unlimited = no cap. Set to 1 = each customer can
+                only use it once. Set to 3 = up to 3 times per customer.</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── S4 ── -->
+      <div class="section" id="s4">
+        <h1 class="section-title">4. How Multiple Discounts Are Combined</h1>
+        <p class="body-text">When more than one discount qualifies for the same receipt, the Combination Mode set on the
+          General tab determines what happens.</p>
+        <div class="mode-cards">
+          <div class="mode-card additive">
+            <div class="mode-card-header">ADDITIVE</div>
+            <div class="mode-card-body">
+              All qualifying discounts are applied together and stacked. The customer receives the benefit of every
+              matching discount.
+              <div class="example">Example: Scheme A gives $5 off, Scheme B gives 10% off. Both apply — customer saves
+                $5 plus 10%.</div>
+            </div>
+          </div>
+          <div class="mode-card exclusive">
+            <div class="mode-card-header">EXCLUSIVE</div>
+            <div class="mode-card-body">
+              Only the single highest-saving EXCLUSIVE scheme applies. When an EXCLUSIVE wins, all other schemes —
+              including ADDITIVE ones at lower priority — are ignored entirely.
+              <div class="example">Example: Three exclusive discounts qualify ($5, $10, $8). Only the $10 saving
+                applies. All others stop.</div>
+            </div>
+          </div>
+          <div class="mode-card bestof">
+            <div class="mode-card-header">BEST_OF</div>
+            <div class="mode-card-body">
+              Among all BEST_OF schemes, only the highest saving is applied. The winning BEST_OF is then merged with any
+              ADDITIVE results.
+              <div class="example">Example: Two Best-Of qualify — one saves $8, the other $12. Only $12 applies.
+                ADDITIVE schemes still stack alongside it.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── S5 ── -->
+      <div class="section" id="s5">
+        <h1 class="section-title">5. Scheme Priority System</h1>
+        <p class="body-text">Every discount scheme has a Priority number. The engine uses this number to decide the
+          order in which schemes are evaluated and how they interact when multiple schemes qualify for the same receipt.
+        </p>
+
+        <h2 class="sub-title" id="s5-1">5.1 How Priority Works</h2>
+        <p class="body-text">Higher priority number = evaluated first. The engine sorts all qualifying schemes from
+          highest to lowest priority before resolving combination modes.</p>
+        <div class="tbl-wrap">
+          <table>
+            <tr>
+              <th style="width:200px">Rule</th>
+              <th>Behaviour</th>
+            </tr>
+            <tr>
+              <td class="field-name">Higher number first</td>
+              <td>A scheme with priority 10 is processed before a scheme with priority 5.</td>
+            </tr>
+            <tr>
+              <td class="field-name">Same priority grouped</td>
+              <td>Schemes sharing the same priority number are processed as a group together before moving to the next
+                level.</td>
+            </tr>
+            <tr>
+              <td class="field-name">Null priority = 0</td>
+              <td>If a scheme has no priority set, it defaults to 0 and is processed last.</td>
+            </tr>
+            <tr>
+              <td class="field-name">EXCLUSIVE halts all</td>
+              <td>If an EXCLUSIVE scheme wins within any priority group, processing stops immediately. No lower-priority
+                schemes are evaluated — even ADDITIVE ones.</td>
+            </tr>
+            <tr>
+              <td class="field-name">BEST_OF is cross-group</td>
+              <td>The best-of winner is tracked across all priority groups and merged with ADDITIVE results at the end.
+              </td>
+            </tr>
+          </table>
+        </div>
+
+        <h2 class="sub-title" id="s5-2">5.2 Priority Evaluation Flow (Step by Step)</h2>
+        <p class="body-text">This is exactly what the engine does internally when resolving priority and combination
+          modes:</p>
+        <div class="tbl-wrap">
+          <table>
+            <tr>
+              <th style="width:60px">#</th>
+              <th>What the Engine Does</th>
+            </tr>
+            <tr>
+              <td style="text-align:center"><span class="step-num">1</span></td>
+              <td>Sort all qualifying schemes by priority (highest number first).</td>
+            </tr>
+            <tr>
+              <td style="text-align:center"><span class="step-num">2</span></td>
+              <td>Group schemes that share the same priority number into a batch.</td>
+            </tr>
+            <tr>
+              <td style="text-align:center"><span class="step-num">3</span></td>
+              <td>For the current priority group: check if any scheme is EXCLUSIVE.</td>
+            </tr>
+            <tr>
+              <td style="text-align:center"><span class="step-num">4</span></td>
+              <td>If EXCLUSIVE found → select the EXCLUSIVE scheme with the highest saving. Return immediately. Stop all
+                further processing.</td>
+            </tr>
+            <tr>
+              <td style="text-align:center"><span class="step-num">5</span></td>
+              <td>If no EXCLUSIVE → process each scheme by its combination mode: ADDITIVE schemes added to final result.
+                BEST_OF schemes compete — only the highest saving BEST_OF is remembered.</td>
+            </tr>
+            <tr>
+              <td style="text-align:center"><span class="step-num">6</span></td>
+              <td>Move to the next priority group and repeat steps 3–5.</td>
+            </tr>
+            <tr>
+              <td style="text-align:center"><span class="step-num">7</span></td>
+              <td>After all groups are processed: merge the winning BEST_OF (if any) into the ADDITIVE results.</td>
+            </tr>
+            <tr>
+              <td style="text-align:center"><span class="step-num">8</span></td>
+              <td>Run recalculateTransactionDiscounts() on the final merged result set.</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── S6 ── -->
+      <div class="section" id="s6">
+        <h1 class="section-title">6. Line Discount First, Then Transaction Discount</h1>
+        <p class="body-text">This is one of the most important behaviours to understand and verify. When a receipt has
+          both receipt-line discounts and whole-receipt discounts, the engine applies them in a specific order to ensure
+          the transaction discount is always fair and mathematically correct.</p>
+
+        <h2 class="sub-title" id="s6-1">6.1 The Rule</h2>
+        <div class="info-box">
+          <strong>Core Behaviour — Confirmed in Code</strong>
+          <p><strong>Step 1:</strong> Receipt-line discounts are calculated first against the original line totals.</p>
+          <p><strong>Step 2:</strong> The engine sums all line discount amounts to get the total line saving.</p>
+          <p><strong>Step 3:</strong> Remaining receipt total = Original receipt total MINUS total receipt-line
+            discounts.</p>
+          <p><strong>Step 4:</strong> The whole-receipt discount is recalculated using this reduced amount — NOT the
+            original receipt total.</p>
+          <p style="margin-top:8px;font-weight:600">Result: The customer never receives a whole-receipt discount on top
+            of an amount that has already been fully discounted at the receipt-line level.</p>
+        </div>
+
+        <h2 class="sub-title" id="s6-2">6.2 Worked Example</h2>
+        <p class="body-text">This example shows exactly how the engine calculates when both receipt-line and
+          whole-receipt discounts are active on the same receipt:</p>
+        <div class="tbl-wrap" style="max-width:700px">
+          <table>
+            <tr>
+              <th>Step</th>
+              <th>Value</th>
+              <th>Notes</th>
+            </tr>
+            <tr>
+              <td>Original receipt total</td>
+              <td><strong>$100.00</strong></td>
+              <td>3 lines: $40 + $35 + $25</td>
+            </tr>
+            <tr>
+              <td>Line discount: 20% off $40 line</td>
+              <td style="color:var(--orange-dark)">−$8.00</td>
+              <td>Receipt-line discount fires first</td>
+            </tr>
+            <tr>
+              <td>Line discount: 20% off $35 line</td>
+              <td style="color:var(--orange-dark)">−$7.00</td>
+              <td>Receipt-line discount fires first</td>
+            </tr>
+            <tr>
+              <td>Total line discounts</td>
+              <td><strong>$15.00</strong></td>
+              <td>Sum of all line-level savings</td>
+            </tr>
+            <tr style="background:var(--blue-pale)">
+              <td><strong>Remaining receipt total (recalculated)</strong></td>
+              <td><strong style="color:var(--blue-dark)">$85.00</strong></td>
+              <td>$100.00 − $15.00</td>
+            </tr>
+            <tr>
+              <td>Whole-receipt discount: 10% off</td>
+              <td style="color:var(--orange-dark)">−$8.50</td>
+              <td>Applied to $85.00, NOT $100.00</td>
+            </tr>
+            <tr style="background:var(--green-light)">
+              <td><strong>Final total payable</strong></td>
+              <td><strong style="color:var(--green-dark)">$76.50</strong></td>
+              <td>$85.00 − $8.50</td>
+            </tr>
+          </table>
+        </div>
+
+        <h2 class="sub-title" id="s6-3">6.3 Where This Happens in the Code</h2>
+        <p class="body-text">The engine calls recalculateTransactionDiscounts() at two points:</p>
+        <div class="tbl-wrap">
+          <table>
+            <tr>
+              <th style="width:60px">Call</th>
+              <th style="width:280px">When</th>
+              <th>Why</th>
+            </tr>
+            <tr>
+              <td style="text-align:center;font-weight:600">1st</td>
+              <td>After each scheme's rules are evaluated (inside the scheme loop)</td>
+              <td>Ensures the transaction base is correct per-scheme before scheme totals are tallied for combination
+                resolution.</td>
+            </tr>
+            <tr>
+              <td style="text-align:center;font-weight:600">2nd</td>
+              <td>After combination resolution on the final merged result set</td>
+              <td>Re-applies the transaction recalculation on the final combined discounts so the transaction base
+                reflects all line discounts across all schemes. Only GROSS-scheme results are touched here — NET results
+                are already cascade-calibrated and pass through unchanged.</td>
+            </tr>
+          </table>
+        </div>
+
+        <h2 class="sub-title" id="s6-4">6.4 Scheme Calculation Mode (Gross vs Net)</h2>
+        <p class="body-text">Each scheme carries a <span class="mono">calculationMode</span> field that decides
+          <em>which receipt total it reads</em> when its rules are calculated. Priority, combination mode, conditions,
+          thresholds, and line qualifiers are unaffected — only the input number changes.
+        </p>
+
+        <div class="info-box">
+          <strong>The Two Modes</strong>
+          <p><strong>GROSS (default):</strong> the scheme calculates against the <em>original</em> receipt total — the
+            actual sticker price before any other scheme touches it.</p>
+          <p><strong>NET:</strong> the scheme calculates against the <em>running</em> total — whatever is left after all
+            higher-priority schemes have already committed their discounts.</p>
+          <p style="margin-top:8px;font-weight:600">Default is GROSS. Existing schemes behave exactly as before unless
+            explicitly switched to NET.</p>
+        </div>
+
+        <p class="body-text">The engine walks schemes in <strong>priority-descending order</strong> against a mutable
+          WorkingBasket. After each priority group commits its winners, line totals in the WorkingBasket are reduced.
+          The next group's NET schemes see the reduced totals; GROSS schemes ignore the WorkingBasket and read the
+          original receipt.</p>
+
+        <div class="tbl-wrap" style="max-width:760px">
+          <table>
+            <tr>
+              <th style="width:90px">Aspect</th>
+              <th>GROSS</th>
+              <th>NET</th>
+            </tr>
+            <tr>
+              <td><strong>Reads</strong></td>
+              <td>Original receipt total / line totals</td>
+              <td>Running post-discount total / line totals</td>
+            </tr>
+            <tr>
+              <td><strong>Conditions &amp; thresholds</strong></td>
+              <td>Evaluated against original receipt</td>
+              <td>Evaluated against original receipt (still gross)</td>
+            </tr>
+            <tr>
+              <td><strong>Post-combination rebase</strong></td>
+              <td>Applied (today's behaviour)</td>
+              <td>Skipped — values stay as calculated during the cascade</td>
+            </tr>
+            <tr>
+              <td><strong>Typical use</strong></td>
+              <td>"All discounts stack on sticker price"</td>
+              <td>"Each promo applies on whatever is left"</td>
+            </tr>
+          </table>
+        </div>
+
+        <p class="body-text" style="margin-top:14px"><strong>Worked example.</strong> Receipt $100, two ADDITIVE
+          schemes:</p>
+        <div class="tbl-wrap" style="max-width:760px">
+          <table>
+            <tr>
+              <th style="width:180px">Configuration</th>
+              <th>Scheme A (prio 10, 20% off)</th>
+              <th>Scheme B (prio 5, 10% off)</th>
+              <th style="width:110px">Total off</th>
+            </tr>
+            <tr>
+              <td><strong>Both GROSS</strong></td>
+              <td>20% of $100 = $20</td>
+              <td>10% of $100 = $10</td>
+              <td><strong>$30</strong></td>
+            </tr>
+            <tr style="background:var(--blue-pale)">
+              <td><strong>A GROSS, B NET</strong></td>
+              <td>20% of $100 = $20</td>
+              <td>10% of $80 = $8</td>
+              <td><strong>$28</strong></td>
+            </tr>
+            <tr>
+              <td><strong>A NET, B NET</strong></td>
+              <td>20% of $100 = $20 <span style="color:var(--gray-mid)">(nothing higher)</span></td>
+              <td>10% of $80 = $8</td>
+              <td><strong>$28</strong></td>
+            </tr>
+            <tr>
+              <td><strong>A NET, B GROSS</strong></td>
+              <td>20% of $100 = $20</td>
+              <td>10% of $100 = $10</td>
+              <td><strong>$30</strong></td>
+            </tr>
+          </table>
+        </div>
+
+        <div class="info-box orange" style="margin-top:14px">
+          <strong>Things to Remember</strong>
+          <p>• The highest-priority scheme being NET buys you nothing — nothing has committed above it yet.</p>
+          <p>• Thresholds like <span class="mono">minOrderAmount</span> and conditions like BASKET_VALUE always read the
+            <em>original</em> receipt, so a cascade cannot disqualify itself mid-flight.
+          </p>
+          <p>• Transaction-level discounts that get committed are <em>prorated</em> across lines by current-net share
+            before the next NET scheme runs.</p>
+          <p>• BEST_OF NET candidates see the running state at evaluation time, but the winner is committed at the end
+            of the cascade.</p>
+        </div>
+      </div>
+
+      <!-- ── S7 ── -->
+      <div class="section" id="s7">
+        <h1 class="section-title">7. Rounding Rules, Rule Thresholds & Line Qualifiers</h1>
+        <p class="body-text">These three features act as additional control layers on discount rules. They are separate
+          from conditions and entitlements and must be understood before running tests.</p>
+
+        <h2 class="sub-title" id="s7-1">7.1 Rounding Rules</h2>
+        <p class="body-text">Every discount rule can specify how the calculated discount amount is rounded. This
+          controls the final cent value of the discount.</p>
+        <div class="tbl-wrap" style="max-width:700px">
+          <table>
+            <tr>
+              <th>Rounding Rule</th>
+              <th>Behaviour</th>
+              <th>Example (discount = $3.456)</th>
+            </tr>
+            <tr>
+              <td class="mono">NEAREST_CENT</td>
+              <td>Round to 2 decimal places, half-up (standard rounding)</td>
+              <td><strong>$3.46</strong></td>
+            </tr>
+            <tr>
+              <td class="mono">FLOOR</td>
+              <td>Always round DOWN — favours the business</td>
+              <td><strong>$3.45</strong></td>
+            </tr>
+            <tr>
+              <td class="mono">CEILING</td>
+              <td>Always round UP — favours the customer</td>
+              <td><strong>$3.46</strong></td>
+            </tr>
+            <tr>
+              <td class="mono">null / not set</td>
+              <td>Defaults to NEAREST_CENT</td>
+              <td><strong>$3.46</strong></td>
+            </tr>
+          </table>
+        </div>
+
+        <h2 class="sub-title" id="s7-2">7.2 Rule-Level Threshold Gates</h2>
+        <p class="body-text">Each discount rule has two optional threshold gates that act as a pre-check before any
+          discount is calculated. These are different from Conditions — they are hard minimum requirements on the rule
+          itself, not configurable condition types.</p>
+        <div class="tbl-wrap">
+          <table>
+            <tr>
+              <th style="width:180px">Gate Field</th>
+              <th>What It Does</th>
+              <th>Example</th>
+            </tr>
+            <tr>
+              <td class="mono">minOrderAmount</td>
+              <td>The receipt total must be at least this value for the rule to fire. If below, the rule is skipped
+                entirely.</td>
+              <td>minOrderAmount = $30. Receipt $25 → rule skipped. Receipt $30 → rule proceeds.</td>
+            </tr>
+            <tr>
+              <td class="mono">minQuantity</td>
+              <td>The total number of items on the receipt must be at least this number. If below, the rule is skipped
+                entirely.</td>
+              <td>minQuantity = 3. Receipt has 2 items → rule skipped. 3 items → rule proceeds.</td>
+            </tr>
+          </table>
+        </div>
+
+        <h2 class="sub-title" id="s7-3">7.3 Line Qualifier Gates</h2>
+        <p class="body-text">For LINE_ITEM and CHEAPEST_ITEM discount types, each individual receipt line is checked
+          against two optional rule-level qualifiers before it is eligible to receive the discount. Lines that do not
+          meet these minimums are silently skipped.</p>
+        <div class="tbl-wrap">
+          <table>
+            <tr>
+              <th style="width:180px">Qualifier Field</th>
+              <th>What It Does</th>
+              <th>Example</th>
+            </tr>
+            <tr>
+              <td class="mono">minLineTotal</td>
+              <td>The line total (qty × unit price) must be at least this value for the line to qualify. Lines below are
+                skipped.</td>
+              <td>minLineTotal = $20. Line total $15 → skipped. Line total $20 → qualifies.</td>
+            </tr>
+            <tr>
+              <td class="mono">minLineUnitPrice</td>
+              <td>The unit price of the item must be at least this value to qualify. Prevents discounting low-value
+                items.</td>
+              <td>minLineUnitPrice = $5. Unit price $4.99 → skipped. Unit price $5.00 → qualifies.</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── S8 ── -->
+      <div class="section" id="s8">
+        <h1 class="section-title">8. QA Test Cases</h1>
+        <p class="body-text">All tests must be performed using the Manager's API or UI. All tests are online-only at
+          this stage.</p>
+
+        <div class="test-progress">
+          <div class="progress-label">Test Progress</div>
+          <div class="progress-bar-wrap">
+            <div class="progress-bar-fill" id="progressBar" style="width:0%"></div>
+          </div>
+          <div class="progress-pct" id="progressPct">0 / 123</div>
+          <button onclick="exportToTxt()" style="
+          padding: 6px 14px;
+          background: var(--blue-dark);
+          color: #fff;
+          border: none;
+          border-radius: 4px;
+          font-family: var(--font);
+          font-size: 12px;
+          font-weight: 600;
+          cursor: pointer;
+          white-space: nowrap;
+          transition: background 0.15s;
+        " onmouseover="this.style.background='#163a5a'" onmouseout="this.style.background='var(--blue-dark)'">
+            ⬇ Save .txt
+          </button>
+        </div>
+
+        <h2 class="sub-title" id="s8-1">8.1 Discount Type Tests</h2>
+        <div class="tbl-wrap">
+          <table id="tc-table">
+            <tr>
+              <th style="width:40px">#</th>
+              <th>Scenario</th>
+              <th>Input</th>
+              <th>Expected Result</th>
+              <th style="width:100px">Pass / Fail</th>
+            </tr>
+            <tr>
+              <td class="test-id">TC-01</td>
+              <td>Percentage off transaction</td>
+              <td>Receipt total $100, 10% off</td>
+              <td>Discount $10.00, Final $90.00</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-02</td>
+              <td>Percentage off line item</td>
+              <td>Item $50, 20% off LINE_ITEM</td>
+              <td>Discount $10.00 on that line</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-03</td>
+              <td>Percentage off cheapest item</td>
+              <td>Items $30, $20, $10 — 50% off cheapest</td>
+              <td>Discount $5.00 on $10 item</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-04</td>
+              <td>Fixed amount off transaction</td>
+              <td>$5 off receipt total $80</td>
+              <td>Discount $5.00, Final $75.00</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-05</td>
+              <td>Fixed amount cannot exceed receipt total</td>
+              <td>$200 fixed off $50 receipt</td>
+              <td>Discount $50.00 (capped), Final $0.00</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-06</td>
+              <td>Fixed price — item above fixed price</td>
+              <td>Item $25, fixed price $15, qty 2</td>
+              <td>Discount $20.00</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-07</td>
+              <td>Fixed price — item at or below fixed price</td>
+              <td>Item $10, fixed price $15</td>
+              <td>No discount applied</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-08</td>
+              <td>Tiered — receipt hits a tier</td>
+              <td>Receipt total $120, tier: $100+ = 10%</td>
+              <td>Discount $12.00</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-09</td>
+              <td>Tiered — receipt below all tiers</td>
+              <td>Receipt total $30, min tier $50</td>
+              <td>No discount applied</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-10</td>
+              <td>Buy 2 Get 1 free (100%)</td>
+              <td>3 items $10 each — B2G1</td>
+              <td>Cheapest item free ($10)</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-11</td>
+              <td>Buy X Get Y — not enough qualifying items</td>
+              <td>Buy 2 needed, only 1 in receipt</td>
+              <td>No discount applied</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-12</td>
+              <td>Buy Combo — all combo items present</td>
+              <td>1× ItemA + 2× ItemB required; receipt has both</td>
+              <td>Reward discount applied</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-13</td>
+              <td>Buy Combo — missing one combo item</td>
+              <td>1× ItemA present, ItemB absent</td>
+              <td>No discount applied</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-14</td>
+              <td>RTC — within active time tier</td>
+              <td>Time 5PM, tier 4PM–6PM = 20% off</td>
+              <td>20% discount applied</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-15</td>
+              <td>RTC — outside all time tiers</td>
+              <td>Time 11AM, no tier active</td>
+              <td>No discount applied</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+          </table>
+        </div>
+
+        <h2 class="sub-title" id="s8-2">8.2 Condition Tests</h2>
+        <div class="tbl-wrap">
+          <table>
+            <tr>
+              <th style="width:40px">#</th>
+              <th>Scenario</th>
+              <th>Input</th>
+              <th>Expected Result</th>
+              <th style="width:100px">Pass / Fail</th>
+            </tr>
+            <tr>
+              <td class="test-id">TC-16</td>
+              <td>PRODUCT condition matches</td>
+              <td>Receipt has SKU-001, condition requires SKU-001</td>
+              <td>Discount applied</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-17</td>
+              <td>PRODUCT condition does not match</td>
+              <td>Receipt has SKU-002, condition requires SKU-001</td>
+              <td>Discount NOT applied</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-18</td>
+              <td>CATEGORY condition matches</td>
+              <td>Item in 'Beverages', condition = Beverages</td>
+              <td>Discount applied</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-19</td>
+              <td>TIME_OF_DAY BETWEEN — inside window</td>
+              <td>Time 1:00 PM, condition 12:00–14:00</td>
+              <td>Discount applied</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-20</td>
+              <td>TIME_OF_DAY BETWEEN — outside window</td>
+              <td>Time 3:00 PM, condition 12:00–14:00</td>
+              <td>Discount NOT applied</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-21</td>
+              <td>DAY_OF_WEEK — today matches</td>
+              <td>Today is MONDAY, condition = MONDAY,TUESDAY</td>
+              <td>Discount applied</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-22</td>
+              <td>DAY_OF_WEEK — today does not match</td>
+              <td>Today is WEDNESDAY, condition = MONDAY,TUESDAY</td>
+              <td>Discount NOT applied</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-23</td>
+              <td>BASKET_VALUE threshold met</td>
+              <td>Receipt total $60, condition &gt;= $50</td>
+              <td>Discount applied</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-24</td>
+              <td>BASKET_VALUE threshold not met</td>
+              <td>Receipt total $40, condition &gt;= $50</td>
+              <td>Discount NOT applied</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-25</td>
+              <td>QUANTITY_THRESHOLD met</td>
+              <td>5 items, condition &gt;= 5</td>
+              <td>Discount applied</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-26</td>
+              <td>FIRST_PURCHASE flag true</td>
+              <td>Customer flag isFirstPurchase = true</td>
+              <td>Discount applied</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-27</td>
+              <td>COUPON_CODE valid</td>
+              <td>Customer enters matching coupon code</td>
+              <td>Discount applied</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-28</td>
+              <td>COUPON_CODE invalid / not entered</td>
+              <td>No coupon or wrong code</td>
+              <td>Discount NOT applied</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-29</td>
+              <td>PAYMENT_METHOD matches</td>
+              <td>Payment = CARD, condition = CARD</td>
+              <td>Discount applied</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-30</td>
+              <td>Multiple conditions — all pass</td>
+              <td>Day=MONDAY + Receipt&gt;$50 + Category=Beverages</td>
+              <td>Discount applied</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-31</td>
+              <td>Multiple conditions — one fails</td>
+              <td>Day=MONDAY + Receipt&lt;$50 (fails)</td>
+              <td>Discount NOT applied</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+          </table>
+        </div>
+
+        <h2 class="sub-title" id="s8-3">8.3 Entitlement & Scope Tests</h2>
+        <div class="tbl-wrap">
+          <table>
+            <tr>
+              <th style="width:40px">#</th>
+              <th>Scenario</th>
+              <th>Input</th>
+              <th>Expected Result</th>
+              <th style="width:100px">Pass / Fail</th>
+            </tr>
+            <tr>
+              <td class="test-id">TC-32</td>
+              <td>PUBLIC entitlement — no customer</td>
+              <td>Anonymous receipt, scheme = PUBLIC</td>
+              <td>Discount applied</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-33</td>
+              <td>CUSTOMER_GROUP match</td>
+              <td>CustomerGroup = VIP, scheme entitlement = VIP</td>
+              <td>Discount applied</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-34</td>
+              <td>CUSTOMER_GROUP mismatch</td>
+              <td>CustomerGroup = STANDARD, scheme = VIP only</td>
+              <td>Discount NOT applied</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-35</td>
+              <td>SPECIFIC_CUSTOMER match</td>
+              <td>CustomerId = C001, scheme = C001 only</td>
+              <td>Discount applied</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-36</td>
+              <td>GLOBAL scope</td>
+              <td>Any POS terminal, scheme scope = GLOBAL</td>
+              <td>Discount applied everywhere</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-37</td>
+              <td>POS_TERMINAL scope match</td>
+              <td>Terminal = T001, scheme = T001</td>
+              <td>Discount applied</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-38</td>
+              <td>POS_TERMINAL scope mismatch</td>
+              <td>Terminal = T002, scheme = T001 only</td>
+              <td>Discount NOT applied</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-39</td>
+              <td>POS_GROUP scope match</td>
+              <td>PosGroup = G1, scheme = G1</td>
+              <td>Discount applied</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+          </table>
+        </div>
+
+        <h2 class="sub-title" id="s8-4">8.4 Combination Mode Tests</h2>
+        <div class="tbl-wrap">
+          <table>
+            <tr>
+              <th style="width:40px">#</th>
+              <th>Scenario</th>
+              <th>Input</th>
+              <th>Expected Result</th>
+              <th style="width:100px">Pass / Fail</th>
+            </tr>
+            <tr>
+              <td class="test-id">TC-40</td>
+              <td>Two ADDITIVE schemes qualify</td>
+              <td>SchemeA $5 off + SchemeB 10% off</td>
+              <td>Both discounts applied</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-41</td>
+              <td>EXCLUSIVE — one winner selected</td>
+              <td>3 exclusive schemes qualify ($5, $10, $8 savings)</td>
+              <td>Only $10 saving applied</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-42</td>
+              <td>BEST_OF — highest saving wins</td>
+              <td>Two best-of schemes: $6 vs $9 saving</td>
+              <td>Only $9 saving applied</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-43</td>
+              <td>EXCLUSIVE stops all further processing</td>
+              <td>Exclusive scheme wins, additive schemes also qualify</td>
+              <td>Only exclusive scheme applies</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-44</td>
+              <td>Priority ordering respected</td>
+              <td>Two schemes: priority 10 and priority 5</td>
+              <td>Priority 10 evaluated first</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+          </table>
+        </div>
+
+        <h2 class="sub-title" id="s8-5">8.5 Edge Cases & Guard Tests</h2>
+        <div class="tbl-wrap">
+          <table>
+            <tr>
+              <th style="width:40px">#</th>
+              <th>Scenario</th>
+              <th>Input</th>
+              <th>Expected Result</th>
+              <th style="width:100px">Pass / Fail</th>
+            </tr>
+            <tr>
+              <td class="test-id">TC-45</td>
+              <td>Empty receipt rejected</td>
+              <td>Receipt with no lines</td>
+              <td>Validation error returned</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-46</td>
+              <td>Null quantity rejected</td>
+              <td>Line item with null quantity</td>
+              <td>Validation error returned</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-47</td>
+              <td>Negative unit price rejected</td>
+              <td>Line with unitPrice = −5</td>
+              <td>Validation error returned</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-48</td>
+              <td>Discount capped by maxDiscountAmount</td>
+              <td>Rule max = $20, calculated discount = $35</td>
+              <td>Discount capped at $20</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-49</td>
+              <td>Discount cannot exceed line total</td>
+              <td>Line total $15, discount $25 calculated</td>
+              <td>Discount capped at $15</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-50</td>
+              <td>No active schemes returns no discount</td>
+              <td>Receipt submitted, no active schemes in DB</td>
+              <td>Response: $0 discount, original total returned</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-51</td>
+              <td>DRAFT scheme in preview mode</td>
+              <td>previewBasket() called with DRAFT scheme and future window</td>
+              <td>Scheme evaluated as if active</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-52</td>
+              <td>Coupon usage incremented on recording</td>
+              <td>recordAppliedDiscounts() called with couponId</td>
+              <td>Coupon usageCount incremented by 1</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-53</td>
+              <td>Transaction discount recalculated after line discounts</td>
+              <td>Line discount applied first, then transaction discount recalculates</td>
+              <td>Transaction discount uses post-line-discount base</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-54</td>
+              <td>Midnight-spanning time range works</td>
+              <td>TIME_OF_DAY condition 22:00–02:00, current time 01:00</td>
+              <td>Condition evaluated as true</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+          </table>
+        </div>
+
+        <!-- Abbreviated remaining test sections -->
+        <h2 class="sub-title" id="s8-6">8.6 Priority System Tests (TC-55 to TC-64)</h2>
+        <p class="body-text" style="color:var(--gray-dark);font-style:italic">See Section 5 for priority rules. Tests
+          cover: higher priority first, same-priority grouping, null defaults to 0, EXCLUSIVE halting lower levels,
+          EXCLUSIVE winner selection, BEST_OF cross-group, BEST_OF merged with ADDITIVE.</p>
+        <div class="tbl-wrap">
+          <table>
+            <tr>
+              <th style="width:40px">#</th>
+              <th>Scenario</th>
+              <th>Expected Result</th>
+              <th style="width:100px">Pass / Fail</th>
+            </tr>
+            <tr>
+              <td class="test-id">TC-55</td>
+              <td>Higher priority scheme evaluated first — SchemeA p=10 ADDITIVE $5, SchemeB p=5 ADDITIVE $3. Both
+                qualify.</td>
+              <td>Both applied. Final discount $8.00.</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-56</td>
+              <td>Null priority defaults to 0 — SchemeA p=null, SchemeB p=5. Both ADDITIVE qualify.</td>
+              <td>SchemeB (5) processed before SchemeA (0). Both applied.</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-57</td>
+              <td>Same priority group — both ADDITIVE. SchemeA p=10 $5, SchemeB p=10 10% off.</td>
+              <td>Both discounts stack.</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-58</td>
+              <td>EXCLUSIVE at priority=10 wins, stops lower priority=5 ADDITIVE scheme.</td>
+              <td>Only EXCLUSIVE ($15) applied. Lower priority scheme NOT evaluated.</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-59</td>
+              <td>EXCLUSIVE same group — ExclusiveA $8, ExclusiveB $12. Both qualify.</td>
+              <td>Only ExclusiveB ($12) wins.</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-60</td>
+              <td>BEST_OF across groups — p=10 saves $6, p=5 saves $9.</td>
+              <td>$9 saving wins. $6 discarded.</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-61</td>
+              <td>BEST_OF winner merged with ADDITIVE — p=10 ADDITIVE $5, p=5 BEST_OF $8.</td>
+              <td>Both applied: $5 + $8 = $13 total.</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-62</td>
+              <td>Three priority levels mixed — p=15 ADDITIVE $4, p=10 BEST_OF $7, p=5 ADDITIVE $3. All qualify.</td>
+              <td>$4 + $7 + $3 = $14 total discount.</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+          </table>
+        </div>
+
+        <h2 class="sub-title" id="s8-7">8.7 Line Discount First, Then Transaction Discount Tests (TC-65 to TC-74)</h2>
+        <div class="tbl-wrap">
+          <table>
+            <tr>
+              <th style="width:40px">#</th>
+              <th>Scenario</th>
+              <th>Expected Result</th>
+              <th style="width:100px">Pass / Fail</th>
+            </tr>
+            <tr>
+              <td class="test-id">TC-65</td>
+              <td>Receipt $100. Line 20% off ($20). Then whole-receipt 10% off.</td>
+              <td>Line $20. Remaining $80. Whole-receipt $8.00. Final $72.00.</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-66</td>
+              <td>Lines $40+$35+$25=$100. 20% off $40 ($8) and $35 ($7). Whole-receipt 10% off.</td>
+              <td>Line total $15. Remaining $85. Whole-receipt $8.50. Final $76.50.</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-67</td>
+              <td>Verify: transaction discount NOT calculated on original total.</td>
+              <td>If line discount $30 applied, transaction 10% must be $7.00 (10% of $70), NOT $10.00.</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-68</td>
+              <td>B2G1 reward counts as line discount before whole-receipt discount.</td>
+              <td>3 items $20. B2G1 ($20 off). Remaining $40. Whole-receipt 10% = $4. Final $36.</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-69</td>
+              <td>Line discount = full line total. Whole-receipt applied on $0 remaining.</td>
+              <td>Line $50 off $50. Remaining $0. Whole-receipt $0. Final $0.</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-70</td>
+              <td>Whole-receipt discount capped when remaining total is very small.</td>
+              <td>Receipt $10. Line discount $9. Remaining $1. Whole-receipt $5 fixed → capped at $1. Final $0.</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-71</td>
+              <td>No line discounts — whole-receipt uses full total.</td>
+              <td>Receipt $100, no line discounts. Whole-receipt 10% = $10. Final $90.</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+          </table>
+        </div>
+
+        <h2 class="sub-title" id="s8-8">8.8 Rounding Rules Tests (TC-75 to TC-79)</h2>
+        <div class="tbl-wrap">
+          <table>
+            <tr>
+              <th style="width:40px">#</th>
+              <th>Scenario</th>
+              <th>Input</th>
+              <th>Expected Result</th>
+              <th style="width:100px">Pass / Fail</th>
+            </tr>
+            <tr>
+              <td class="test-id">TC-75</td>
+              <td>NEAREST_CENT — round half-up</td>
+              <td>10% off $34.567. Rounding = NEAREST_CENT</td>
+              <td>Discount = $3.46</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-76</td>
+              <td>FLOOR — always rounds down</td>
+              <td>10% off $34.569. Rounding = FLOOR</td>
+              <td>Discount = $3.45 (not $3.46)</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-77</td>
+              <td>CEILING — always rounds up</td>
+              <td>10% off $34.501. Rounding = CEILING</td>
+              <td>Discount = $3.46 (not $3.45)</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-78</td>
+              <td>Null rounding defaults to NEAREST_CENT</td>
+              <td>10% off $34.567. Rounding = null</td>
+              <td>Discount = $3.46</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+          </table>
+        </div>
+
+        <h2 class="sub-title" id="s8-9">8.9 Rule-Level Threshold Gate Tests (TC-80 to TC-87)</h2>
+        <div class="tbl-wrap">
+          <table>
+            <tr>
+              <th style="width:40px">#</th>
+              <th>Scenario</th>
+              <th>Input</th>
+              <th>Expected Result</th>
+              <th style="width:100px">Pass / Fail</th>
+            </tr>
+            <tr>
+              <td class="test-id">TC-80</td>
+              <td>minOrderAmount met — rule fires</td>
+              <td>minOrderAmount = $30, receipt total = $30.00</td>
+              <td>Rule proceeds, discount applied</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-81</td>
+              <td>minOrderAmount not met — rule skipped</td>
+              <td>minOrderAmount = $30, receipt total = $29.99</td>
+              <td>Rule is skipped. No discount.</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-82</td>
+              <td>minQuantity met — rule fires</td>
+              <td>minQuantity = 3, receipt has 3 items</td>
+              <td>Rule proceeds, discount applied</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-83</td>
+              <td>minQuantity not met — rule skipped</td>
+              <td>minQuantity = 3, receipt has 2 items</td>
+              <td>Rule is skipped. No discount.</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-84</td>
+              <td>Both thresholds must pass</td>
+              <td>minOrderAmount = $50, minQuantity = 5. Receipt $60, 4 items.</td>
+              <td>minQuantity fails (4 &lt; 5). Rule skipped.</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+          </table>
+        </div>
+
+        <h2 class="sub-title" id="s8-10">8.10 Line Qualifier Gate Tests (TC-88 to TC-94)</h2>
+        <div class="tbl-wrap">
+          <table>
+            <tr>
+              <th style="width:40px">#</th>
+              <th>Scenario</th>
+              <th>Input</th>
+              <th>Expected Result</th>
+              <th style="width:100px">Pass / Fail</th>
+            </tr>
+            <tr>
+              <td class="test-id">TC-88</td>
+              <td>minLineTotal met — line qualifies</td>
+              <td>minLineTotal = $20, line total = $20.00</td>
+              <td>Line qualifies and receives discount</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-89</td>
+              <td>minLineTotal not met — line skipped</td>
+              <td>minLineTotal = $20, line total = $19.99</td>
+              <td>Line silently skipped. No discount on this line.</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-90</td>
+              <td>minLineUnitPrice met — line qualifies</td>
+              <td>minLineUnitPrice = $5, unit price = $5.00</td>
+              <td>Line qualifies and receives discount</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-91</td>
+              <td>minLineUnitPrice not met — line skipped</td>
+              <td>minLineUnitPrice = $5, unit price = $4.99</td>
+              <td>Line silently skipped. No discount.</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-92</td>
+              <td>Mixed basket — some lines qualify, some do not</td>
+              <td>minLineTotal = $20. Lines: $25 (qualifies), $15 (skipped), $30 (qualifies)</td>
+              <td>Discount on $25 and $30 lines only.</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+          </table>
+        </div>
+
+        <h2 class="sub-title" id="s8-11">8.11 Condition Operator Tests (TC-95 to TC-104)</h2>
+        <div class="tbl-wrap">
+          <table>
+            <tr>
+              <th style="width:40px">#</th>
+              <th>Scenario</th>
+              <th>Input</th>
+              <th>Expected Result</th>
+              <th style="width:100px">Pass / Fail</th>
+            </tr>
+            <tr>
+              <td class="test-id">TC-95</td>
+              <td>PRODUCT — NOT_EQUALS operator</td>
+              <td>Receipt has SKU-001. Condition: PRODUCT NOT_EQUALS SKU-002.</td>
+              <td>Condition passes. Discount applied.</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-96</td>
+              <td>PRODUCT — IN operator</td>
+              <td>Receipt has SKU-003. Condition: PRODUCT IN [SKU-001,SKU-002,SKU-003].</td>
+              <td>Condition passes. Discount applied.</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-97</td>
+              <td>PRODUCT — NOT_IN excludes item</td>
+              <td>Receipt has SKU-001. Condition: PRODUCT NOT_IN [SKU-001,SKU-002].</td>
+              <td>Condition fails. Discount NOT applied.</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-98</td>
+              <td>BASKET_VALUE — BETWEEN passes</td>
+              <td>Receipt $75. Condition: BASKET_VALUE BETWEEN $50,$100.</td>
+              <td>Condition passes. Discount applied.</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-99</td>
+              <td>BASKET_VALUE — BETWEEN fails (outside range)</td>
+              <td>Receipt $120. Condition: BASKET_VALUE BETWEEN $50,$100.</td>
+              <td>Condition fails. Discount NOT applied.</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-100</td>
+              <td>TIME_OF_DAY — GREATER_EQUAL passes</td>
+              <td>Time 14:00. Condition: TIME_OF_DAY GREATER_EQUAL 14:00.</td>
+              <td>Condition passes. Discount applied.</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+          </table>
+        </div>
+
+        <h2 class="sub-title" id="s8-12">8.12 Coupon Entitlement & Retrieval Tests (TC-105 to TC-110)</h2>
+        <div class="tbl-wrap">
+          <table>
+            <tr>
+              <th style="width:40px">#</th>
+              <th>Scenario</th>
+              <th>Input</th>
+              <th>Expected Result</th>
+              <th style="width:100px">Pass / Fail</th>
+            </tr>
+            <tr>
+              <td class="test-id">TC-105</td>
+              <td>COUPON entitlement — valid code for this scheme</td>
+              <td>Scheme entitlement = COUPON. Receipt couponCodes contains a code linked to this scheme.</td>
+              <td>Entitlement passes. Discount applied.</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-106</td>
+              <td>COUPON entitlement — code belongs to different scheme</td>
+              <td>Receipt couponCode valid but linked to SchemeB. Evaluating SchemeA.</td>
+              <td>Entitlement fails for SchemeA. NOT applied.</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-107</td>
+              <td>COUPON entitlement — no coupon in receipt</td>
+              <td>Scheme entitlement = COUPON. Receipt has no couponCodes.</td>
+              <td>Entitlement fails. NOT applied.</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-108</td>
+              <td>getAppliedDiscounts — correct receipt retrieved</td>
+              <td>recordAppliedDiscounts() for R001, T001. Then getAppliedDiscounts(R001, T001).</td>
+              <td>Returns the exact discounts recorded for that receipt and terminal.</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-109</td>
+              <td>getAppliedDiscounts — wrong terminal returns no results</td>
+              <td>Discounts recorded for T001. Query with T002.</td>
+              <td>Returns empty list. No cross-terminal data.</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+          </table>
+        </div>
+
+        <h2 class="sub-title" id="s8-13">8.13 Preview Mode & Cap Tests (TC-111 to TC-115)</h2>
+        <div class="tbl-wrap">
+          <table>
+            <tr>
+              <th style="width:40px">#</th>
+              <th>Scenario</th>
+              <th>Input</th>
+              <th>Expected Result</th>
+              <th style="width:100px">Pass / Fail</th>
+            </tr>
+            <tr>
+              <td class="test-id">TC-111</td>
+              <td>previewBasket — invalid date range rejected</td>
+              <td>previewBasket() called with from=2025-06-10, to=2025-06-01 (from after to).</td>
+              <td>IllegalArgumentException: 'from must be before to'</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-112</td>
+              <td>previewBasket — ACTIVE scheme not returned</td>
+              <td>One ACTIVE, one DRAFT scheme. previewBasket() called.</td>
+              <td>Only DRAFT evaluated. ACTIVE NOT included.</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-113</td>
+              <td>capResultsToAmount — total discounts capped to receipt total</td>
+              <td>Receipt $50. Multiple discounts total $80.</td>
+              <td>Total discount capped at $50.00. Final = $0.00.</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-114</td>
+              <td>capResultsToAmount — partial cap distributes across results</td>
+              <td>Receipt $50. Discounts: $25, $20, $15 (total $60).</td>
+              <td>First $25 full, second $20 full, third capped at $5. Total = $50.</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-115</td>
+              <td>No active schemes — zero discount returned</td>
+              <td>Receipt submitted, no ACTIVE schemes exist.</td>
+              <td>$0 discount. Original receipt total returned unchanged.</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+          </table>
+        </div>
+
+        <h2 class="sub-title" id="s8-14">8.14 Calculation Mode Tests — Gross vs Net (TC-116 to TC-123)</h2>
+        <p class="body-text">These tests verify the new <span class="mono">calculationMode</span> field on
+          DiscountScheme (GROSS by default, NET opt-in) and the priority-driven cascade in DiscountEngineService.</p>
+        <div class="tbl-wrap">
+          <table>
+            <tr>
+              <th style="width:40px">#</th>
+              <th>Scenario</th>
+              <th>Input</th>
+              <th>Expected Result</th>
+              <th style="width:100px">Pass / Fail</th>
+            </tr>
+            <tr>
+              <td class="test-id">TC-116</td>
+              <td>GROSS default — single scheme unchanged</td>
+              <td>One ADDITIVE scheme, calculationMode=GROSS, 10% off transaction. Receipt $100.</td>
+              <td>Discount $10.00, Final $90.00. Identical to pre-feature behaviour.</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-117</td>
+              <td>Two ADDITIVE GROSS — both stack on original</td>
+              <td>Scheme A priority 10, GROSS, 20% off transaction. Scheme B priority 5, GROSS, 10% off transaction.
+                Receipt $100.</td>
+              <td>A = $20, B = $10. Total $30 off, Final $70.00.</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-118</td>
+              <td>GROSS + NET cascade — second reads reduced total</td>
+              <td>Scheme A priority 10, GROSS, 20% off transaction. Scheme B priority 5, NET, 10% off transaction.
+                Receipt $100.</td>
+              <td>A = 20% of $100 = $20. WorkingBasket → $80. B = 10% of $80 = $8. Total $28 off, Final $72.00.</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-119</td>
+              <td>NET + NET — first behaves as gross, second cascades</td>
+              <td>Scheme A priority 10, NET, 20% off. Scheme B priority 5, NET, 10% off. Receipt $100.</td>
+              <td>A reads original (nothing committed above) = $20. WorkingBasket → $80. B = 10% of $80 = $8. Total $28
+                off, Final $72.00.</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-120</td>
+              <td>Highest-priority NET equals GROSS when alone</td>
+              <td>Single scheme, priority 10, NET, 10% off transaction. Receipt $100.</td>
+              <td>Discount $10.00, Final $90.00. Same as GROSS — nothing above it to cascade from.</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-121</td>
+              <td>NET scheme — thresholds still gross</td>
+              <td>Scheme A priority 10, GROSS, fixed $30 off transaction. Scheme B priority 5, NET, 10% off transaction
+                with minOrderAmount = $100. Receipt $100.</td>
+              <td>A commits $30; WorkingBasket → $70. B's minOrderAmount checks ORIGINAL ($100) → passes. B calculates
+                on WORKING ($70) → $7. Total $37 off, Final $63.00.</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-122</td>
+              <td>NET preserved through post-combination rebase</td>
+              <td>Scheme A priority 10, GROSS, 10% off LINE_ITEM on a $100 line. Scheme B priority 5, NET, 10% off
+                transaction. Receipt $100 (single line).</td>
+              <td>A = $10 line discount; WorkingBasket → $90. B = 10% of $90 = $9. Final rebase skips B (NET →
+                pass-through). Total $19 off, Final $81.00.</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+            <tr>
+              <td class="test-id">TC-123</td>
+              <td>BEST_OF NET candidate sees working state at evaluation time</td>
+              <td>Scheme A priority 10, GROSS, ADDITIVE, fixed $10 off transaction. Scheme B priority 5, NET, BEST_OF,
+                10% off transaction. Receipt $100.</td>
+              <td>A commits $10; WorkingBasket → $90. B (BEST_OF NET) evaluates against $90 → $9 saving. B wins BEST_OF
+                and merges at end. Total $19 off, Final $81.00.</td>
+              <td class="pass-fail-cell">
+                <div class="pass-fail-box"><button class="pf-btn pass"
+                    onclick="setResult(this,'pass')">P</button><button class="pf-btn fail"
+                    onclick="setResult(this,'fail')">F</button></div>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── S9 ── -->
+      <div class="section" id="s9">
+        <h1 class="section-title">9. Phase 1 Acceptance Criteria</h1>
+        <p class="body-text">All of the following criteria must be met for Phase 1 QA sign-off to be granted. Any
+          failing criterion blocks promotion to Phase 2.</p>
+        <div class="tbl-wrap">
+          <table>
+            <tr>
+              <th style="width:60px">#</th>
+              <th>Criterion</th>
+              <th style="width:100px">Status</th>
+              <th style="width:80px">Sign-Off</th>
+            </tr>
+            <tr>
+              <td class="mono">AC-01</td>
+              <td>All 123 test cases in Section 8 must pass with zero failures</td>
+              <td><span class="ac-status">Pending</span></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td class="mono">AC-02</td>
+              <td>All 8 discount types produce mathematically correct results verified by manual calculation</td>
+              <td><span class="ac-status">Pending</span></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td class="mono">AC-03</td>
+              <td>All 10 condition types behave correctly for both matching and non-matching inputs</td>
+              <td><span class="ac-status">Pending</span></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td class="mono">AC-04</td>
+              <td>All condition operators (EQUALS, NOT_EQUALS, IN, NOT_IN, BETWEEN, GREATER_THAN, LESS_THAN,
+                GREATER_EQUAL, LESS_EQUAL) produce correct results</td>
+              <td><span class="ac-status">Pending</span></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td class="mono">AC-05</td>
+              <td>Entitlement filtering correctly restricts or permits discounts for all entitlement types including
+                COUPON</td>
+              <td><span class="ac-status">Pending</span></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td class="mono">AC-06</td>
+              <td>Combination modes (ADDITIVE, EXCLUSIVE, BEST_OF) produce the correct selection in all test scenarios
+              </td>
+              <td><span class="ac-status">Pending</span></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td class="mono">AC-07</td>
+              <td>Priority ordering correctly respected: higher number first; EXCLUSIVE at any priority halts all
+                lower-priority evaluation</td>
+              <td><span class="ac-status">Pending</span></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td class="mono">AC-08</td>
+              <td>Transaction-level discount always uses the post-line-discount base amount, never the original receipt
+                total</td>
+              <td><span class="ac-status">Pending</span></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td class="mono">AC-09</td>
+              <td>All three rounding rules (NEAREST_CENT, FLOOR, CEILING) produce the correct cent value; null defaults
+                to NEAREST_CENT</td>
+              <td><span class="ac-status">Pending</span></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td class="mono">AC-10</td>
+              <td>Rule-level threshold gates (minOrderAmount, minQuantity) correctly block or permit discount rules</td>
+              <td><span class="ac-status">Pending</span></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td class="mono">AC-11</td>
+              <td>Line qualifier gates (minLineTotal, minLineUnitPrice) correctly exclude ineligible lines</td>
+              <td><span class="ac-status">Pending</span></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td class="mono">AC-12</td>
+              <td>Discount cap enforced at rule level; capResultsToAmount correctly caps total discounts to receipt
+                total</td>
+              <td><span class="ac-status">Pending</span></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td class="mono">AC-13</td>
+              <td>Receipt validation rejects invalid inputs (no lines, negative prices, empty receipt)</td>
+              <td><span class="ac-status">Pending</span></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td class="mono">AC-14</td>
+              <td>Preview mode evaluates only DRAFT schemes; rejects invalid date ranges</td>
+              <td><span class="ac-status">Pending</span></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td class="mono">AC-15</td>
+              <td>recordAppliedDiscounts() persists correctly and increments coupon usage; getAppliedDiscounts() returns
+                correct records</td>
+              <td><span class="ac-status">Pending</span></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td class="mono">AC-16</td>
+              <td>No discount applied when no schemes active or no conditions met (zero discount returned)</td>
+              <td><span class="ac-status">Pending</span></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td class="mono">AC-17</td>
+              <td>Scheme calculationMode defaults to GROSS; NET schemes cascade against the running post-discount basket
+                while conditions and thresholds continue to read the original receipt</td>
+              <td><span class="ac-status">Pending</span></td>
+              <td></td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── S10 ── -->
+      <div class="section" id="s10">
+        <h1 class="section-title">10. Out of Scope for Phase 1</h1>
+        <p class="body-text">The following items are intentionally NOT part of Phase 1 testing. Do not raise defects for
+          these items until Phase 2 begins.</p>
+        <div class="info-box orange">
+          <strong>Phase 1 Does NOT Include:</strong>
+          <p>• POS Terminal discount functionality (terminals receive no discount logic yet)</p>
+          <p>• Offline discount calculation on POS terminals</p>
+          <p>• Discount scheme sync / download from Manager to POS Terminal</p>
+          <p>• Conflict resolution for offline transactions (e.g. expired discount used while offline)</p>
+          <p>• Performance testing under high transaction volume</p>
+          <p>• Multi-currency discount scenarios</p>
+        </div>
+      </div>
+
+      <!-- ── S11 ── -->
+      <div class="section" id="s11">
+        <h1 class="section-title">11. QA Sign-Off</h1>
+        <p class="body-text">By signing below, each stakeholder confirms that Phase 1 of the Discount Engine has been
+          reviewed, tested, and meets the acceptance criteria defined in Section 9. Signature authorises progression to
+          Phase 2 development.</p>
+        <div class="tbl-wrap" style="max-width:700px">
+          <table class="signoff-table">
+            <tr>
+              <th>Role</th>
+              <th>Name</th>
+              <th>Signature</th>
+              <th>Date</th>
+            </tr>
+            <tr>
+              <td class="field-name">QA Lead</td>
+              <td></td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td class="field-name">Backend Developer</td>
+              <td></td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td class="field-name">Product Owner</td>
+              <td></td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td class="field-name">Project Manager</td>
+              <td></td>
+              <td></td>
+              <td></td>
+            </tr>
+          </table>
+        </div>
+        <div class="info-box green" style="margin-top:24px;max-width:700px">
+          <strong>Phase 2 Gate — Proceed Only When:</strong>
+          <p>• All rows in Section 9 Acceptance Criteria are marked PASSED</p>
+          <p>• All four sign-off signatures above are obtained</p>
+          <p>• No open Critical or High severity defects remain</p>
+          <p>• QA Lead has submitted this document to the project repository</p>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </main>
+
+  <script>
+    const TOTAL = 123;
+    const results = {};
+
+    function setResult(btn, result) {
+      const row = btn.closest('tr');
+      const id = row.querySelector('.test-id').textContent;
+      const btns = btn.closest('.pass-fail-box').querySelectorAll('.pf-btn');
+
+      btns.forEach(b => b.classList.remove('active'));
+
+      if (results[id] === result) {
+        delete results[id];
+      } else {
+        btn.classList.add('active');
+        results[id] = result;
+      }
+
+      updateProgress();
+      saveResults();
+    }
+
+    function updateProgress() {
+      const done = Object.keys(results).length;
+      const passed = Object.values(results).filter(r => r === 'pass').length;
+      const pct = Math.round((done / TOTAL) * 100);
+      document.getElementById('progressBar').style.width = pct + '%';
+      document.getElementById('progressPct').textContent = `${passed} passed / ${done} tested / ${TOTAL} total`;
+    }
+
+    function saveResults() {
+      try { localStorage.setItem('qaResults', JSON.stringify(results)); } catch (e) { }
+    }
+
+    function loadResults() {
+      try {
+        const saved = JSON.parse(localStorage.getItem('qaResults') || '{}');
+        Object.entries(saved).forEach(([id, result]) => {
+          results[id] = result;
+          const rows = document.querySelectorAll('tr');
+          rows.forEach(row => {
+            const cell = row.querySelector('.test-id');
+            if (cell && cell.textContent === id) {
+              const btn = row.querySelector(`.pf-btn.${result}`);
+              if (btn) btn.classList.add('active');
+            }
+          });
+        });
+        updateProgress();
+      } catch (e) { }
+    }
+
+    function exportToTxt() {
+      const now = new Date();
+      const dateStr = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+      const timeStr = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+
+      // Collect all test rows
+      const allRows = [];
+      document.querySelectorAll('tr').forEach(row => {
+        const idCell = row.querySelector('.test-id');
+        if (!idCell) return;
+        const id = idCell.textContent.trim();
+        const cells = row.querySelectorAll('td');
+        // scenario is the second td, expected is the fourth td
+        const scenario = cells[1] ? cells[1].textContent.trim() : '';
+        const expected = cells[3] ? cells[3].textContent.trim() : (cells[2] ? cells[2].textContent.trim() : '');
+        const result = results[id] || 'not tested';
+        allRows.push({ id, scenario, expected, result });
+      });
+
+      const passed = allRows.filter(r => r.result === 'pass');
+      const failed = allRows.filter(r => r.result === 'fail');
+      const untested = allRows.filter(r => r.result === 'not tested');
+      const total = allRows.length;
+
+      const line = '─'.repeat(80);
+      const dline = '═'.repeat(80);
+
+      const pad = (str, len) => {
+        const s = String(str);
+        return s.length >= len ? s.substring(0, len) : s + ' '.repeat(len - s.length);
+      };
+
+      let txt = '';
+      txt += dline + '\n';
+      txt += '  DISCOUNT ENGINE — QA TEST RESULTS REPORT\n';
+      txt += '  BizDimention POS Manager  |  Phase 1 — Manager (Online Only)\n';
+      txt += dline + '\n';
+      txt += `  Generated : ${dateStr} ${timeStr}\n`;
+      txt += `  Total     : ${total} test cases\n`;
+      txt += `  Passed    : ${passed.length}  (${Math.round(passed.length / total * 100)}%)\n`;
+      txt += `  Failed    : ${failed.length}  (${Math.round(failed.length / total * 100)}%)\n`;
+      txt += `  Not Tested: ${untested.length}  (${Math.round(untested.length / total * 100)}%)\n`;
+      txt += dline + '\n\n';
+
+      // PASSED
+      txt += '[ PASSED — ' + passed.length + ' test(s) ]\n';
+      txt += line + '\n';
+      if (passed.length === 0) {
+        txt += '  (none)\n';
+      } else {
+        txt += pad('#', 8) + pad('Scenario', 52) + 'Expected Result\n';
+        txt += line + '\n';
+        passed.forEach(r => {
+          txt += pad(r.id, 8) + pad(r.scenario.substring(0, 50), 52) + r.expected.substring(0, 30) + '\n';
+        });
+      }
+      txt += '\n';
+
+      // FAILED
+      txt += '[ FAILED — ' + failed.length + ' test(s) ]\n';
+      txt += line + '\n';
+      if (failed.length === 0) {
+        txt += '  (none)\n';
+      } else {
+        txt += pad('#', 8) + pad('Scenario', 52) + 'Expected Result\n';
+        txt += line + '\n';
+        failed.forEach(r => {
+          txt += pad(r.id, 8) + pad(r.scenario.substring(0, 50), 52) + r.expected.substring(0, 30) + '\n';
+        });
+      }
+      txt += '\n';
+
+      // NOT TESTED
+      txt += '[ NOT TESTED — ' + untested.length + ' test(s) ]\n';
+      txt += line + '\n';
+      if (untested.length === 0) {
+        txt += '  (none — all tests have been executed)\n';
+      } else {
+        untested.forEach(r => {
+          txt += `  ${r.id}  ${r.scenario.substring(0, 65)}\n`;
+        });
+      }
+      txt += '\n';
+
+      // SIGN-OFF STATUS
+      txt += dline + '\n';
+      txt += '  PHASE 1 SIGN-OFF STATUS\n';
+      txt += line + '\n';
+      const allPassed = failed.length === 0 && untested.length === 0;
+      txt += `  Result  : ${allPassed ? '✓ READY FOR SIGN-OFF' : '✗ NOT READY — see failed / untested above'}\n`;
+      txt += `  Criteria: All 115 test cases must pass with zero failures\n`;
+      txt += dline + '\n';
+      txt += '  END OF REPORT\n';
+      txt += dline + '\n';
+
+      // Download
+      const blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const ts = now.toISOString().slice(0, 16).replace('T', '_').replace(':', '-');
+      a.href = url;
+      a.download = `QA_Results_DiscountEngine_${ts}.txt`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    // Sidebar active state on scroll
+    const sections = document.querySelectorAll('[id^="s"]');
+    const links = document.querySelectorAll('.toc a');
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          links.forEach(l => l.style.color = '');
+          const active = document.querySelector(`.toc a[href="#${entry.target.id}"]`);
+          if (active) active.style.color = '#fff';
+        }
+      });
+    }, { threshold: 0.3 });
+
+    sections.forEach(s => observer.observe(s));
+
+    loadResults();
+  </script>
+</body>
+
+</html>

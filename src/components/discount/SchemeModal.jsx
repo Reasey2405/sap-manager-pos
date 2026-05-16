@@ -158,8 +158,8 @@ export default function SchemeModal({ scheme, terminals = [], onSubmit, onClose 
         updated[ruleIdx] = {
             ...updated[ruleIdx],
             buyXGetYRule: updated[ruleIdx].buyXGetYRule ? null : {
-                buyQuantity: 2, buyScope: 'ANY_PRODUCT', buyProductIds: [],
-                getQuantity: 1, getScope: 'ANY_PRODUCT', getProductIds: [], getDiscountPercentage: 100
+                buyQuantity: 2, buyScope: 'SPECIFIC_PRODUCT', buyProductIds: [],
+                getQuantity: 1, getScope: 'CHEAPEST_IN_BASKET', getProductIds: [], getDiscountPercentage: 100
             }
         }
         updateField('rules', updated)
@@ -606,23 +606,30 @@ export default function SchemeModal({ scheme, terminals = [], onSubmit, onClose 
                                                                 </select>
                                                             </FormField>
                                                         </div>
-                                                        {rule.buyXGetYRule.buyScope === 'SPECIFIC_PRODUCTS' && (
-                                                            <FormField label="Buy Product IDs" hint="Comma-separated">
-                                                                <div className="disc-lookup-value">
-                                                                    <input type="text" className="org-form-input"
-                                                                        value={Array.isArray(rule.buyXGetYRule.buyProductIds) ? rule.buyXGetYRule.buyProductIds.join(', ') : rule.buyXGetYRule.buyProductIds || ''}
-                                                                        onChange={e => updateBuyXGetY(ri, 'buyProductIds', e.target.value)} />
-                                                                    <LookupPicker
-                                                                        value={Array.isArray(rule.buyXGetYRule.buyProductIds) ? rule.buyXGetYRule.buyProductIds.join(',') : rule.buyXGetYRule.buyProductIds || ''}
-                                                                        onChange={v => updateBuyXGetY(ri, 'buyProductIds', v)}
-                                                                        placeholder="Select buy products"
-                                                                        loader={() => getDiscountProductsEnriched()}
-                                                                        columns={PRODUCT_LOOKUP_COLUMNS}
-                                                                        title="Pick buy products"
-                                                                    />
-                                                                </div>
-                                                            </FormField>
-                                                        )}
+                                                        {rule.buyXGetYRule.buyScope !== 'CHEAPEST_IN_BASKET' && (() => {
+                                                            const isCategory = rule.buyXGetYRule.buyScope === 'CATEGORY'
+                                                            const label = isCategory ? 'Buy Category Codes' : 'Buy Product IDs'
+                                                            const placeholder = isCategory ? 'Select buy categories' : 'Select buy products'
+                                                            const loader = isCategory ? getDiscountCategories : getDiscountProductsEnriched
+                                                            const cols = isCategory ? CATEGORY_LOOKUP_COLUMNS : PRODUCT_LOOKUP_COLUMNS
+                                                            return (
+                                                                <FormField label={label} hint="Comma-separated">
+                                                                    <div className="disc-lookup-value">
+                                                                        <input type="text" className="org-form-input"
+                                                                            value={Array.isArray(rule.buyXGetYRule.buyProductIds) ? rule.buyXGetYRule.buyProductIds.join(', ') : rule.buyXGetYRule.buyProductIds || ''}
+                                                                            onChange={e => updateBuyXGetY(ri, 'buyProductIds', e.target.value)} />
+                                                                        <LookupPicker
+                                                                            value={Array.isArray(rule.buyXGetYRule.buyProductIds) ? rule.buyXGetYRule.buyProductIds.join(',') : rule.buyXGetYRule.buyProductIds || ''}
+                                                                            onChange={v => updateBuyXGetY(ri, 'buyProductIds', v)}
+                                                                            placeholder={placeholder}
+                                                                            loader={() => loader()}
+                                                                            columns={cols}
+                                                                            title={`Pick buy ${isCategory ? 'categories' : 'products'}`}
+                                                                        />
+                                                                    </div>
+                                                                </FormField>
+                                                            )
+                                                        })()}
                                                     </div>
 
                                                     {/* ── Arrow connector ── */}
@@ -656,23 +663,30 @@ export default function SchemeModal({ scheme, terminals = [], onSubmit, onClose 
                                                                     onChange={e => updateBuyXGetY(ri, 'getDiscountPercentage', e.target.value)} step="0.01" max={100} />
                                                             </FormField>
                                                         </div>
-                                                        {rule.buyXGetYRule.getScope === 'SPECIFIC_PRODUCTS' && (
-                                                            <FormField label="Reward Product IDs" hint="Comma-separated">
-                                                                <div className="disc-lookup-value">
-                                                                    <input type="text" className="org-form-input"
-                                                                        value={Array.isArray(rule.buyXGetYRule.getProductIds) ? rule.buyXGetYRule.getProductIds.join(', ') : rule.buyXGetYRule.getProductIds || ''}
-                                                                        onChange={e => updateBuyXGetY(ri, 'getProductIds', e.target.value)} />
-                                                                    <LookupPicker
-                                                                        value={Array.isArray(rule.buyXGetYRule.getProductIds) ? rule.buyXGetYRule.getProductIds.join(',') : rule.buyXGetYRule.getProductIds || ''}
-                                                                        onChange={v => updateBuyXGetY(ri, 'getProductIds', v)}
-                                                                        placeholder="Select reward products"
-                                                                        loader={() => getDiscountProductsEnriched()}
-                                                                        columns={PRODUCT_LOOKUP_COLUMNS}
-                                                                        title="Pick reward products"
-                                                                    />
-                                                                </div>
-                                                            </FormField>
-                                                        )}
+                                                        {rule.buyXGetYRule.getScope !== 'CHEAPEST_IN_BASKET' && (() => {
+                                                            const isCategory = rule.buyXGetYRule.getScope === 'CATEGORY'
+                                                            const label = isCategory ? 'Reward Category Codes' : 'Reward Product IDs'
+                                                            const placeholder = isCategory ? 'Select reward categories' : 'Select reward products'
+                                                            const loader = isCategory ? getDiscountCategories : getDiscountProductsEnriched
+                                                            const cols = isCategory ? CATEGORY_LOOKUP_COLUMNS : PRODUCT_LOOKUP_COLUMNS
+                                                            return (
+                                                                <FormField label={label} hint="Comma-separated">
+                                                                    <div className="disc-lookup-value">
+                                                                        <input type="text" className="org-form-input"
+                                                                            value={Array.isArray(rule.buyXGetYRule.getProductIds) ? rule.buyXGetYRule.getProductIds.join(', ') : rule.buyXGetYRule.getProductIds || ''}
+                                                                            onChange={e => updateBuyXGetY(ri, 'getProductIds', e.target.value)} />
+                                                                        <LookupPicker
+                                                                            value={Array.isArray(rule.buyXGetYRule.getProductIds) ? rule.buyXGetYRule.getProductIds.join(',') : rule.buyXGetYRule.getProductIds || ''}
+                                                                            onChange={v => updateBuyXGetY(ri, 'getProductIds', v)}
+                                                                            placeholder={placeholder}
+                                                                            loader={() => loader()}
+                                                                            columns={cols}
+                                                                            title={`Pick reward ${isCategory ? 'categories' : 'products'}`}
+                                                                        />
+                                                                    </div>
+                                                                </FormField>
+                                                            )
+                                                        })()}
                                                     </div>
                                                 </div>
                                             )}
