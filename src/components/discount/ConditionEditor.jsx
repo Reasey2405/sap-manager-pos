@@ -7,6 +7,7 @@ import {
     getDiscountCategories,
     getDiscountCustomerGroups,
     getDiscountPaymentMethodsFlat,
+    getDiscountCards,
 } from '../../service/discountLookups'
 
 const LOOKUP_CONFIGS = {
@@ -44,6 +45,15 @@ const LOOKUP_CONFIGS = {
             { key: 'description', label: 'Name' },
             { key: 'paymentType', label: 'Type' },
             { key: 'paymentGroupCode', label: 'Group' },
+        ],
+    },
+    DISCOUNT_CARD: {
+        placeholder: 'Select discount cards',
+        loader: () => getDiscountCards(),
+        columns: [
+            { key: 'code', label: 'Code' },
+            { key: 'description', label: 'Name' },
+            { key: 'cardType', label: 'Type' },
         ],
     },
 }

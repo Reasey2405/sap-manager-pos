@@ -243,6 +243,41 @@ export async function fetchDiscountPaymentGroupData() {
     return fetchJSON(`${API_BASE}/api/master_data/discount_data/payment_group`)
 }
 
+export async function fetchDiscountCardData() {
+    return fetchJSON(`${API_BASE}/api/discountCards`)
+}
+
+export async function createDiscountCard(data) {
+    return postJSON(`${API_BASE}/api/discountCards`, data)
+}
+
+export async function updateDiscountCard(id, data) {
+    return putJSON(`${API_BASE}/api/discountCards/${id}`, data)
+}
+
+export async function deleteDiscountCard(id) {
+    return deleteJSON(`${API_BASE}/api/discountCards/${id}`)
+}
+
+export async function uploadDiscountCardImage(id, file) {
+    const form = new FormData()
+    form.append('file', file)
+    const res = await fetchWithAuth(`${API_BASE}/api/discountCards/${id}/image`, {
+        method: 'POST',
+        body: form,
+    })
+    if (!res.ok) throw new Error(`Upload failed: HTTP ${res.status}`)
+    return res.json()
+}
+
+export async function deleteDiscountCardImage(id) {
+    return deleteJSON(`${API_BASE}/api/discountCards/${id}/image`)
+}
+
+export function discountCardImageUrl(id) {
+    return `${API_BASE}/api/discountCards/${id}/image`
+}
+
 /* ===== Item Image APIs ===== */
 
 export async function fetchItemImageMeta(itemCode, uomEntry) {

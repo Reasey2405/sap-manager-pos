@@ -78,6 +78,7 @@ const sections = [
         id: 'gift-cards',
         label: 'Gift Cards',
         cards: [
+            { title: 'Discount cards', icon: CreditCardIcon, isImplemented: true },
             { title: 'Gift card management', icon: GiftIcon },
             { title: 'Card types', icon: CreditCardIcon },
             { title: 'Transaction history', icon: HistoryIcon },
