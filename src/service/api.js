@@ -164,6 +164,10 @@ export async function fetchDiscountSchemes() {
     return fetchJSON(`${API_BASE}/api/discount/scheme`)
 }
 
+export async function fetchDiscountSchemeHistory(page = 0, size = 20) {
+    return fetchJSON(`${API_BASE}/api/discount/scheme/history?page=${page}&size=${size}`)
+}
+
 export async function fetchDiscountScheme(id) {
     return fetchJSON(`${API_BASE}/api/discount/scheme/${id}`)
 }
@@ -237,6 +241,10 @@ export async function fetchDiscountCategoryData() {
 
 export async function fetchDiscountCustomerGroupData() {
     return fetchJSON(`${API_BASE}/api/master_data/discount_data/customer_group`)
+}
+
+export async function fetchDiscountCustomerData() {
+    return fetchJSON(`${API_BASE}/api/master_data/bpMasterData`)
 }
 
 export async function fetchDiscountPaymentGroupData() {

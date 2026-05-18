@@ -8,7 +8,7 @@ import { FormField } from './FormField'
 import ConditionEditor from './ConditionEditor'
 import MultiSelectDropdown from './MultiSelectDropdown'
 import LookupPicker from './LookupPicker'
-import { getDiscountProductsEnriched, getDiscountCategories } from '../../service/discountLookups'
+import { getDiscountProductsEnriched, getDiscountCategories, getDiscountCustomerGroups, getDiscountCustomers } from '../../service/discountLookups'
 
 const PRODUCT_LOOKUP_COLUMNS = [
     { key: 'itemCode', label: 'Code' },
@@ -20,6 +20,17 @@ const PRODUCT_LOOKUP_COLUMNS = [
 const CATEGORY_LOOKUP_COLUMNS = [
     { key: 'itmsGrpCod', label: 'Code' },
     { key: 'itmsGrpNam', label: 'Name' },
+]
+
+const CUSTOMER_GROUP_LOOKUP_COLUMNS = [
+    { key: 'groupCode', label: 'Code' },
+    { key: 'groupName', label: 'Name' },
+]
+
+const CUSTOMER_LOOKUP_COLUMNS = [
+    { key: 'cardCode', label: 'Code' },
+    { key: 'cardName', label: 'Name' },
+    { key: 'cardType', label: 'Type' },
 ]
 
 export default function SchemeModal({ scheme, terminals = [], onSubmit, onClose }) {
@@ -889,8 +900,23 @@ export default function SchemeModal({ scheme, terminals = [], onSubmit, onClose 
                                         </FormField>
                                         {ent.entitlementType !== 'PUBLIC' && (
                                             <FormField label="Reference ID" hint={ent.entitlementType === 'COUPON' ? 'Coupon code' : 'Customer/Group ID'}>
-                                                <input type="text" className="org-form-input" value={ent.referenceId || ''}
-                                                    onChange={e => updateEntitlement(ei, 'referenceId', e.target.value)} />
+                                                {ent.entitlementType === 'CUSTOMER_GROUP' || ent.entitlementType === 'SPECIFIC_CUSTOMER' ? (
+                                                    <div className="disc-lookup-value">
+                                                        <input type="text" className="org-form-input" value={ent.referenceId || ''}
+                                                            onChange={e => updateEntitlement(ei, 'referenceId', e.target.value)} />
+                                                        <LookupPicker
+                                                            value={ent.referenceId || ''}
+                                                            onChange={v => updateEntitlement(ei, 'referenceId', v)}
+                                                            placeholder={ent.entitlementType === 'CUSTOMER_GROUP' ? 'Select customer groups' : 'Select customers'}
+                                                            loader={() => ent.entitlementType === 'CUSTOMER_GROUP' ? getDiscountCustomerGroups() : getDiscountCustomers()}
+                                                            columns={ent.entitlementType === 'CUSTOMER_GROUP' ? CUSTOMER_GROUP_LOOKUP_COLUMNS : CUSTOMER_LOOKUP_COLUMNS}
+                                                            title={`Pick ${ent.entitlementType === 'CUSTOMER_GROUP' ? 'Customer Groups' : 'Customers'}`}
+                                                        />
+                                                    </div>
+                                                ) : (
+                                                    <input type="text" className="org-form-input" value={ent.referenceId || ''}
+                                                        onChange={e => updateEntitlement(ei, 'referenceId', e.target.value)} />
+                                                )}
                                             </FormField>
                                         )}
                                         <FormField label="Usage Limit / Customer">

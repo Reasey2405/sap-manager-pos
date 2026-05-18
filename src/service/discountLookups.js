@@ -2,6 +2,7 @@ import {
     fetchDiscountProductData,
     fetchDiscountCategoryData,
     fetchDiscountCustomerGroupData,
+    fetchDiscountCustomerData,
     fetchDiscountPaymentGroupData,
     fetchDiscountCardData,
 } from './api'
@@ -17,6 +18,7 @@ import {
 let productsPromise = null
 let categoriesPromise = null
 let customerGroupsPromise = null
+let customersPromise = null
 let paymentGroupsPromise = null
 let productsEnrichedPromise = null
 let paymentMethodsFlatPromise = null
@@ -35,6 +37,11 @@ export function getDiscountCategories() {
 export function getDiscountCustomerGroups() {
     if (!customerGroupsPromise) customerGroupsPromise = fetchDiscountCustomerGroupData().then(d => d || [])
     return customerGroupsPromise
+}
+
+export function getDiscountCustomers() {
+    if (!customersPromise) customersPromise = fetchDiscountCustomerData().then(d => d || [])
+    return customersPromise
 }
 
 export function getDiscountPaymentGroups() {
@@ -86,6 +93,7 @@ export function getDiscountCards() {
 export function prefetchDiscountLookups() {
     getDiscountProductsEnriched()
     getDiscountCustomerGroups()
+    getDiscountCustomers()
     getDiscountPaymentMethodsFlat()
     getDiscountCards()
 }
@@ -94,6 +102,7 @@ export function resetDiscountLookupCache() {
     productsPromise = null
     categoriesPromise = null
     customerGroupsPromise = null
+    customersPromise = null
     paymentGroupsPromise = null
     productsEnrichedPromise = null
     paymentMethodsFlatPromise = null

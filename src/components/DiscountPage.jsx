@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import {
     API_BASE, fetchJSON,
-    fetchDiscountSchemes, createDiscountScheme, updateDiscountScheme,
+    fetchDiscountSchemes, fetchDiscountSchemeHistory, createDiscountScheme, updateDiscountScheme,
     deleteDiscountScheme, generateCoupons, fetchCouponsByScheme,
     activateCoupon, deactivateCoupon
 } from '../service/api'
@@ -27,7 +27,12 @@ export default function DiscountPage({ onBack, initialTab = 'schemes' }) {
 
     // ── Scheme state ──
     const [schemes, setSchemes] = useState([])
+    const [historySchemes, setHistorySchemes] = useState([])
+    const [historyPage, setHistoryPage] = useState(0)
+    const [historyTotalPages, setHistoryTotalPages] = useState(0)
+    const [historyTotalElements, setHistoryTotalElements] = useState(0)
     const [loading, setLoading] = useState(true)
+    const [loadingHistory, setLoadingHistory] = useState(false)
     const [error, setError] = useState('')
     const [selectedScheme, setSelectedScheme] = useState(null)
     const [searchQuery, setSearchQuery] = useState('')
@@ -48,12 +53,20 @@ export default function DiscountPage({ onBack, initialTab = 'schemes' }) {
         setLoading(true)
         setError('')
         try {
-            const data = await fetchDiscountSchemes()
+            const [data, hist] = await Promise.all([
+                fetchDiscountSchemes(),
+                fetchDiscountSchemeHistory(0, 20)
+            ])
             const nextSchemes = Array.isArray(data) ? data : []
             setSchemes(nextSchemes)
+            setHistorySchemes(hist?.content || [])
+            setHistoryPage(hist?.number || 0)
+            setHistoryTotalPages(hist?.totalPages || 0)
+            setHistoryTotalElements(hist?.totalElements || 0)
             setSelectedScheme(current => {
                 if (!current) return current
-                return nextSchemes.find(scheme => scheme.id === current.id) || current
+                const found = nextSchemes.find(scheme => scheme.id === current.id) || (hist?.content || []).find(scheme => scheme.id === current.id)
+                return found || current
             })
         } catch (err) {
             setError(err.message)
@@ -64,6 +77,21 @@ export default function DiscountPage({ onBack, initialTab = 'schemes' }) {
 
     useEffect(() => { loadSchemes() }, [loadSchemes])
     useEffect(() => { prefetchDiscountLookups() }, [])
+
+    const loadHistoryPage = async (page) => {
+        setLoadingHistory(true)
+        try {
+            const hist = await fetchDiscountSchemeHistory(page, 20)
+            setHistorySchemes(hist?.content || [])
+            setHistoryPage(hist?.number || 0)
+            setHistoryTotalPages(hist?.totalPages || 0)
+            setHistoryTotalElements(hist?.totalElements || 0)
+        } catch (err) {
+            setError(err.message)
+        } finally {
+            setLoadingHistory(false)
+        }
+    }
 
     /* ── Load Terminals once (for scope selector) ── */
     useEffect(() => {
@@ -130,11 +158,18 @@ export default function DiscountPage({ onBack, initialTab = 'schemes' }) {
 
     /* ── Filtering ── */
     const query = searchQuery.toLowerCase()
-    const filteredSchemes = schemes.filter(s => {
+
+    let displayedSchemes = schemes
+    if (statusFilter === 'EXPIRED') {
+        displayedSchemes = historySchemes
+    } else if (statusFilter !== 'ALL') {
+        displayedSchemes = schemes.filter(s => s.status === statusFilter)
+    }
+
+    const filteredSchemes = displayedSchemes.filter(s => {
         const matchesQuery = (s.name || '').toLowerCase().includes(query)
             || (s.description || '').toLowerCase().includes(query)
-        const matchesStatus = statusFilter === 'ALL' || s.status === statusFilter
-        return matchesQuery && matchesStatus
+        return matchesQuery
     })
 
     const filteredCoupons = coupons.filter(c =>
@@ -145,7 +180,7 @@ export default function DiscountPage({ onBack, initialTab = 'schemes' }) {
     const activeCount = schemes.filter(s => s.status === 'ACTIVE').length
     const draftCount = schemes.filter(s => s.status === 'DRAFT').length
     const pausedCount = schemes.filter(s => s.status === 'PAUSED').length
-    const expiredCount = schemes.filter(s => s.status === 'EXPIRED').length
+    const expiredCount = historyTotalElements
 
     const pageTabs = [
         { key: 'schemes', label: 'Discount Schemes' },
@@ -232,9 +267,9 @@ export default function DiscountPage({ onBack, initialTab = 'schemes' }) {
                                 </div>
                             )}
 
-                            {loading && <LoadingSpinner text="Loading discount schemes..." />}
+                            {(loading || (statusFilter === 'EXPIRED' && loadingHistory)) && <LoadingSpinner text="Loading discount schemes..." />}
 
-                            {!loading && (
+                            {!(loading || (statusFilter === 'EXPIRED' && loadingHistory)) && (
                                 <div className="disc-scheme-grid">
                                     {filteredSchemes.length > 0 ? (
                                         filteredSchemes.map(scheme => (
@@ -258,6 +293,14 @@ export default function DiscountPage({ onBack, initialTab = 'schemes' }) {
                                             )}
                                         </div>
                                     )}
+                                </div>
+                            )}
+
+                            {statusFilter === 'EXPIRED' && historyTotalPages > 1 && (
+                                <div className="disc-pagination">
+                                    <button className="toolbar-btn small" disabled={historyPage === 0 || loadingHistory} onClick={() => loadHistoryPage(historyPage - 1)}>Previous</button>
+                                    <span className="disc-page-info">Page {historyPage + 1} of {historyTotalPages}</span>
+                                    <button className="toolbar-btn small" disabled={historyPage >= historyTotalPages - 1 || loadingHistory} onClick={() => loadHistoryPage(historyPage + 1)}>Next</button>
                                 </div>
                             )}
                         </>
